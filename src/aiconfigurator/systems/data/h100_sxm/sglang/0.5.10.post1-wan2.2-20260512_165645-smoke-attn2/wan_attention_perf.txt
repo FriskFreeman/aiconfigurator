@@ -1,5 +1,0 @@
-framework,version,device,op_name,kernel_source,model,task,attn_kind,backend,requested_backend,batch_size,q_seq_len,kv_seq_len,num_heads,head_dim,tp_size,sp_size,sp_algorithm,latency
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_attention,sglang_fa,Wan2.2-I2V-A14B,i2v,cross_attn_text,fa,auto,1,7898,512,10,128,4,4,ring,0.04290240108966827
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_attention,sglang_fa,Wan2.2-T2V-A14B,t2v,self_attn,fa,auto,1,11798,11798,10,128,4,4,ring,1.0277888298034668
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_attention,sglang_fa,Wan2.2-TI2V-5B,ti2v,cross_attn_text,fa,auto,1,35640,512,10,128,4,2,ring,0.16285120248794555
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_attention,sglang_fa,Wan2.2-TI2V-5B,ti2v,self_attn,fa,auto,1,8910,8910,10,128,4,8,ring,0.5890016078948974

@@ -1,4 +1,0 @@
-[2026-05-11 18:10:01,114] [INFO] [Worker-0] [worker_0] Worker 0 initialized for sglang.wan_attention
-[2026-05-11 18:10:01,552] [INFO] [Worker-1] [worker_1] Worker 1 initialized for sglang.wan_attention
-[2026-05-11 18:10:05,827] [INFO] [Worker-1] [worker_1] Worker 1 initialized for sglang.wan_elementwise
-[2026-05-11 18:10:05,960] [INFO] [Worker-0] [worker_0] Worker 0 initialized for sglang.wan_elementwise

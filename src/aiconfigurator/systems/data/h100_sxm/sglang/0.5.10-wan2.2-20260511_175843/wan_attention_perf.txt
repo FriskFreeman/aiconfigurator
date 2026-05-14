@@ -1,2 +1,0 @@
-framework,version,device,op_name,kernel_source,model,task,attn_kind,backend,batch_size,q_seq_len,kv_seq_len,num_heads,head_dim,tp_size,sp_size,sp_algorithm,latency
-SGLang,0.5.10,NVIDIA H100 80GB HBM3,wan_attention,sdpa,Wan2.2-TI2V-5B,ti2v,cross_attn_text,sdpa,1,106480,512,5,128,1,8,ulysses,0.4339615821838379

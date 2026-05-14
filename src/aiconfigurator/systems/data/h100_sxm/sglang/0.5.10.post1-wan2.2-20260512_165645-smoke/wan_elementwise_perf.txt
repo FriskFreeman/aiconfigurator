@@ -1,5 +1,0 @@
-framework,version,device,op_name,kernel_source,batch_size,seq_len,hidden_size,tp_size,latency
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,scale_residual,sglang_mul_add,1,47190,5120,1,0.5750207901000977
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,scale_residual_layernorm_scale_shift,sglang_cutedsl_scale_residual_layernorm_scale_shift,1,43120,5120,8,0.6116223812103272
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,scale_residual_layernorm_scale_shift,sglang_cutedsl_scale_residual_layernorm_scale_shift,1,47190,5120,4,0.6695295810699463
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,fp32_layernorm_modulation,sglang_layernorm_scale_shift,1,43120,5120,2,0.36392641067504883
