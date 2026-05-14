@@ -21,3 +21,9 @@ env/
 *.pyc
 *.pyo
 *.pyd
+# Ignore large test data under systems (keep core code only)
+src/aiconfigurator/systems/data/
+
+# Ignore local WAN test directories and artifacts (if present)
+wan_t5_*/
+wan_*_perf.txt
