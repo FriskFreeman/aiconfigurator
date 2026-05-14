@@ -1,0 +1,26 @@
+{
+  "summary": {
+    "backend": "sglang",
+    "version": "0.5.10.post1",
+    "timestamp": "2026-05-12T11:37:36.815717",
+    "total_errors": 1,
+    "errors_by_module": {
+      "sglang.wan_t5": 1
+    },
+    "errors_by_type": {
+      "AttributeError": 1
+    }
+  },
+  "errors": [
+    {
+      "module": "sglang.wan_t5",
+      "device_id": 0,
+      "task_id": "sglang.wan_t5:run_wan_t5:['embedding', 1, 512, 4096, 64, 64, 10240]",
+      "task_params": "['embedding', 1, 512, 4096, 64, 64, 10240]",
+      "error_type": "AttributeError",
+      "error_message": "'SingleRankGroup' object has no attribute 'all_reduce'",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_wan_t5.py\", line 117, in run_wan_t5\n    with benchmark_with_power(\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_wan_t5.py\", line 75, in kernel_func\n    return module(input_ids)\n           ^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1775, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py\", line 1786, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/vocab_parallel_embedding.py\", line 479, in forward\n    output = tensor_model_parallel_all_reduce(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/distributed/communication_op.py\", line 21, in tensor_model_parallel_all_reduce\n    return tp_group.all_reduce(input_)\n           ^^^^^^^^^^^^^^^^^^^\nAttributeError: 'SingleRankGroup' object has no attribute 'all_reduce'\n",
+      "timestamp": "2026-05-12T11:37:31.707817"
+    }
+  ]
+}

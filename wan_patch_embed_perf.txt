@@ -1,0 +1,16 @@
+framework,version,device,op_name,kernel_source,model,task,batch_size,in_channels,frames,height,width,patch_t,patch_h,patch_w,seq_len,latency
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-TI2V-5B,ti2v,1,16,121,44,80,1,2,2,106480,3.3066497802734376
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-TI2V-5B,ti2v,1,16,81,44,80,1,2,2,71280,2.230335998535156
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-TI2V-5B,ti2v,1,16,49,44,80,1,2,2,43120,1.3675999641418457
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-T2V-A14B,t2v,1,16,121,45,80,1,2,2,106480,3.306204986572266
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-T2V-A14B,t2v,1,16,121,30,52,1,2,2,47190,1.499459171295166
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-T2V-A14B,t2v,1,16,81,45,80,1,2,2,71280,2.232771110534668
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-T2V-A14B,t2v,1,16,81,30,52,1,2,2,31590,1.0182880401611327
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-T2V-A14B,t2v,1,16,49,45,80,1,2,2,43120,1.3680319786071777
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-T2V-A14B,t2v,1,16,49,30,52,1,2,2,19110,0.6345952033996582
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-I2V-A14B,i2v,1,16,121,45,80,1,2,2,106480,3.2993343353271483
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-I2V-A14B,i2v,1,16,121,30,52,1,2,2,47190,1.4960800170898438
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-I2V-A14B,i2v,1,16,81,45,80,1,2,2,71280,2.22619514465332
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-I2V-A14B,i2v,1,16,81,30,52,1,2,2,31590,1.0181023597717285
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-I2V-A14B,i2v,1,16,49,45,80,1,2,2,43120,1.369318389892578
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_patch_embed,torch_conv3d,Wan2.2-I2V-A14B,i2v,1,16,49,30,52,1,2,2,19110,0.6350368022918701

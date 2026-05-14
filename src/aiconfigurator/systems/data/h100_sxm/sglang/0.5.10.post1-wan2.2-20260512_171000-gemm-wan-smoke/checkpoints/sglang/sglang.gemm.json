@@ -1,0 +1,14 @@
+{
+  "schema": "collector-resume-v1",
+  "backend": "sglang",
+  "module": "sglang.gemm",
+  "run_func": "run_gemm",
+  "updated_at": "2026-05-12T09:11:08.986330",
+  "done": [
+    "sglang.gemm:run_gemm:['bfloat16', 1, 30720, 5120]",
+    "sglang.gemm:run_gemm:['bfloat16', 71280, 2560, 5120]",
+    "sglang.gemm:run_gemm:['fp8', 2389, 6912, 5120]",
+    "sglang.gemm:run_gemm:['fp8_block', 7898, 2560, 5120]"
+  ],
+  "failed": []
+}

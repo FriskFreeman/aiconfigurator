@@ -1,0 +1,5 @@
+framework,version,device,op_name,kernel_source,gemm_dtype,m,n,k,latency
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,gemm,sglang,bfloat16,1,30720,5120,0.11138933234744602
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,gemm,sglang,fp8_block,7898,2560,5120,0.26964889632331
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,gemm,sglang,bfloat16,71280,2560,5120,2.5401378207736545
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,gemm,sglang,fp8,2389,6912,5120,0.18990488847096762

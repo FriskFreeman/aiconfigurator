@@ -1,0 +1,2 @@
+framework,version,device,op_name,kernel_source,batch_size,seq_len,num_heads,head_dim,tp_size,sp_size,sp_algorithm,latency
+SGLang,0.5.10,NVIDIA H100 80GB HBM3,wan_rope,triton_rope_fallback,1,106480,40,128,1,1,none,2.0869983673095702

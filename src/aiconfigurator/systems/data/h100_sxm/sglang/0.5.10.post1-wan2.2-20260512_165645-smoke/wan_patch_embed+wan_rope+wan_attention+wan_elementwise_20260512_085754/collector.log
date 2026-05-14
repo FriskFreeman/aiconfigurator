@@ -1,0 +1,112 @@
+2026-05-12 08:57:54,927|INFO|root|main|Starting collection with 1 GPU processes
+2026-05-12 08:57:54,928|INFO|root|main|Smoke test mode enabled — sampling 4 random test cases per op
+2026-05-12 08:57:54,941|INFO|root|collect_sglang|SGLang version: 0.5.10.post1
+2026-05-12 08:57:55,005|INFO|root|collect_module_safe|Starting collection: sglang.wan_patch_embed
+2026-05-12 08:57:55,005|INFO|root|collect_module_safe|Generated 4 test cases for sglang.wan_patch_embed
+2026-05-12 08:57:56,113|INFO|root|start_process|Started worker process 182 on device 0
+2026-05-12 08:57:57,625|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_patch_embed
+2026-05-12 08:57:58,727|INFO|root|parallel_run|sglang.wan_patch_embed: Completed successfully with no errors
+2026-05-12 08:57:58,729|INFO|root|collect_module_safe|Starting collection: sglang.wan_rope
+2026-05-12 08:57:58,730|INFO|root|collect_module_safe|Generated 4 test cases for sglang.wan_rope
+2026-05-12 08:58:00,012|INFO|root|start_process|Started worker process 336 on device 0
+2026-05-12 08:58:01,485|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_rope
+2026-05-12 08:58:14,086|INFO|root|parallel_run|sglang.wan_rope: Completed successfully with no errors
+2026-05-12 08:58:14,089|INFO|root|collect_module_safe|Starting collection: sglang.wan_attention
+2026-05-12 08:58:14,101|INFO|root|collect_module_safe|Generated 4 test cases for sglang.wan_attention
+2026-05-12 08:58:15,592|INFO|root|start_process|Started worker process 561 on device 0
+2026-05-12 08:58:17,075|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_attention
+2026-05-12 08:58:23,413|ERROR|Worker-worker_0|worker|Task sglang.wan_attention:run_wan_attention:['Wan2.2-I2V-A14B', 'i2v', 'cross_attn_text', 'auto', 1, 7898, 512, 10, 128, 4, 4, 'ring'] failed
+Traceback (most recent call last):
+  File "/workspace/collector/collect.py", line 364, in worker
+    func(*task, device=device)
+  File "/workspace/collector/sglang/collect_wan_attention.py", line 164, in run_wan_attention
+    impl, actual_backend = _build_impl(backend, num_heads, head_dim)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/collector/sglang/collect_wan_attention.py", line 122, in _build_impl
+    backend_cls = get_attn_backend(
+                  ^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/attention/selector.py", line 101, in get_attn_backend
+    return _cached_get_attn_backend(head_size, dtype, be_tuple)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/attention/selector.py", line 123, in _cached_get_attn_backend
+    server_args = get_global_server_args()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/server_args.py", line 1290, in get_global_server_args
+    raise ValueError("Global sgl_diffusion args is not set.")
+ValueError: Global sgl_diffusion args is not set.
+2026-05-12 08:58:23,420|ERROR|Worker-worker_0|worker|Task sglang.wan_attention:run_wan_attention:['Wan2.2-T2V-A14B', 't2v', 'self_attn', 'auto', 1, 11798, 11798, 10, 128, 4, 4, 'ring'] failed
+Traceback (most recent call last):
+  File "/workspace/collector/collect.py", line 364, in worker
+    func(*task, device=device)
+  File "/workspace/collector/sglang/collect_wan_attention.py", line 164, in run_wan_attention
+    impl, actual_backend = _build_impl(backend, num_heads, head_dim)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/collector/sglang/collect_wan_attention.py", line 122, in _build_impl
+    backend_cls = get_attn_backend(
+                  ^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/attention/selector.py", line 101, in get_attn_backend
+    return _cached_get_attn_backend(head_size, dtype, be_tuple)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/attention/selector.py", line 123, in _cached_get_attn_backend
+    server_args = get_global_server_args()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/server_args.py", line 1290, in get_global_server_args
+    raise ValueError("Global sgl_diffusion args is not set.")
+ValueError: Global sgl_diffusion args is not set.
+2026-05-12 08:58:23,421|ERROR|Worker-worker_0|worker|Task sglang.wan_attention:run_wan_attention:['Wan2.2-TI2V-5B', 'ti2v', 'cross_attn_text', 'auto', 1, 35640, 512, 10, 128, 4, 2, 'ring'] failed
+Traceback (most recent call last):
+  File "/workspace/collector/collect.py", line 364, in worker
+    func(*task, device=device)
+  File "/workspace/collector/sglang/collect_wan_attention.py", line 164, in run_wan_attention
+    impl, actual_backend = _build_impl(backend, num_heads, head_dim)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/collector/sglang/collect_wan_attention.py", line 122, in _build_impl
+    backend_cls = get_attn_backend(
+                  ^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/attention/selector.py", line 101, in get_attn_backend
+    return _cached_get_attn_backend(head_size, dtype, be_tuple)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/attention/selector.py", line 123, in _cached_get_attn_backend
+    server_args = get_global_server_args()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/server_args.py", line 1290, in get_global_server_args
+    raise ValueError("Global sgl_diffusion args is not set.")
+ValueError: Global sgl_diffusion args is not set.
+2026-05-12 08:58:23,422|ERROR|Worker-worker_0|worker|Task sglang.wan_attention:run_wan_attention:['Wan2.2-TI2V-5B', 'ti2v', 'self_attn', 'auto', 1, 8910, 8910, 10, 128, 4, 8, 'ring'] failed
+Traceback (most recent call last):
+  File "/workspace/collector/collect.py", line 364, in worker
+    func(*task, device=device)
+  File "/workspace/collector/sglang/collect_wan_attention.py", line 164, in run_wan_attention
+    impl, actual_backend = _build_impl(backend, num_heads, head_dim)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/collector/sglang/collect_wan_attention.py", line 122, in _build_impl
+    backend_cls = get_attn_backend(
+                  ^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/attention/selector.py", line 101, in get_attn_backend
+    return _cached_get_attn_backend(head_size, dtype, be_tuple)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/attention/selector.py", line 123, in _cached_get_attn_backend
+    server_args = get_global_server_args()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/server_args.py", line 1290, in get_global_server_args
+    raise ValueError("Global sgl_diffusion args is not set.")
+ValueError: Global sgl_diffusion args is not set.
+2026-05-12 08:58:25,123|ERROR|root|parallel_run|sglang.wan_attention: Completed with 4 errors
+2026-05-12 08:58:25,124|ERROR|root|parallel_run|Error details saved to wan_patch_embed+wan_rope+wan_attention+wan_elementwise_20260512_085754/errors_sglang.wan_attention.json
+2026-05-12 08:58:25,126|INFO|root|collect_module_safe|Starting collection: sglang.wan_elementwise
+2026-05-12 08:58:25,127|INFO|root|collect_module_safe|Generated 4 test cases for sglang.wan_elementwise
+2026-05-12 08:58:26,358|INFO|root|start_process|Started worker process 782 on device 0
+2026-05-12 08:58:27,789|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_elementwise
+2026-05-12 08:58:37,797|INFO|root|parallel_run|sglang.wan_elementwise: Completed successfully with no errors
+2026-05-12 08:58:37,799|INFO|root|generate_collection_summary|============================================================
+2026-05-12 08:58:37,799|INFO|root|generate_collection_summary|COLLECTION SUMMARY - sglang v0.5.10.post1
+2026-05-12 08:58:37,800|INFO|root|generate_collection_summary|============================================================
+2026-05-12 08:58:37,800|INFO|root|generate_collection_summary|Total errors: 4
+2026-05-12 08:58:37,800|INFO|root|generate_collection_summary|
+Errors by module:
+2026-05-12 08:58:37,800|INFO|root|generate_collection_summary|  sglang.wan_attention: 4
+2026-05-12 08:58:37,800|INFO|root|generate_collection_summary|
+Errors by type:
+2026-05-12 08:58:37,800|INFO|root|generate_collection_summary|  ValueError: 4
+2026-05-12 08:58:37,800|INFO|root|generate_collection_summary|
+Detailed error report saved to: wan_patch_embed+wan_rope+wan_attention+wan_elementwise_20260512_085754/collection_summary_sglang.json

@@ -1,0 +1,266 @@
+{
+  "summary": {
+    "backend": "sglang",
+    "version": "0.5.10.post1",
+    "timestamp": "2026-05-12T09:23:06.728725",
+    "total_errors": 25,
+    "errors_by_module": {
+      "sglang.gemm": 25
+    },
+    "errors_by_type": {
+      "AssertionError": 25
+    }
+  },
+  "errors": [
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 11798, 5120, 1728]",
+      "task_params": "['fp8_block', 11798, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:14:00.362021"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 4778, 5120, 1728]",
+      "task_params": "['fp8_block', 4778, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:14:03.336678"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 21560, 5120, 1728]",
+      "task_params": "['fp8_block', 21560, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:14:08.198019"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 71280, 5120, 1728]",
+      "task_params": "['fp8_block', 71280, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:14:16.927136"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 13310, 5120, 1728]",
+      "task_params": "['fp8_block', 13310, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:15:54.868047"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 35640, 5120, 1728]",
+      "task_params": "['fp8_block', 35640, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:16:20.314019"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 23595, 5120, 1728]",
+      "task_params": "['fp8_block', 23595, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:17:32.618473"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 3949, 5120, 1728]",
+      "task_params": "['fp8_block', 3949, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:17:32.621229"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 8910, 5120, 1728]",
+      "task_params": "['fp8_block', 8910, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:18:49.723997"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 7898, 5120, 1728]",
+      "task_params": "['fp8_block', 7898, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:19:08.262272"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 47190, 5120, 1728]",
+      "task_params": "['fp8_block', 47190, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:19:28.302182"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 17820, 5120, 1728]",
+      "task_params": "['fp8_block', 17820, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:19:30.542450"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 257, 5120, 1728]",
+      "task_params": "['fp8_block', 257, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:19:43.704364"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 15795, 5120, 1728]",
+      "task_params": "['fp8_block', 15795, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:20:03.991063"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 43120, 5120, 1728]",
+      "task_params": "['fp8_block', 43120, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:20:19.334243"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 26620, 5120, 1728]",
+      "task_params": "['fp8_block', 26620, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:20:38.515768"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 19110, 5120, 1728]",
+      "task_params": "['fp8_block', 19110, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:20:42.294989"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 2389, 5120, 1728]",
+      "task_params": "['fp8_block', 2389, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:20:59.144099"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 31590, 5120, 1728]",
+      "task_params": "['fp8_block', 31590, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:21:11.934946"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 5899, 5120, 1728]",
+      "task_params": "['fp8_block', 5899, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:21:46.031434"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 53240, 5120, 1728]",
+      "task_params": "['fp8_block', 53240, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:21:48.002091"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 106480, 5120, 1728]",
+      "task_params": "['fp8_block', 106480, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:22:14.866418"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 5390, 5120, 1728]",
+      "task_params": "['fp8_block', 5390, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:22:15.781493"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 9555, 5120, 1728]",
+      "task_params": "['fp8_block', 9555, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:22:28.094863"
+    },
+    {
+      "module": "sglang.gemm",
+      "device_id": 0,
+      "task_id": "sglang.gemm:run_gemm:['fp8_block', 10780, 5120, 1728]",
+      "task_params": "['fp8_block', 10780, 5120, 1728]",
+      "error_type": "AssertionError",
+      "error_message": "the last dimension of `x` cannot be divisible by `group_size`",
+      "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 348, in run_gemm\n    with benchmark_with_power(\n         ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"/workspace/collector/helper.py\", line 245, in benchmark_with_power\n    kernel_func()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 342, in kernel_func\n    op()\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 285, in gemm_op\n    a_fp8, scale_a = sglang_per_token_group_quant_fp8(\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_kernel.py\", line 494, in sglang_per_token_group_quant_fp8\n    x.shape[-1] % group_size == 0\nAssertionError: the last dimension of `x` cannot be divisible by `group_size`\n",
+      "timestamp": "2026-05-12T09:22:48.854266"
+    }
+  ]
+}

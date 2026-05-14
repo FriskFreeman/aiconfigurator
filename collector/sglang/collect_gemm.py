@@ -38,6 +38,114 @@ from collector.helper import benchmark_with_power, get_sm_version, log_perf
 os.environ.setdefault("SGLANG_JIT_DEEPGEMM_PRECOMPILE", "0")
 
 
+def _wan_latent_seq_lens() -> list[int]:
+    """Return representative Wan2.2 DiT latent token counts after patching."""
+    resolutions = [(704, 1280), (720, 1280), (480, 832)]
+    frames = [121, 81, 49]
+    vae_stride_ti2v = (4, 16, 16)
+    patch_size = (1, 2, 2)
+    seq_lens = set()
+    for num_frames in frames:
+        for height, width in resolutions:
+            latent_t = num_frames
+            latent_h = height // vae_stride_ti2v[1]
+            latent_w = width // vae_stride_ti2v[2]
+            seq_lens.add((latent_t // patch_size[0]) * (latent_h // patch_size[1]) * (latent_w // patch_size[2]))
+    return sorted(seq_lens)
+
+
+def _get_wan_gemm_common_test_cases() -> list[tuple[int, int, int]]:
+    """Generate Wan2.2 DiT-specific (m, n, k) GEMM shapes.
+
+    SGLang Wan uses ColumnParallelLinear / RowParallelLinear for QKV, output,
+    MLP and condition embedders.  TP affects the per-rank output/input
+    dimensions, while SP affects attention shapes but not these GEMM M values
+    after local latent sharding is modeled by the caller.  We include both
+    global and representative SP-local token counts to keep the GEMM table
+    useful for single-card compute modeling.
+    """
+    hidden = 5120
+    ffn = 13824
+    text_dim = 4096
+    freq_dim = 256
+    image_tokens = 257
+    text_tokens = 512
+    t5_d_model = 4096
+    t5_d_ff = 10240
+    t5_heads = 64
+    t5_d_kv = 64
+    clip_hidden = 768
+    clip_intermediate = 3072
+    clip_tokens = 50
+    vae_conv_tokens = [64, 256, 1024, 4096]
+    vae_channels = [96, 192, 384]
+    tp_list = [1, 2, 4, 8]
+    sp_list = [1, 2, 4, 8]
+
+    shapes: set[tuple[int, int, int]] = set()
+    latent_seq_lens = _wan_latent_seq_lens()
+
+    for seq_len in latent_seq_lens:
+        for sp_size in sp_list:
+            local_seq_len = (seq_len + sp_size - 1) // sp_size
+            for tp_size in tp_list:
+                hidden_per_tp = hidden // tp_size
+                ffn_per_tp = ffn // tp_size
+
+                # Wan block self-attention projections.
+                shapes.add((local_seq_len, hidden_per_tp, hidden))  # to_q/k/v
+                shapes.add((local_seq_len, hidden, hidden_per_tp))  # to_out
+
+                # Wan block FFN.
+                shapes.add((local_seq_len, ffn_per_tp, hidden))  # fc_in
+                shapes.add((local_seq_len, hidden, ffn_per_tp))  # fc_out
+
+    for tp_size in tp_list:
+        hidden_per_tp = hidden // tp_size
+        ffn_per_tp = ffn // tp_size
+
+        # Cross attention projections: q uses latent tokens, k/v use text/image.
+        for seq_len in latent_seq_lens:
+            shapes.add((seq_len, hidden_per_tp, hidden))
+            shapes.add((seq_len, hidden, hidden_per_tp))
+        shapes.add((text_tokens, hidden_per_tp, hidden))
+        shapes.add((image_tokens, hidden_per_tp, hidden))
+
+        # Condition embedders.
+        shapes.add((text_tokens, hidden_per_tp, text_dim))
+        shapes.add((text_tokens, hidden, hidden_per_tp))
+        shapes.add((image_tokens, hidden_per_tp, hidden))
+        shapes.add((image_tokens, hidden, ffn_per_tp))
+        shapes.add((1, hidden_per_tp, freq_dim))
+        shapes.add((1, hidden, hidden_per_tp))
+        shapes.add((1, (hidden * 6) // tp_size, hidden))  # time modulation
+
+        # Wan T5 text encoder parallel Linear shapes.
+        t5_qkv_per_tp = (3 * t5_heads * t5_d_kv) // tp_size
+        t5_ff_per_tp = t5_d_ff // tp_size
+        for seq_len in (128, 256, text_tokens):
+            shapes.add((seq_len, t5_qkv_per_tp, t5_d_model))
+            shapes.add((seq_len, t5_d_model, (t5_heads * t5_d_kv) // tp_size))
+            shapes.add((seq_len, t5_ff_per_tp, t5_d_model))
+            shapes.add((seq_len, t5_d_model, t5_ff_per_tp))
+
+        # Wan I2V CLIP vision encoder Linear shapes.
+        clip_qkv_per_tp = (3 * clip_hidden) // tp_size
+        clip_intermediate_per_tp = clip_intermediate // tp_size
+        shapes.add((clip_tokens, clip_qkv_per_tp, clip_hidden))
+        shapes.add((clip_tokens, clip_hidden, clip_hidden // tp_size))
+        shapes.add((clip_tokens, clip_intermediate_per_tp, clip_hidden))
+        shapes.add((clip_tokens, clip_hidden, clip_intermediate_per_tp))
+
+        # Wan VAE 1x1 Conv2d/QKV and projection map to small GEMM-like shapes.
+        for tokens in vae_conv_tokens:
+            for channels in vae_channels:
+                shapes.add((tokens, channels * 3, channels))
+                shapes.add((tokens, channels, channels))
+
+    return sorted(shapes, reverse=True)
+
+
 def get_gemm_test_cases():
     test_cases = []
 
@@ -58,15 +166,30 @@ def get_gemm_test_cases():
         # SM120+ (RTX PRO 6000 Blackwell workstation): no DeepGEMM recipe for fp8_block
         gemm_list = ["bfloat16", "fp8", "nvfp4"]
 
-    for gemm_common_testcase in get_gemm_common_test_cases():
-        x = gemm_common_testcase.x
-        n = gemm_common_testcase.n
-        k = gemm_common_testcase.k
+    if os.environ.get("COLLECTOR_GEMM_ONLY_WAN", "0").lower() not in ("1", "true", "yes"):
+        for gemm_common_testcase in get_gemm_common_test_cases():
+            x = gemm_common_testcase.x
+            n = gemm_common_testcase.n
+            k = gemm_common_testcase.k
+            for gemm_type in gemm_list:
+                if (gemm_type == "nvfp4" or gemm_type == "fp8_block") and (n < 128 or k < 128):
+                    continue
+                if gemm_type == "fp8_block" and k % 128 != 0:
+                    continue
+
+                test_cases.append([gemm_type, x, n, k])
+
+    seen = {(gemm_type, m, n, k) for gemm_type, m, n, k in test_cases}
+    for m, n, k in _get_wan_gemm_common_test_cases():
         for gemm_type in gemm_list:
             if (gemm_type == "nvfp4" or gemm_type == "fp8_block") and (n < 128 or k < 128):
                 continue
-
-            test_cases.append([gemm_type, x, n, k])
+            if gemm_type == "fp8_block" and k % 128 != 0:
+                continue
+            item = (gemm_type, m, n, k)
+            if item not in seen:
+                test_cases.append([gemm_type, m, n, k])
+                seen.add(item)
 
     # Try to optimize number of JIT precompile cache hits by shuffling test cases.
     random.seed(42)

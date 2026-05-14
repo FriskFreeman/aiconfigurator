@@ -1,0 +1,11 @@
+{
+  "schema": "collector-resume-v1",
+  "backend": "sglang",
+  "module": "sglang.wan_elementwise",
+  "run_func": "run_wan_elementwise",
+  "updated_at": "2026-05-11T18:01:57.535446",
+  "done": [
+    "sglang.wan_elementwise:run_wan_elementwise:['fp32_layernorm_modulation', 1, 19110, 5120, 1]"
+  ],
+  "failed": []
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "collector-resume-v1",
+  "backend": "sglang",
+  "module": "sglang.wan_elementwise",
+  "run_func": "run_wan_elementwise",
+  "updated_at": "2026-05-12T08:58:36.385154",
+  "done": [
+    "sglang.wan_elementwise:run_wan_elementwise:['fp32_layernorm_modulation', 1, 43120, 5120, 2]",
+    "sglang.wan_elementwise:run_wan_elementwise:['scale_residual', 1, 47190, 5120, 1]",
+    "sglang.wan_elementwise:run_wan_elementwise:['scale_residual_layernorm_scale_shift', 1, 43120, 5120, 8]",
+    "sglang.wan_elementwise:run_wan_elementwise:['scale_residual_layernorm_scale_shift', 1, 47190, 5120, 4]"
+  ],
+  "failed": []
+}

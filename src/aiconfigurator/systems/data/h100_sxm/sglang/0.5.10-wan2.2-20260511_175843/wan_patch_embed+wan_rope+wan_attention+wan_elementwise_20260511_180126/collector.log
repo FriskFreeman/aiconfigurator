@@ -1,0 +1,79 @@
+2026-05-11 18:01:27,207|INFO|root|main|Starting collection with 2 GPU processes
+2026-05-11 18:01:27,242|INFO|root|collect_sglang|SGLang version: 0.5.10
+2026-05-11 18:01:27,270|WARNING|py.warnings|_showwarnmsg|/home/ai_lab/ljc/scale-up-sim/aiconfigurator/collector/sglang/collect_wan_patch_embed.py:6: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+
+2026-05-11 18:01:27,303|INFO|root|collect_module_safe|Starting collection: sglang.wan_patch_embed
+2026-05-11 18:01:27,303|INFO|root|collect_module_safe|Generated 1 test cases for sglang.wan_patch_embed
+2026-05-11 18:01:28,377|INFO|root|start_process|Started worker process 3489123 on device 0
+2026-05-11 18:01:28,394|INFO|root|start_process|Started worker process 3489124 on device 1
+2026-05-11 18:01:30,569|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_patch_embed
+2026-05-11 18:01:30,681|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_patch_embed
+2026-05-11 18:01:32,297|INFO|root|parallel_run|sglang.wan_patch_embed: Completed successfully with no errors
+2026-05-11 18:01:32,300|INFO|root|collect_module_safe|Starting collection: sglang.wan_rope
+2026-05-11 18:01:32,301|INFO|root|collect_module_safe|Generated 1 test cases for sglang.wan_rope
+2026-05-11 18:01:33,408|INFO|root|start_process|Started worker process 3489761 on device 0
+2026-05-11 18:01:33,409|INFO|root|start_process|Started worker process 3489762 on device 1
+2026-05-11 18:01:35,342|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_rope
+2026-05-11 18:01:35,669|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_rope
+2026-05-11 18:01:36,920|WARNING|root|parallel_run|Process 1 died (exit code: 0, restarts: 1, errors: 0)
+2026-05-11 18:01:36,922|INFO|root|start_process|Started worker process 3490180 on device 1
+2026-05-11 18:01:38,580|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_rope
+2026-05-11 18:01:39,427|WARNING|root|parallel_run|Process 1 died (exit code: 0, restarts: 2, errors: 0)
+2026-05-11 18:01:39,429|INFO|root|start_process|Started worker process 3490501 on device 1
+2026-05-11 18:01:41,124|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_rope
+2026-05-11 18:01:41,935|WARNING|root|parallel_run|Process 1 died (exit code: 0, restarts: 3, errors: 0)
+2026-05-11 18:01:41,937|INFO|root|start_process|Started worker process 3490822 on device 1
+2026-05-11 18:01:43,708|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_rope
+2026-05-11 18:01:44,720|INFO|root|parallel_run|sglang.wan_rope: Completed successfully with no errors
+2026-05-11 18:01:44,721|INFO|root|collect_module_safe|Starting collection: sglang.wan_attention
+2026-05-11 18:01:44,726|INFO|root|collect_module_safe|Generated 1 test cases for sglang.wan_attention
+2026-05-11 18:01:45,877|INFO|root|start_process|Started worker process 3491246 on device 0
+2026-05-11 18:01:45,879|INFO|root|start_process|Started worker process 3491247 on device 1
+2026-05-11 18:01:47,919|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_attention
+2026-05-11 18:01:48,156|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_attention
+2026-05-11 18:01:49,388|WARNING|root|parallel_run|Process 0 died (exit code: 0, restarts: 1, errors: 0)
+2026-05-11 18:01:49,390|INFO|root|start_process|Started worker process 3491672 on device 0
+2026-05-11 18:01:50,937|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_attention
+2026-05-11 18:01:51,896|WARNING|root|parallel_run|Process 0 died (exit code: 0, restarts: 2, errors: 0)
+2026-05-11 18:01:51,898|INFO|root|start_process|Started worker process 3492047 on device 0
+2026-05-11 18:01:52,678|ERROR|Worker-worker_1|worker|Task sglang.wan_attention:run_wan_attention:['Wan2.2-TI2V-5B', 'ti2v', 'cross_attn_text', 'sdpa', 1, 106480, 512, 5, 128, 1, 8, 'ulysses'] failed
+Traceback (most recent call last):
+  File "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/collector/collect.py", line 364, in worker
+    func(*task, device=device)
+  File "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/collector/sglang/collect_wan_attention.py", line 172, in run_wan_attention
+    impl = _build_impl(backend, num_heads, head_dim)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/collector/sglang/collect_wan_attention.py", line 138, in _build_impl
+    from sglang.multimodal_gen.runtime.layers.attention.backends.sdpa import SDPAImpl
+  File "/home/ai_lab/fjw/miniforge3/envs/ljc01/lib/python3.12/site-packages/sglang/multimodal_gen/__init__.py", line 2, in <module>
+    from sglang.multimodal_gen.configs.pipeline_configs import PipelineConfig
+  File "/home/ai_lab/fjw/miniforge3/envs/ljc01/lib/python3.12/site-packages/sglang/multimodal_gen/configs/pipeline_configs/__init__.py", line 3, in <module>
+    from sglang.multimodal_gen.configs.pipeline_configs.base import (
+  File "/home/ai_lab/fjw/miniforge3/envs/ljc01/lib/python3.12/site-packages/sglang/multimodal_gen/configs/pipeline_configs/base.py", line 33, in <module>
+    from sglang.multimodal_gen.runtime.models.vision_utils import get_default_height_width
+  File "/home/ai_lab/fjw/miniforge3/envs/ljc01/lib/python3.12/site-packages/sglang/multimodal_gen/runtime/models/vision_utils.py", line 10, in <module>
+    import imageio
+ModuleNotFoundError: No module named 'imageio'
+2026-05-11 18:01:53,477|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_attention
+2026-05-11 18:01:54,470|ERROR|root|parallel_run|sglang.wan_attention: Completed with 1 errors
+2026-05-11 18:01:54,470|ERROR|root|parallel_run|Error details saved to wan_patch_embed+wan_rope+wan_attention+wan_elementwise_20260511_180126/errors_sglang.wan_attention.json
+2026-05-11 18:01:54,471|INFO|root|collect_module_safe|Starting collection: sglang.wan_elementwise
+2026-05-11 18:01:54,471|INFO|root|collect_module_safe|Generated 1 test cases for sglang.wan_elementwise
+2026-05-11 18:01:55,528|INFO|root|start_process|Started worker process 3492479 on device 0
+2026-05-11 18:01:55,529|INFO|root|start_process|Started worker process 3492480 on device 1
+2026-05-11 18:01:57,372|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_elementwise
+2026-05-11 18:01:57,688|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_elementwise
+2026-05-11 18:01:58,859|INFO|root|parallel_run|sglang.wan_elementwise: Completed successfully with no errors
+2026-05-11 18:01:58,860|INFO|root|generate_collection_summary|============================================================
+2026-05-11 18:01:58,861|INFO|root|generate_collection_summary|COLLECTION SUMMARY - sglang v0.5.10
+2026-05-11 18:01:58,861|INFO|root|generate_collection_summary|============================================================
+2026-05-11 18:01:58,861|INFO|root|generate_collection_summary|Total errors: 1
+2026-05-11 18:01:58,861|INFO|root|generate_collection_summary|
+Errors by module:
+2026-05-11 18:01:58,861|INFO|root|generate_collection_summary|  sglang.wan_attention: 1
+2026-05-11 18:01:58,861|INFO|root|generate_collection_summary|
+Errors by type:
+2026-05-11 18:01:58,861|INFO|root|generate_collection_summary|  ModuleNotFoundError: 1
+2026-05-11 18:01:58,861|INFO|root|generate_collection_summary|
+Detailed error report saved to: wan_patch_embed+wan_rope+wan_attention+wan_elementwise_20260511_180126/collection_summary_sglang.json

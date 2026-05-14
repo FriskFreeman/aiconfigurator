@@ -1,0 +1,49 @@
+2026-05-12 11:37:06,336|INFO|root|main|Starting collection with 1 GPU processes
+2026-05-12 11:37:06,336|INFO|root|main|Smoke test mode enabled — sampling 4 random test cases per op
+2026-05-12 11:37:06,345|INFO|root|collect_sglang|SGLang version: 0.5.10.post1
+2026-05-12 11:37:06,390|INFO|root|collect_module_safe|Starting collection: sglang.wan_t5
+2026-05-12 11:37:06,390|INFO|root|collect_module_safe|Generated 4 test cases for sglang.wan_t5
+2026-05-12 11:37:08,021|INFO|root|start_process|Started worker process 177 on device 0
+2026-05-12 11:37:10,330|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_t5
+2026-05-12 11:37:23,056|WARNING|root|parallel_run|Progress stalled at 0/4
+2026-05-12 11:37:31,708|ERROR|Worker-worker_0|worker|Task sglang.wan_t5:run_wan_t5:['embedding', 1, 512, 4096, 64, 64, 10240] failed
+Traceback (most recent call last):
+  File "/workspace/collector/collect.py", line 364, in worker
+    func(*task, device=device)
+  File "/workspace/collector/sglang/collect_wan_t5.py", line 117, in run_wan_t5
+    with benchmark_with_power(
+  File "/usr/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/workspace/collector/helper.py", line 245, in benchmark_with_power
+    kernel_func()
+  File "/workspace/collector/sglang/collect_wan_t5.py", line 75, in kernel_func
+    return module(input_ids)
+           ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/layers/vocab_parallel_embedding.py", line 479, in forward
+    output = tensor_model_parallel_all_reduce(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/multimodal_gen/runtime/distributed/communication_op.py", line 21, in tensor_model_parallel_all_reduce
+    return tp_group.all_reduce(input_)
+           ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'SingleRankGroup' object has no attribute 'all_reduce'
+2026-05-12 11:37:36,812|ERROR|root|parallel_run|sglang.wan_t5: Completed with 1 errors
+2026-05-12 11:37:36,813|ERROR|root|parallel_run|Error details saved to wan_t5_20260512_113706/errors_sglang.wan_t5.json
+2026-05-12 11:37:36,816|INFO|root|generate_collection_summary|============================================================
+2026-05-12 11:37:36,816|INFO|root|generate_collection_summary|COLLECTION SUMMARY - sglang v0.5.10.post1
+2026-05-12 11:37:36,817|INFO|root|generate_collection_summary|============================================================
+2026-05-12 11:37:36,817|INFO|root|generate_collection_summary|Total errors: 1
+2026-05-12 11:37:36,817|INFO|root|generate_collection_summary|
+Errors by module:
+2026-05-12 11:37:36,817|INFO|root|generate_collection_summary|  sglang.wan_t5: 1
+2026-05-12 11:37:36,818|INFO|root|generate_collection_summary|
+Errors by type:
+2026-05-12 11:37:36,818|INFO|root|generate_collection_summary|  AttributeError: 1
+2026-05-12 11:37:36,818|INFO|root|generate_collection_summary|
+Detailed error report saved to: wan_t5_20260512_113706/collection_summary_sglang.json

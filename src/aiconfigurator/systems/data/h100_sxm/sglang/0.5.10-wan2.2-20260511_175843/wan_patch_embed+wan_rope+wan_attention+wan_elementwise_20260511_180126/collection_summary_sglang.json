@@ -1,0 +1,26 @@
+{
+  "summary": {
+    "backend": "sglang",
+    "version": "0.5.10",
+    "timestamp": "2026-05-11T18:01:58.860193",
+    "total_errors": 1,
+    "errors_by_module": {
+      "sglang.wan_attention": 1
+    },
+    "errors_by_type": {
+      "ModuleNotFoundError": 1
+    }
+  },
+  "errors": [
+    {
+      "module": "sglang.wan_attention",
+      "device_id": 1,
+      "task_id": "sglang.wan_attention:run_wan_attention:['Wan2.2-TI2V-5B', 'ti2v', 'cross_attn_text', 'sdpa', 1, 106480, 512, 5, 128, 1, 8, 'ulysses']",
+      "task_params": "['Wan2.2-TI2V-5B', 'ti2v', 'cross_attn_text', 'sdpa', 1, 106480, 512, 5, 128, 1, 8, 'ulysses']",
+      "error_type": "ModuleNotFoundError",
+      "error_message": "No module named 'imageio'",
+      "traceback": "Traceback (most recent call last):\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/collector/sglang/collect_wan_attention.py\", line 172, in run_wan_attention\n    impl = _build_impl(backend, num_heads, head_dim)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/collector/sglang/collect_wan_attention.py\", line 138, in _build_impl\n    from sglang.multimodal_gen.runtime.layers.attention.backends.sdpa import SDPAImpl\n  File \"/home/ai_lab/fjw/miniforge3/envs/ljc01/lib/python3.12/site-packages/sglang/multimodal_gen/__init__.py\", line 2, in <module>\n    from sglang.multimodal_gen.configs.pipeline_configs import PipelineConfig\n  File \"/home/ai_lab/fjw/miniforge3/envs/ljc01/lib/python3.12/site-packages/sglang/multimodal_gen/configs/pipeline_configs/__init__.py\", line 3, in <module>\n    from sglang.multimodal_gen.configs.pipeline_configs.base import (\n  File \"/home/ai_lab/fjw/miniforge3/envs/ljc01/lib/python3.12/site-packages/sglang/multimodal_gen/configs/pipeline_configs/base.py\", line 33, in <module>\n    from sglang.multimodal_gen.runtime.models.vision_utils import get_default_height_width\n  File \"/home/ai_lab/fjw/miniforge3/envs/ljc01/lib/python3.12/site-packages/sglang/multimodal_gen/runtime/models/vision_utils.py\", line 10, in <module>\n    import imageio\nModuleNotFoundError: No module named 'imageio'\n",
+      "timestamp": "2026-05-11T18:01:52.678281"
+    }
+  ]
+}

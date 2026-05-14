@@ -1,2 +1,6 @@
 src/aiconfigurator/systems/**/*.txt filter=lfs diff=lfs merge=lfs -text
 ATTRIBUTIONS.md filter=lfs diff=lfs merge=lfs -text
+
+# WAN2 benchmark data is committed as normal Git blobs so it can coexist with
+# the upstream LFS-backed historical datasets.
+src/aiconfigurator/systems/data/h100_sxm/sglang/*wan2*/** -filter -diff -merge -text

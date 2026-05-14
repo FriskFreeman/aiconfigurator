@@ -1,0 +1,11 @@
+{
+  "schema": "collector-resume-v1",
+  "backend": "sglang",
+  "module": "sglang.wan_rope",
+  "run_func": "run_wan_rope",
+  "updated_at": "2026-05-11T18:01:42.438497",
+  "done": [
+    "sglang.wan_rope:run_wan_rope:[1, 106480, 40, 128, 1, 1, 'none']"
+  ],
+  "failed": []
+}

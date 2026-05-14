@@ -1,0 +1,5 @@
+framework,version,device,op_name,kernel_source,batch_size,seq_len,num_heads,head_dim,tp_size,sp_size,sp_algorithm,latency
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_rope,flashinfer_rope,1,17820,40,128,1,4,ring,0.27933440208435056
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_rope,flashinfer_rope,1,43120,5,128,1,8,ulysses,0.08805440068244934
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_rope,flashinfer_rope,1,15795,20,128,2,2,ring,0.12409919500350952
+SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_rope,flashinfer_rope,1,43120,10,128,1,4,ulysses,0.166975998878479

@@ -1,0 +1,14 @@
+{
+  "schema": "collector-resume-v1",
+  "backend": "sglang",
+  "module": "sglang.wan_patch_embed",
+  "run_func": "run_wan_patch_embed",
+  "updated_at": "2026-05-12T08:57:58.124062",
+  "done": [
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-I2V-A14B', 'i2v', 1, 16, 49, 45, 80, 1, 2, 2, 43120]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-T2V-A14B', 't2v', 1, 16, 49, 30, 52, 1, 2, 2, 19110]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-T2V-A14B', 't2v', 1, 16, 49, 45, 80, 1, 2, 2, 43120]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-T2V-A14B', 't2v', 1, 16, 81, 30, 52, 1, 2, 2, 31590]"
+  ],
+  "failed": []
+}

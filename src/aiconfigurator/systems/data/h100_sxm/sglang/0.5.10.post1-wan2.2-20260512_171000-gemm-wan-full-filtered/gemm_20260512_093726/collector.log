@@ -1,0 +1,6 @@
+2026-05-12 09:37:27,071|INFO|root|main|Starting collection with 1 GPU processes
+2026-05-12 09:37:27,082|INFO|root|collect_sglang|SGLang version: 0.5.10.post1
+2026-05-12 09:37:33,976|INFO|root|collect_module_safe|Starting collection: sglang.gemm
+2026-05-12 09:37:33,978|INFO|root|collect_module_safe|Generated 1148 test cases for sglang.gemm
+2026-05-12 09:37:35,534|INFO|root|start_process|Started worker process 254 on device 0
+2026-05-12 09:37:42,793|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.gemm
