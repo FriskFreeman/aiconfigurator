@@ -1,0 +1,212 @@
+[
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 1,
+      "sp_size": 32,
+      "ulysses_degree": 1,
+      "ring_degree": 32,
+      "sp_algorithm": "ring"
+    },
+    "parallel": "tp1pp1dp1sp32u1r32etp1ep1",
+    "sp_size": 32,
+    "ulysses_degree": 1,
+    "ring_degree": 32,
+    "sp_algorithm": "ring",
+    "ttft": 11327.730920391143,
+    "tpot": 0.0,
+    "request_latency": 11327.730920391143,
+    "tokens_per_second_per_gpu": 0.08827893309152424,
+    "warning_count": 0,
+    "error": null
+  },
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 1,
+      "sp_size": 32,
+      "ulysses_degree": 2,
+      "ring_degree": 16,
+      "sp_algorithm": "usp"
+    },
+    "parallel": "tp1pp1dp1sp32u2r16etp1ep1",
+    "sp_size": 32,
+    "ulysses_degree": 2,
+    "ring_degree": 16,
+    "sp_algorithm": "usp",
+    "ttft": 6125.8074007413325,
+    "tpot": 0.0,
+    "request_latency": 6125.8074007413325,
+    "tokens_per_second_per_gpu": 0.16324378724002686,
+    "warning_count": 0,
+    "error": null
+  },
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 1,
+      "sp_size": 32,
+      "ulysses_degree": 4,
+      "ring_degree": 8,
+      "sp_algorithm": "usp"
+    },
+    "parallel": "tp1pp1dp1sp32u4r8etp1ep1",
+    "sp_size": 32,
+    "ulysses_degree": 4,
+    "ring_degree": 8,
+    "sp_algorithm": "usp",
+    "ttft": 3567.7994039259374,
+    "tpot": 0.0,
+    "request_latency": 3567.7994039259374,
+    "tokens_per_second_per_gpu": 0.2802848161529539,
+    "warning_count": 0,
+    "error": null
+  },
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 1,
+      "sp_size": 32,
+      "ulysses_degree": 8,
+      "ring_degree": 4,
+      "sp_algorithm": "usp"
+    },
+    "parallel": "tp1pp1dp1sp32u8r4etp1ep1",
+    "sp_size": 32,
+    "ulysses_degree": 8,
+    "ring_degree": 4,
+    "sp_algorithm": "usp",
+    "ttft": 2370.834606032794,
+    "tpot": 0.0,
+    "request_latency": 2370.834606032794,
+    "tokens_per_second_per_gpu": 0.42179239220459047,
+    "warning_count": 0,
+    "error": null
+  },
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 2,
+      "sp_size": 16,
+      "ulysses_degree": 1,
+      "ring_degree": 16,
+      "sp_algorithm": "ring"
+    },
+    "parallel": "tp2pp1dp1sp16u1r16etp2ep1",
+    "sp_size": 16,
+    "ulysses_degree": 1,
+    "ring_degree": 16,
+    "sp_algorithm": "ring",
+    "ttft": 6271.589753570023,
+    "tpot": 0.0,
+    "request_latency": 6271.589753570023,
+    "tokens_per_second_per_gpu": 0.07972460247664977,
+    "warning_count": 0,
+    "error": null
+  },
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 2,
+      "sp_size": 16,
+      "ulysses_degree": 2,
+      "ring_degree": 8,
+      "sp_algorithm": "usp"
+    },
+    "parallel": "tp2pp1dp1sp16u2r8etp2ep1",
+    "sp_size": 16,
+    "ulysses_degree": 2,
+    "ring_degree": 8,
+    "sp_algorithm": "usp",
+    "ttft": 3726.3001545484217,
+    "tpot": 0.0,
+    "request_latency": 3726.3001545484217,
+    "tokens_per_second_per_gpu": 0.1341813539603584,
+    "warning_count": 0,
+    "error": null
+  },
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 2,
+      "sp_size": 16,
+      "ulysses_degree": 4,
+      "ring_degree": 4,
+      "sp_algorithm": "usp"
+    },
+    "parallel": "tp2pp1dp1sp16u4r4etp2ep1",
+    "sp_size": 16,
+    "ulysses_degree": 4,
+    "ring_degree": 4,
+    "sp_algorithm": "usp",
+    "ttft": 2566.973760151735,
+    "tpot": 0.0,
+    "request_latency": 2566.973760151735,
+    "tokens_per_second_per_gpu": 0.1947818897729772,
+    "warning_count": 0,
+    "error": null
+  },
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 4,
+      "sp_size": 8,
+      "ulysses_degree": 1,
+      "ring_degree": 8,
+      "sp_algorithm": "ring"
+    },
+    "parallel": "tp4pp1dp1sp8u1r8etp4ep1",
+    "sp_size": 8,
+    "ulysses_degree": 1,
+    "ring_degree": 8,
+    "sp_algorithm": "ring",
+    "ttft": 4016.693682493822,
+    "tpot": 0.0,
+    "request_latency": 4016.693682493822,
+    "tokens_per_second_per_gpu": 0.062240245276753065,
+    "warning_count": 0,
+    "error": null
+  },
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 4,
+      "sp_size": 8,
+      "ulysses_degree": 2,
+      "ring_degree": 4,
+      "sp_algorithm": "usp"
+    },
+    "parallel": "tp4pp1dp1sp8u2r4etp4ep1",
+    "sp_size": 8,
+    "ulysses_degree": 2,
+    "ring_degree": 4,
+    "sp_algorithm": "usp",
+    "ttft": 2852.157682298056,
+    "tpot": 0.0,
+    "request_latency": 2852.157682298056,
+    "tokens_per_second_per_gpu": 0.08765293782725528,
+    "warning_count": 0,
+    "error": null
+  },
+  {
+    "ok": true,
+    "config": {
+      "tp_size": 8,
+      "sp_size": 4,
+      "ulysses_degree": 1,
+      "ring_degree": 4,
+      "sp_algorithm": "ring"
+    },
+    "parallel": "tp8pp1dp1sp4u1r4etp8ep1",
+    "sp_size": 4,
+    "ulysses_degree": 1,
+    "ring_degree": 4,
+    "sp_algorithm": "ring",
+    "ttft": 3808.577445301667,
+    "tpot": 0.0,
+    "request_latency": 3808.577445301667,
+    "tokens_per_second_per_gpu": 0.03282065332666462,
+    "warning_count": 0,
+    "error": null
+  }
+]

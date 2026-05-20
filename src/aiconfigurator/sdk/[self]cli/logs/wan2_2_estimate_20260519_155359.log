@@ -1,0 +1,83 @@
+15:53:59 [aiconfigurator] [I] [run.py:46] Writing Wan2.2 estimate log to /home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/[self]cli/logs/wan2_2_estimate_20260519_155359.log
+15:53:59 [aiconfigurator] [I] [run.py:47] Wan2.2 estimate input:
+{'model_path': 'Wan-AI/Wan2.2-T2V-A14B-Diffusers',
+ 'system_name': 'h100_sxm',
+ 'backend_name': 'sglang',
+ 'backend_version': '0.5.10.post1-wan2.2-main0519',
+ 'database_mode': 'HYBRID',
+ 'isl': 1,
+ 'osl': 1,
+ 'batch_size': 1,
+ 'tp_size': 1,
+ 'video_height': 720,
+ 'video_width': 1280,
+ 'video_frames': 121,
+ 'denoising_steps': 50,
+ 'sp_size': 1,
+ 'ulysses_degree': 1,
+ 'ring_degree': 1}
+15:53:59 [aiconfigurator] [I] [utils.py:1064] Quant inference result: quant_algo=None, kv_cache_quant_algo=None, quant_dynamic=None
+15:53:59 [aiconfigurator] [I] [utils.py:1171] Loaded model config for Wan-AI/Wan2.2-T2V-A14B-Diffusers: architecture=WanTransformer3DModel, layers=40, n=40, n_kv=40, d=128, hidden_size=5120, inter_size=13824, vocab=16, context=131072, topk=0, num_experts=0, moe_inter_size=0, extra_params={'wan_model': 'Wan2.2-T2V-A14B', 'task': 't2v', 'height': 720, 'width': 1280, 'frames': 121, 'has_image_context': False, 'latent_channels': 16, 'patch_in_channels': 16, 'patch_size': (1, 2, 2), 'vae_stride': (4, 16, 16), 'text_tokens': 512, 'image_tokens': 257, 'denoising_steps': 50, 'freq_dim': 256, 'text_dim': 4096, 'ffn_dim': 13824, 't5_d_model': 4096, 't5_d_ff': 10240, 't5_num_heads': 64, 't5_d_kv': 64, 't5_num_layers': 24, 'clip_hidden_size': 768, 'clip_intermediate_size': 3072, 'clip_num_heads': 12, 'clip_head_dim': 64, 'clip_tokens': 50, 'clip_num_layers': 12, 'vae_base_dim': 96, 'vae_dim_mult': (1, 2, 4, 4), 'vae_temporal_downsample': (False, True, True), 'scheduler_num_train_timesteps': 1000, 'dit_architecture': 'WanTransformer3DModel'}
+15:53:59 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+15:53:59 [aiconfigurator] [I] [perf_database.py:274] Loading database for system='h100_sxm', backend='sglang', version='0.5.10.post1-wan2.2-main0519'
+15:54:00 [aiconfigurator] [I] [perf_database.py:2798] Merged GEMM fallback data for Wan profile: primary=/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/gemm_perf.txt fallback=/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10/gemm_perf.txt
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 106480, 106480, 40, 128, 1, 1, 'none') nearest=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 31590, 31590, 40, 128, 1, 1, 'none') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 106480, 512, 40, 128, 1, 1, 'none') nearest=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 31590, 512, 40, 128, 1, 1, 'none') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_post_quant_conv', 1, 16, 16, 31, 44, 80, '1x1') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_post_quant_conv', 1, 16, 16, 31, 45, 80, '1x1') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_conv_in', 1, 16, 384, 1, 44, 80, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_conv_in', 1, 16, 384, 1, 45, 80, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_0_conv1', 1, 384, 384, 1, 44, 80, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_0_conv1', 1, 384, 384, 1, 45, 80, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_0_conv2', 1, 384, 384, 1, 44, 80, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_0_conv2', 1, 384, 384, 1, 45, 80, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample3d_0_time_conv', 1, 384, 768, 1, 44, 80, '3x1x1') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample3d_0_time_conv', 1, 384, 768, 1, 45, 80, '3x1x1') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample2d_0_conv', 1, 384, 384, 1, 88, 160, '2d_3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample2d_0_conv', 1, 384, 384, 1, 90, 160, '2d_3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_1_conv1', 1, 384, 384, 1, 88, 160, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_1_conv1', 1, 384, 384, 1, 90, 160, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_1_conv2', 1, 384, 384, 1, 88, 160, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_1_conv2', 1, 384, 384, 1, 90, 160, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample3d_1_time_conv', 1, 384, 768, 1, 88, 160, '3x1x1') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample3d_1_time_conv', 1, 384, 768, 1, 90, 160, '3x1x1') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample2d_1_conv', 1, 384, 384, 1, 176, 320, '2d_3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample2d_1_conv', 1, 384, 384, 1, 180, 320, '2d_3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_2_conv1', 1, 384, 192, 1, 176, 320, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_2_conv1', 1, 384, 192, 1, 180, 320, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_2_conv2', 1, 192, 192, 1, 176, 320, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_2_conv2', 1, 192, 192, 1, 180, 320, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample2d_2_conv', 1, 192, 192, 1, 352, 640, '2d_3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_upsample2d_2_conv', 1, 192, 192, 1, 360, 640, '2d_3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_3_conv1', 1, 192, 96, 1, 352, 640, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_3_conv1', 1, 192, 96, 1, 360, 640, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_3_conv2', 1, 96, 96, 1, 352, 640, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_resblock_3_conv2', 1, 96, 96, 1, 360, 640, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [W] [perf_database.py:4483] Wan vae query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519/wan_vae_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_conv_out', 1, 96, 3, 1, 352, 640, '3x3x3') nearest=('Wan2.2-T2V-A14B', 't2v', 'decode', 'decode_conv_out', 1, 96, 3, 1, 360, 640, '3x3x3') result=nearest
+15:54:02 [aiconfigurator] [I] [run.py:60] Raw estimate result:
+{'model': 'Wan-AI/Wan2.2-T2V-A14B-Diffusers',
+ 'isl': 1,
+ 'osl': 1,
+ 'prefix': 0,
+ 'concurrency': 1,
+ 'request_rate': 0.0,
+ 'bs': 1,
+ 'global_bs': 1,
+ 'ttft': 261822.29425558416,
+ 'tpot': 0.0,
+ 'seq/s': 0.0038193844525089443,
+ 'seq/s/gpu': 0.0038193844525089443,
+ 'tokens/s': 0.0038193844525089443,
+ 'tokens/s/gpu': 0.0038193844525089443,
+ 'tokens/s/user': 0.0,
+ 'request_latency': 261822.29425558416,
+ 'context_latency': 261822.29425558416,
+ 'generation_latency': 0,
+ 'num_total_gpus': 1,
+ 'tp': 1,
+ 'pp': 1,
+ 'dp': 1,
+ 'moe_tp': 1,
+ 'moe_ep': 1,
+ 'parallel': 'tp1pp1dp1sp1u1r1etp1ep1',
+ 'gemm': 'bfloat16',
+ 'kvcache': 'bfloat16',
+ 'fmha': 'bfloat16',
+ 'moe': 'bfloat16',
+ 'comm': 'half',
+ 'memory': 1355.663224709034,
+ 'backend': 'sglang',
+ 'version': '0.5.10.post1-wan2.2-main0519',
+ 'system': 'h100_sxm',
+ 'power_w': 0.0,
+ 'sp': 1,
+ 'sp_size': 1,
+ 'ulysses_degree': 1,
+ 'ring_degree': 1,
+ 'sp_algorithm': 'none',
+ 'wan_batch_model': 'serial_single_video_collect'}

@@ -19,6 +19,14 @@ from collector.sglang.wan_common import (
 )
 
 
+def _valid_t5_group_sizes() -> tuple[int, ...]:
+    group_sizes = []
+    for group_size in (1, 2, 4, 8, 16, 32):
+        if WAN_T5_NUM_HEADS % group_size == 0 and WAN_T5_D_FF % group_size == 0:
+            group_sizes.append(group_size)
+    return tuple(group_sizes)
+
+
 def _ensure_single_rank_parallel_state():
     from sglang.multimodal_gen.runtime.distributed import parallel_state
 
@@ -31,15 +39,23 @@ def _ensure_single_rank_parallel_state():
 def get_wan_t5_test_cases():
     seq_lens = [128, 256, WAN_TEXT_TOKENS]
     test_cases = []
-    for seq_len in seq_lens:
-        test_cases.extend(
-            [
+    seen = set()
+    for group_size in _valid_t5_group_sizes():
+        local_heads = WAN_T5_NUM_HEADS // group_size
+        local_d_ff = WAN_T5_D_FF // group_size
+        for seq_len in seq_lens:
+            cases = [
                 ["embedding", 1, seq_len, WAN_T5_D_MODEL, WAN_T5_NUM_HEADS, WAN_T5_D_KV, WAN_T5_D_FF],
                 ["rmsnorm", 1, seq_len, WAN_T5_D_MODEL, WAN_T5_NUM_HEADS, WAN_T5_D_KV, WAN_T5_D_FF],
-                ["attention_compute_bias_softmax", 1, seq_len, WAN_T5_D_MODEL, WAN_T5_NUM_HEADS, WAN_T5_D_KV, WAN_T5_D_FF],
-                ["ffn_gated_act_mul", 1, seq_len, WAN_T5_D_MODEL, WAN_T5_NUM_HEADS, WAN_T5_D_KV, WAN_T5_D_FF],
+                ["attention_compute_bias_softmax", 1, seq_len, WAN_T5_D_MODEL, local_heads, WAN_T5_D_KV, WAN_T5_D_FF],
+                ["ffn_gated_act_mul", 1, seq_len, WAN_T5_D_MODEL, WAN_T5_NUM_HEADS, WAN_T5_D_KV, local_d_ff],
             ]
-        )
+            for case in cases:
+                key = tuple(case)
+                if key in seen:
+                    continue
+                seen.add(key)
+                test_cases.append(case)
     return test_cases
 
 

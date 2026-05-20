@@ -10,6 +10,7 @@ import importlib.resources as pkg_resources
 import logging
 import math
 import os
+import re
 from collections import UserDict, defaultdict
 from collections.abc import Callable, Iterable
 from typing import Optional
@@ -555,6 +556,32 @@ def load_gemm_data(gemm_file):
             }
 
     return gemm_data
+
+
+def _merge_gemm_data(primary: dict, fallback: dict) -> dict:
+    merged = copy.deepcopy(fallback)
+    for quant_mode, m_dict in primary.items():
+        merged_m = merged.setdefault(quant_mode, {})
+        for m, n_dict in m_dict.items():
+            merged_n = merged_m.setdefault(m, {})
+            for n, k_dict in n_dict.items():
+                merged_k = merged_n.setdefault(n, {})
+                merged_k.update(k_dict)
+    return merged
+
+
+def _resolve_wan_gemm_fallback_path(primary_path: str) -> str | None:
+    version_dir = os.path.basename(os.path.dirname(primary_path))
+    if "wan2.2" not in version_dir.lower():
+        return None
+    match = re.search(r"(\d+\.\d+\.\d+)", version_dir)
+    if not match:
+        return None
+    fallback_version = match.group(1)
+    if fallback_version == version_dir:
+        return None
+    fallback_path = os.path.join(os.path.dirname(os.path.dirname(primary_path)), fallback_version, os.path.basename(primary_path))
+    return fallback_path if os.path.exists(fallback_path) else None
 
 
 def load_compute_scale_data(compute_scale_file):
@@ -2386,6 +2413,206 @@ def load_trtllm_alltoall_data(trtllm_alltoall_file):
     return trtllm_alltoall_data
 
 
+def _load_wan_csv_rows(file_path: str) -> list[dict]:
+    if not os.path.exists(file_path):
+        logger.debug(f"Wan data file {file_path} not found.")
+        return None
+    with open(file_path, encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def _wan_entry(row: dict) -> dict:
+    latency = float(row["latency"])
+    power = float(row.get("power", 0.0))
+    return {"latency": latency, "power": power, "energy": power * latency}
+
+
+def load_wan_patch_embed_data(file_path: str):
+    rows = _load_wan_csv_rows(file_path)
+    if rows is None:
+        return None
+    data = {}
+    for row in rows:
+        hidden_size = int(row.get("hidden_size", 5120))
+        key = (
+            row["model"],
+            row["task"],
+            int(row["batch_size"]),
+            int(row["in_channels"]),
+            hidden_size,
+            int(row["frames"]),
+            int(row["height"]),
+            int(row["width"]),
+            int(row["patch_t"]),
+            int(row["patch_h"]),
+            int(row["patch_w"]),
+            int(row["seq_len"]),
+        )
+        data[key] = _wan_entry(row)
+    return data
+
+
+def load_wan_rope_data(file_path: str):
+    rows = _load_wan_csv_rows(file_path)
+    if rows is None:
+        return None
+    data = {}
+    for row in rows:
+        key = (
+            int(row["batch_size"]),
+            int(row["seq_len"]),
+            int(row["num_heads"]),
+            int(row["head_dim"]),
+            int(row["tp_size"]),
+            int(row["sp_size"]),
+            row["sp_algorithm"],
+        )
+        data[key] = _wan_entry(row)
+    return data
+
+
+def load_wan_attention_data(file_path: str):
+    rows = _load_wan_csv_rows(file_path)
+    if rows is None:
+        return None
+    data = {}
+    for row in rows:
+        key = (
+            row["model"],
+            row["task"],
+            row["attn_kind"],
+            row["backend"],
+            int(row["batch_size"]),
+            int(row["q_seq_len"]),
+            int(row["kv_seq_len"]),
+            int(row["num_heads"]),
+            int(row["head_dim"]),
+            int(row["tp_size"]),
+            int(row["sp_size"]),
+            row["sp_algorithm"],
+        )
+        data[key] = _wan_entry(row)
+    return data
+
+
+def load_wan_elementwise_data(file_path: str):
+    rows = _load_wan_csv_rows(file_path)
+    if rows is None:
+        return None
+    data = {}
+    for row in rows:
+        key = (
+            row["op_name"],
+            int(row["batch_size"]),
+            int(row["seq_len"]),
+            int(row["hidden_size"]),
+            int(row["tp_size"]),
+        )
+        data[key] = _wan_entry(row)
+    return data
+
+
+def load_wan_t5_data(file_path: str):
+    rows = _load_wan_csv_rows(file_path)
+    if rows is None:
+        return None
+    data = {}
+    for row in rows:
+        key = (
+            row["op_name"],
+            int(row["batch_size"]),
+            int(row["seq_len"]),
+            int(row["d_model"]),
+            int(row["num_heads"]),
+            int(row["d_kv"]),
+            int(row["d_ff"]),
+        )
+        data[key] = _wan_entry(row)
+    return data
+
+
+def load_wan_clip_data(file_path: str):
+    rows = _load_wan_csv_rows(file_path)
+    if rows is None:
+        return None
+    data = {}
+    for row in rows:
+        key = (
+            row["op_name"],
+            int(row["batch_size"]),
+            int(row["seq_len"]),
+            int(row["hidden_size"]),
+            int(row["num_heads"]),
+            int(row["head_dim"]),
+            int(row["intermediate_size"]),
+        )
+        data[key] = _wan_entry(row)
+    return data
+
+
+def load_wan_vae_data(file_path: str):
+    rows = _load_wan_csv_rows(file_path)
+    if rows is None:
+        return None
+    data = {}
+    for row in rows:
+        key = (
+            row["model"],
+            row["task"],
+            row["path"],
+            row["stage"],
+            int(row["batch_size"]),
+            int(row["in_channels"]),
+            int(row["out_channels"]),
+            int(row["frames"]),
+            int(row["height"]),
+            int(row["width"]),
+            row["conv_kind"],
+        )
+        data[key] = _wan_entry(row)
+    return data
+
+
+def load_wan_vae_attention_data(file_path: str):
+    rows = _load_wan_csv_rows(file_path)
+    if rows is None:
+        return None
+    data = {}
+    for row in rows:
+        key = (
+            row["model"],
+            row["task"],
+            int(row["batch_size"]),
+            int(row["channels"]),
+            int(row["frames"]),
+            int(row["height"]),
+            int(row["width"]),
+            int(row["tokens_per_frame"]),
+        )
+        data[key] = _wan_entry(row)
+    return data
+
+
+def load_wan_vae_elementwise_data(file_path: str):
+    rows = _load_wan_csv_rows(file_path)
+    if rows is None:
+        return None
+    data = {}
+    for row in rows:
+        key = (
+            row["model"],
+            row["task"],
+            row["op_name"],
+            int(row["batch_size"]),
+            int(row["channels"]),
+            int(row["frames"]),
+            int(row["height"]),
+            int(row["width"]),
+        )
+        data[key] = _wan_entry(row)
+    return data
+
+
 class LoadedOpData(UserDict):
     """
     A dictionary-like object which also keeps track of which file the data was loaded from.
@@ -2541,6 +2768,15 @@ class PerfDatabase:
                 PerfDataFilename.dsv4_flash_hca_generation_module: load_generation_dsv4_flash_kind_module_data,
                 PerfDataFilename.dsv4_flash_paged_mqa_logits_module: load_dsv4_flash_sparse_kernel_data,
                 PerfDataFilename.dsv4_flash_hca_attn_module: load_dsv4_flash_sparse_kernel_data,
+                PerfDataFilename.wan_patch_embed: load_wan_patch_embed_data,
+                PerfDataFilename.wan_rope: load_wan_rope_data,
+                PerfDataFilename.wan_attention: load_wan_attention_data,
+                PerfDataFilename.wan_elementwise: load_wan_elementwise_data,
+                PerfDataFilename.wan_t5: load_wan_t5_data,
+                PerfDataFilename.wan_clip: load_wan_clip_data,
+                PerfDataFilename.wan_vae: load_wan_vae_data,
+                PerfDataFilename.wan_vae_attention: load_wan_vae_attention_data,
+                PerfDataFilename.wan_vae_elementwise: load_wan_vae_elementwise_data,
             }
             perf_data_dir = data_dir
             if op_filename_enum == PerfDataFilename.nccl:
@@ -2550,9 +2786,25 @@ class PerfDatabase:
 
             data_filepath = os.path.join(perf_data_dir, op_filename_enum.value)
             data_dict: Optional[dict] = func_map[op_filename_enum](data_filepath)
+            source_paths = [data_filepath]
+
+            if op_filename_enum == PerfDataFilename.gemm and data_dict is not None:
+                fallback_path = _resolve_wan_gemm_fallback_path(data_filepath)
+                if fallback_path is not None:
+                    fallback_dict = func_map[op_filename_enum](fallback_path)
+                    if fallback_dict is not None:
+                        data_dict = _merge_gemm_data(data_dict, fallback_dict)
+                        source_paths.append(fallback_path)
+                        logger.info(
+                            "Merged GEMM fallback data for Wan profile: primary=%s fallback=%s",
+                            data_filepath,
+                            fallback_path,
+                        )
 
             def _wrap_data_dict(data_dict: Optional[dict]):
-                return LoadedOpData(data_dict, op_filename_enum, data_filepath)
+                loaded = LoadedOpData(data_dict, op_filename_enum, data_filepath)
+                loaded.source_paths = tuple(source_paths)
+                return loaded
 
             # load_moe_data returns tuple of two Optional[dict]
             if isinstance(data_dict, tuple):
@@ -2627,6 +2879,19 @@ class PerfDatabase:
             "paged_mqa_logits": _load_op_data(PerfDataFilename.dsv4_flash_paged_mqa_logits_module),
             "hca_attn": _load_op_data(PerfDataFilename.dsv4_flash_hca_attn_module),
         }
+
+        # Wan2.2 diffusion/video path data. Missing files are allowed so that
+        # normal LLM database loading remains non-invasive. Wan queries raise
+        # a structured PerfDataNotAvailableError when the data is actually used.
+        self._wan_patch_embed_data = _load_op_data(PerfDataFilename.wan_patch_embed)
+        self._wan_rope_data = _load_op_data(PerfDataFilename.wan_rope)
+        self._wan_attention_data = _load_op_data(PerfDataFilename.wan_attention)
+        self._wan_elementwise_data = _load_op_data(PerfDataFilename.wan_elementwise)
+        self._wan_t5_data = _load_op_data(PerfDataFilename.wan_t5)
+        self._wan_clip_data = _load_op_data(PerfDataFilename.wan_clip)
+        self._wan_vae_data = _load_op_data(PerfDataFilename.wan_vae)
+        self._wan_vae_attention_data = _load_op_data(PerfDataFilename.wan_vae_attention)
+        self._wan_vae_elementwise_data = _load_op_data(PerfDataFilename.wan_vae_elementwise)
 
         # sglang wideep path
         if backend == "sglang":
@@ -3566,7 +3831,7 @@ class PerfDatabase:
             for y in sorted(data_dict[x].keys()):
                 z_dict = data_dict[x][y]
                 if len(z_dict) <= 1:
-                    logger.warning(
+                    logger.debug(
                         f"only one data point for a given xy, might trigger error. "
                         f"Please revisit data collection. {x=}, {y=}, {z_dict=}"
                     )
@@ -3576,7 +3841,7 @@ class PerfDatabase:
                         z_left, z_right = self._nearest_1d_point_helper(z, list(z_dict.keys()), False)
                         # Check if both left and right boundaries exist
                         if z_left not in z_dict or z_right not in z_dict:
-                            logger.warning(
+                            logger.debug(
                                 f"Skipping interpolation for z={z} as boundaries z_left={z_left} "
                                 f"or z_right={z_right} do not exist in z_dict for x={x}, y={y}"
                             )
@@ -3593,7 +3858,7 @@ class PerfDatabase:
                 if y not in data_dict[x]:
                     y_keys = list(data_dict[x].keys())
                     if len(y_keys) < 2:
-                        logger.warning(
+                        logger.debug(
                             f"Skipping y-direction interpolation for x={x}: "
                             f"only {len(y_keys)} y-value(s), need at least 2"
                         )
@@ -3601,7 +3866,7 @@ class PerfDatabase:
                     y_left, y_right = self._nearest_1d_point_helper(y, y_keys, False)
                     # Check if both left and right boundaries exist
                     if y_left not in data_dict[x] or y_right not in data_dict[x]:
-                        logger.warning(
+                        logger.debug(
                             f"Skipping interpolation for y={y} as boundaries y_left={y_left} "
                             f"or y_right={y_right} do not exist in data_dict[{x}]"
                         )
@@ -3611,7 +3876,7 @@ class PerfDatabase:
                     for z in z_list:
                         # Check if z exists in both y_left and y_right
                         if z not in data_dict[x][y_left] or z not in data_dict[x][y_right]:
-                            logger.warning(
+                            logger.debug(
                                 f"Skipping interpolation for z={z} as it does not exist in both "
                                 f"y_left={y_left} and y_right={y_right}"
                             )
@@ -3655,14 +3920,14 @@ class PerfDatabase:
         for x in target_x_list:
             if x not in data_dict:
                 if len(x_keys) < 2:
-                    logger.warning(
+                    logger.debug(
                         f"Skipping x-direction interpolation: only {len(x_keys)} x-value(s), need at least 2"
                     )
                     break
                 x_left, x_right = self._nearest_1d_point_helper(x, x_keys, False)
                 # Check if both left and right boundaries exist
                 if x_left not in data_dict or x_right not in data_dict:
-                    logger.warning(
+                    logger.debug(
                         f"Skipping interpolation for x={x} as boundaries x_left={x_left} "
                         f"or x_right={x_right} do not exist in data_dict"
                     )
@@ -3671,7 +3936,7 @@ class PerfDatabase:
                 for y in sorted(data_dict[x_left].keys()):
                     # Check if y exists in both x_left and x_right
                     if y not in data_dict[x_left] or y not in data_dict[x_right]:
-                        logger.warning(
+                        logger.debug(
                             f"Skipping interpolation for y={y} as it does not exist in both "
                             f"x_left={x_left} and x_right={x_right}"
                         )
@@ -3680,7 +3945,7 @@ class PerfDatabase:
                     for z in sorted(data_dict[x_left][y].keys()):
                         # Check if z exists in both x_left and x_right for the given y
                         if z not in data_dict[x_left][y] or z not in data_dict[x_right][y]:
-                            logger.warning(
+                            logger.debug(
                                 f"Skipping interpolation for z={z} as it does not exist in both "
                                 f"x_left={x_left} and x_right={x_right} for y={y}"
                             )
@@ -4144,8 +4409,7 @@ class PerfDatabase:
 
         except Exception as e:
             if database_mode == common.DatabaseMode.HYBRID:
-                debug_msg = error_msg + " Will try empirical mode."
-                logger.debug(debug_msg)
+                logger.warning("%s Falling back to empirical mode. reason=%s", error_msg, e)
                 return PerformanceResult(get_empirical(), energy=0.0, source="empirical")
 
             exception_msg = error_msg + " Consider using HYBRID mode."
@@ -4164,6 +4428,132 @@ class PerfDatabase:
             else:
                 e.args = (exception_msg,)
             raise
+
+
+    @staticmethod
+    def _to_perf_result(entry: dict | float, source: str = "silicon") -> PerformanceResult:
+        if isinstance(entry, dict):
+            latency = float(entry.get("latency", 0.0))
+            energy = float(entry.get("energy", entry.get("power", 0.0) * latency))
+            return PerformanceResult(latency, energy=energy, source=source)
+        return PerformanceResult(float(entry), energy=0.0, source=source)
+
+    @staticmethod
+    def _wan_key_distance(candidate: tuple, target: tuple) -> float:
+        distance = 0.0
+        for cand, want in zip(candidate, target, strict=True):
+            if isinstance(want, int) and isinstance(cand, int):
+                denom = max(abs(want), 1)
+                distance += abs(cand - want) / denom
+            elif cand != want:
+                distance += 1000.0
+        return distance
+
+    def _query_wan_table(
+        self,
+        loaded_data: LoadedOpData,
+        key: tuple,
+        *,
+        exact_prefix_len: int | None = None,
+        table_name: str,
+    ) -> PerformanceResult:
+        loaded_data.raise_if_not_loaded()
+        if key in loaded_data:
+            return self._to_perf_result(loaded_data[key])
+        candidates = list(loaded_data.keys())
+        if exact_prefix_len is not None:
+            candidates = [candidate for candidate in candidates if candidate[:exact_prefix_len] == key[:exact_prefix_len]]
+        if not candidates:
+            if table_name == "attention" and len(key) == 12 and key[11] == "cross_local":
+                legacy_key = (*key[:11], "ring")
+                if legacy_key in loaded_data:
+                    logger.debug("Wan attention legacy cross SP fallback: requested=%s legacy=%s", key, legacy_key)
+                    return self._to_perf_result(loaded_data[legacy_key])
+            if table_name in {"rope", "attention"} and len(key) >= 1 and key[-1] == "usp":
+                legacy_key = (*key[:-1], "ulysses")
+                if legacy_key in loaded_data:
+                    logger.debug("Wan %s legacy USP fallback: requested=%s legacy=%s", table_name, key, legacy_key)
+                    return self._to_perf_result(loaded_data[legacy_key])
+            raise PerfDataNotAvailableError(
+                f"Wan perf data not available for {table_name}: key={key}, "
+                f"system='{self.system}', backend='{self.backend}', version='{self.version}'."
+            )
+        nearest_key = min(candidates, key=lambda candidate: self._wan_key_distance(candidate, key))
+        result = self._to_perf_result(loaded_data[nearest_key])
+        logger.warning(
+            "Wan %s query used nearest fallback: source=%s requested=%s nearest=%s result=nearest",
+            table_name,
+            getattr(loaded_data, "source_paths", (loaded_data.filepath,)),
+            key,
+            nearest_key,
+        )
+        return result
+
+    def query_wan_patch_embed(
+        self, model, task, batch_size, in_channels, frames, height, width, patch_t, patch_h, patch_w, seq_len,
+        hidden_size=None
+    ) -> PerformanceResult:
+        hidden_size = 5120 if hidden_size is None else hidden_size
+        key = (
+            model,
+            task,
+            batch_size,
+            in_channels,
+            hidden_size,
+            frames,
+            height,
+            width,
+            patch_t,
+            patch_h,
+            patch_w,
+            seq_len,
+        )
+        return self._query_wan_table(self._wan_patch_embed_data, key, exact_prefix_len=5, table_name="patch_embed")
+
+    def query_wan_rope(
+        self, batch_size, seq_len, num_heads, head_dim, tp_size, sp_size, sp_algorithm
+    ) -> PerformanceResult:
+        key = (batch_size, seq_len, num_heads, head_dim, tp_size, sp_size, sp_algorithm)
+        return self._query_wan_table(self._wan_rope_data, key, exact_prefix_len=1, table_name="rope")
+
+    def query_wan_attention(
+        self, model, task, attn_kind, backend, batch_size, q_seq_len, kv_seq_len, num_heads, head_dim, tp_size,
+        sp_size, sp_algorithm
+    ) -> PerformanceResult:
+        key = (model, task, attn_kind, backend, batch_size, q_seq_len, kv_seq_len, num_heads, head_dim, tp_size, sp_size, sp_algorithm)
+        return self._query_wan_table(self._wan_attention_data, key, exact_prefix_len=5, table_name="attention")
+
+    def query_wan_elementwise(self, op_name, batch_size, seq_len, hidden_size, tp_size) -> PerformanceResult:
+        key = (op_name, batch_size, seq_len, hidden_size, tp_size)
+        return self._query_wan_table(self._wan_elementwise_data, key, exact_prefix_len=2, table_name="elementwise")
+
+    def query_wan_t5(self, op_name, batch_size, seq_len, d_model, num_heads, d_kv, d_ff) -> PerformanceResult:
+        key = (op_name, batch_size, seq_len, d_model, num_heads, d_kv, d_ff)
+        return self._query_wan_table(self._wan_t5_data, key, exact_prefix_len=2, table_name="t5")
+
+    def query_wan_clip(
+        self, op_name, batch_size, seq_len, hidden_size, num_heads, head_dim, intermediate_size
+    ) -> PerformanceResult:
+        key = (op_name, batch_size, seq_len, hidden_size, num_heads, head_dim, intermediate_size)
+        return self._query_wan_table(self._wan_clip_data, key, exact_prefix_len=2, table_name="clip")
+
+    def query_wan_vae(
+        self, model, task, path, stage, batch_size, in_channels, out_channels, frames, height, width, conv_kind
+    ) -> PerformanceResult:
+        key = (model, task, path, stage, batch_size, in_channels, out_channels, frames, height, width, conv_kind)
+        return self._query_wan_table(self._wan_vae_data, key, exact_prefix_len=5, table_name="vae")
+
+    def query_wan_vae_attention(
+        self, model, task, batch_size, channels, frames, height, width, tokens_per_frame
+    ) -> PerformanceResult:
+        key = (model, task, batch_size, channels, frames, height, width, tokens_per_frame)
+        return self._query_wan_table(self._wan_vae_attention_data, key, exact_prefix_len=3, table_name="vae_attention")
+
+    def query_wan_vae_elementwise(
+        self, model, task, op_name, batch_size, channels, frames, height, width
+    ) -> PerformanceResult:
+        key = (model, task, op_name, batch_size, channels, frames, height, width)
+        return self._query_wan_table(self._wan_vae_elementwise_data, key, exact_prefix_len=4, table_name="vae_elementwise")
 
     def _get_quant_tc_flops(self, quant_mode) -> float:
         """Resolve actual tensor-core FLOPS for a given quant mode.
@@ -4282,9 +4672,27 @@ class PerfDatabase:
                 if len(m_values) >= 2:
                     m_left, m_right = self._nearest_1d_point_helper(m, m_values, inner_only=False)
                     result = self._interp_1d([m_left, m_right], [gemm_data[m_left][n][k], gemm_data[m_right][n][k]], m)
+                    logger.warning(
+                        "GEMM query used 1d interpolation: source=%s m=%s n=%s k=%s quant_mode=%s bounds=(%s,%s)",
+                        getattr(self._gemm_data, "source_paths", (self._gemm_data.filepath,)),
+                        m,
+                        n,
+                        k,
+                        quant_mode.name,
+                        m_left,
+                        m_right,
+                    )
                     return _to_performance_result(result)
 
                 result = self._interp_3d(m, n, k, gemm_data, "cubic")
+                logger.warning(
+                    "GEMM query used 3d interpolation: source=%s m=%s n=%s k=%s quant_mode=%s",
+                    getattr(self._gemm_data, "source_paths", (self._gemm_data.filepath,)),
+                    m,
+                    n,
+                    k,
+                    quant_mode.name,
+                )
                 return _to_performance_result(result)
 
             return self._query_silicon_or_hybrid(

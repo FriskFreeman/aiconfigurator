@@ -375,6 +375,62 @@ DefaultHFModels = {
     "nvidia/Nemotron-H-56B-Base-8K",
 }
 
+WAN_HF_MODEL_ALIASES = {
+    "Wan-AI/Wan2.2-TI2V-5B": "Wan2.2-TI2V-5B",
+    "Wan-AI/Wan2.2-TI2V-5B-Diffusers": "Wan2.2-TI2V-5B",
+    "Wan-AI/Wan2.2-T2V-A14B": "Wan2.2-T2V-A14B",
+    "Wan-AI/Wan2.2-T2V-A14B-Diffusers": "Wan2.2-T2V-A14B",
+    "Wan-AI/Wan2.2-I2V-A14B": "Wan2.2-I2V-A14B",
+    "Wan-AI/Wan2.2-I2V-A14B-Diffusers": "Wan2.2-I2V-A14B",
+    "FastVideo/FastWan2.2-TI2V-5B-FullAttn-Diffusers": "Wan2.2-TI2V-5B",
+    "FastVideo/FastWan2.2-TI2V-5B-Diffusers": "Wan2.2-TI2V-5B",
+}
+
+WAN_DEFAULT_MODEL_CONFIGS = {
+    "Wan2.2-TI2V-5B": {
+        "task": "ti2v",
+        "height": 704,
+        "width": 1280,
+        "frames": 121,
+        "has_image_context": True,
+        "dit_architecture": "WanModel",
+        "patch_in_channels": 48,
+        "latent_channels": 48,
+        "vae_latent_channels": 16,
+        "text_tokens": 512,
+        "vae_stride": (4, 8, 8),
+        "latent_prepare_stride": (4, 16, 16),
+    },
+    "Wan2.2-T2V-A14B": {
+        "task": "t2v",
+        "height": 720,
+        "width": 1280,
+        "frames": 121,
+        "has_image_context": False,
+        "dit_architecture": "WanTransformer3DModel",
+        "patch_in_channels": 16,
+        "latent_channels": 16,
+        "vae_latent_channels": 16,
+        "text_tokens": 512,
+        "vae_stride": (4, 8, 8),
+    },
+    "Wan2.2-I2V-A14B": {
+        "task": "i2v",
+        "height": 720,
+        "width": 1280,
+        "frames": 121,
+        "has_image_context": True,
+        "dit_architecture": "WanModel",
+        "patch_in_channels": 36,
+        "latent_channels": 16,
+        "vae_latent_channels": 16,
+        "text_tokens": 512,
+        "vae_stride": (4, 8, 8),
+    },
+}
+DefaultHFModels.update(WAN_HF_MODEL_ALIASES)
+DefaultHFModels.update(WAN_DEFAULT_MODEL_CONFIGS)
+
 """
 Supported systems (GPU types)
 """
@@ -405,6 +461,7 @@ ModelFamily = {
     "NEMOTRONH",
     "HYBRIDMOE",
     "QWEN35",
+    "WAN",
 }
 ARCHITECTURE_TO_MODEL_FAMILY = {
     "LlamaForCausalLM": "LLAMA",
@@ -429,6 +486,8 @@ ARCHITECTURE_TO_MODEL_FAMILY = {
     "Llama4ForConditionalGeneration": "HYBRIDMOE",
     "Qwen3_5ForConditionalGeneration": "QWEN35",
     "Qwen3_5MoeForConditionalGeneration": "QWEN35",
+    "WanTransformer3DModel": "WAN",
+    "WanModel": "WAN",
 }
 
 # Multimodal architectures whose LLM config lives under a nested key (e.g. "text_config").
@@ -665,6 +724,16 @@ class PerfDataFilename(Enum):
     # topk_512 and csa_attn are modeled analytically — no CSV needed.
     dsv4_flash_paged_mqa_logits_module = "dsv4_flash_paged_mqa_logits_module_perf.txt"
     dsv4_flash_hca_attn_module = "dsv4_flash_hca_attn_module_perf.txt"
+    # Wan2.2 diffusion/video-model collector data.
+    wan_patch_embed = "wan_patch_embed_perf.txt"
+    wan_rope = "wan_rope_perf.txt"
+    wan_attention = "wan_attention_perf.txt"
+    wan_elementwise = "wan_elementwise_perf.txt"
+    wan_t5 = "wan_t5_perf.txt"
+    wan_clip = "wan_clip_perf.txt"
+    wan_vae = "wan_vae_perf.txt"
+    wan_vae_attention = "wan_vae_attention_perf.txt"
+    wan_vae_elementwise = "wan_vae_elementwise_perf.txt"
 
 
 QuantMapping = namedtuple("QuantMapping", ["memory", "compute", "name"])

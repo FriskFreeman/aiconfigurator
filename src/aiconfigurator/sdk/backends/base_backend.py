@@ -50,8 +50,9 @@ class BaseBackend(ABC):
         context_source_dict: dict[str, str] = {}
 
         effective_isl = isl - prefix
-        if effective_isl <= 0:
+        if effective_isl <= 0 and getattr(model, "model_family", "") != "WAN":
             raise ValueError(f"isl must be greater than 0 after removing prefix, but got {effective_isl}")
+        effective_isl = max(effective_isl, 1)
 
         for op in model.context_ops:
             x = batch_size * effective_isl if "logits_gemm" not in op._name else batch_size
@@ -64,6 +65,17 @@ class BaseBackend(ABC):
                 prefix=prefix,
                 model_name=getattr(model, "model_name", ""),
                 seq_imbalance_correction_scale=runtime_config.seq_imbalance_correction_scale,
+                runtime_config=runtime_config,
+                video_task=getattr(runtime_config, "video_task", None),
+                video_height=getattr(runtime_config, "video_height", None),
+                video_width=getattr(runtime_config, "video_width", None),
+                video_frames=getattr(runtime_config, "video_frames", None),
+                denoising_steps=getattr(runtime_config, "denoising_steps", None),
+                sp_size=getattr(runtime_config, "sp_size", 1),
+                ulysses_degree=getattr(runtime_config, "ulysses_degree", None),
+                ring_degree=getattr(runtime_config, "ring_degree", None),
+                sp_algorithm=getattr(runtime_config, "sp_algorithm", "none"),
+                attention_backend=getattr(runtime_config, "attention_backend", "fa"),
             )
             context_latency_dict[op._name] += float(result)
             context_energy_wms_dict[op._name] += getattr(result, "energy", 0.0)
@@ -149,6 +161,8 @@ class BaseBackend(ABC):
             runtime_config.osl,
             runtime_config.prefix,
         )
+        if getattr(model, "model_family", "") == "WAN" and hasattr(model, "configure_from_runtime"):
+            model.configure_from_runtime(runtime_config)
 
         context_latency_dict, context_energy_wms_dict, context_source_dict = {}, {}, {}
         generation_latency_dict, generation_energy_wms_dict, generation_source_dict = {}, {}, {}
@@ -277,6 +291,27 @@ class BaseBackend(ABC):
         generation_latency_ms = sum(generation_latency_dict.values())  # milliseconds
         generation_energy_wms = sum(generation_energy_wms_dict.values())  # watt-milliseconds
 
+        # Wan collector data is gathered at single-video batch size. Until
+        # multi-video Wan kernels are explicitly collected, model batch as
+        # serial independent videos so request latency and per-op breakdowns
+        # remain conservative and visibly batch-sensitive.
+        wan_batch_scale = max(1, int(batch_size or 1)) if getattr(model, "model_family", "") == "WAN" else 1
+        if wan_batch_scale > 1:
+            logger.warning(
+                "Wan batch_size=%s is modeled as serial scaling until batched Wan collector data is available.",
+                wan_batch_scale,
+            )
+            context_latency_dict = {op: latency * wan_batch_scale for op, latency in context_latency_dict.items()}
+            context_energy_wms_dict = {op: energy * wan_batch_scale for op, energy in context_energy_wms_dict.items()}
+            generation_latency_dict = {op: latency * wan_batch_scale for op, latency in generation_latency_dict.items()}
+            generation_energy_wms_dict = {
+                op: energy * wan_batch_scale for op, energy in generation_energy_wms_dict.items()
+            }
+            context_latency_ms *= wan_batch_scale
+            context_energy_wms *= wan_batch_scale
+            generation_latency_ms *= wan_batch_scale
+            generation_energy_wms *= wan_batch_scale
+
         # Calculate average power (SIMPLIFIED - just divide! Single operation.)
         context_power_avg = context_energy_wms / context_latency_ms if context_latency_ms > 0 else 0.0
         generation_power_avg = generation_energy_wms / generation_latency_ms if generation_latency_ms > 0 else 0.0
@@ -314,8 +349,18 @@ class BaseBackend(ABC):
         dp = model.config.attention_dp_size
         moe_tp = model.config.moe_tp_size
         moe_ep = model.config.moe_ep_size
-        num_total_gpus = tp * pp * dp
-        parallel = f"tp{tp}pp{pp}dp{dp}etp{moe_tp}ep{moe_ep}"
+        is_wan = getattr(model, "model_family", "") == "WAN"
+        sp = max(1, int(getattr(model, "_sp_size", getattr(runtime_config, "sp_size", 1))))
+        ulysses = max(1, int(getattr(model, "_ulysses_degree", getattr(runtime_config, "ulysses_degree", 1) or 1)))
+        ring = max(1, int(getattr(model, "_ring_degree", getattr(runtime_config, "ring_degree", 1) or 1)))
+        sp_algorithm = str(getattr(model, "_sp_algorithm", getattr(runtime_config, "sp_algorithm", "none")))
+        if is_wan and sp_algorithm in {"", "none", "None"} and hasattr(model, "_parallel_label"):
+            sp_algorithm = str(model._parallel_label())
+        num_total_gpus = tp * pp * dp * (sp if is_wan else 1)
+        parallel = f"tp{tp}pp{pp}dp{dp}"
+        if is_wan:
+            parallel += f"sp{sp}u{ulysses}r{ring}"
+        parallel += f"etp{moe_tp}ep{moe_ep}"
         gemm = model.config.gemm_quant_mode.name
         kvcache = model.config.kvcache_quant_mode.name
         fmha = model.config.fmha_quant_mode.name
@@ -364,6 +409,18 @@ class BaseBackend(ABC):
         ]
 
         summary_df = pd.DataFrame(data, columns=common.ColumnsStatic).round(3)
+        result_dict = dict(zip(common.ColumnsStatic, data[0]))
+        if is_wan:
+            result_dict.update(
+                {
+                    "sp": sp,
+                    "sp_size": sp,
+                    "ulysses_degree": ulysses,
+                    "ring_degree": ring,
+                    "sp_algorithm": sp_algorithm,
+                    "wan_batch_model": "serial_single_video_collect",
+                }
+            )
 
         summary.set_context_latency_dict(context_latency_dict)
         summary.set_generation_latency_dict(generation_latency_dict)
@@ -376,6 +433,7 @@ class BaseBackend(ABC):
         summary.set_e2e_power_avg(e2e_power_avg)
         summary.set_memory_and_check_oom(memory, database.system_spec["gpu"]["mem_capacity"])
         summary.set_summary_df(summary_df)
+        summary.set_result_dict(result_dict)
 
         return summary
 

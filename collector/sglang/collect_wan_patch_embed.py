@@ -8,9 +8,6 @@ import torch
 
 from collector.helper import benchmark_with_power, log_perf
 from collector.sglang.wan_common import (
-    WAN_HIDDEN_SIZE,
-    WAN_IN_CHANNELS,
-    WAN_PATCH_SIZE,
     iter_wan_video_cases,
     latent_shape,
     seq_len_from_video,
@@ -20,18 +17,23 @@ from collector.sglang.wan_common import (
 def get_wan_patch_embed_test_cases():
     test_cases = []
     for profile, num_frames, height, width in iter_wan_video_cases():
-        latent_t, latent_h, latent_w = latent_shape(num_frames, height, width)
-        seq_len = seq_len_from_video(num_frames, height, width)
+        latent_t, latent_h, latent_w = latent_shape(
+            num_frames, height, width, stride=profile.latent_prepare_stride
+        )
+        seq_len = seq_len_from_video(
+            num_frames, height, width, latent_stride=profile.latent_prepare_stride
+        )
         test_cases.append(
             [
                 profile.model,
                 profile.task,
                 1,
-                WAN_IN_CHANNELS,
+                profile.patch_in_channels,
+                profile.hidden_size,
                 latent_t,
                 latent_h,
                 latent_w,
-                *WAN_PATCH_SIZE,
+                *profile.patch_size,
                 seq_len,
             ]
         )
@@ -43,6 +45,7 @@ def run_wan_patch_embed(
     task,
     batch_size,
     in_channels,
+    hidden_size,
     frames,
     height,
     width,
@@ -61,7 +64,7 @@ def run_wan_patch_embed(
 
     conv = torch.nn.Conv3d(
         in_channels,
-        WAN_HIDDEN_SIZE,
+        hidden_size,
         kernel_size=(patch_t, patch_h, patch_w),
         stride=(patch_t, patch_h, patch_w),
         bias=True,
@@ -97,6 +100,7 @@ def run_wan_patch_embed(
                 "task": task,
                 "batch_size": batch_size,
                 "in_channels": in_channels,
+                "hidden_size": hidden_size,
                 "frames": frames,
                 "height": height,
                 "width": width,

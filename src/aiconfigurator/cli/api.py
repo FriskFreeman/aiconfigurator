@@ -511,6 +511,21 @@ class EstimateResult:
         return int(self.raw.get("num_total_gpus", 0))
 
     @property
+    def sp_size(self) -> int:
+        """Wan sequence-parallel degree, or 1 for non-Wan models."""
+        return int(self.raw.get("sp_size", self.raw.get("sp", 1)))
+
+    @property
+    def ulysses_degree(self) -> int:
+        """Wan Ulysses degree inside SP."""
+        return int(self.raw.get("ulysses_degree", 1))
+
+    @property
+    def ring_degree(self) -> int:
+        """Wan Ring degree inside SP."""
+        return int(self.raw.get("ring_degree", 1))
+
+    @property
     def memory(self) -> float:
         """Estimated GPU memory usage (GB).
 
@@ -653,6 +668,16 @@ def cli_estimate(
     systems_paths: str | None = None,
     free_gpu_memory_fraction: float | None = None,
     max_seq_len: int | None = None,
+    video_task: str | None = None,
+    video_height: int | None = None,
+    video_width: int | None = None,
+    video_frames: int | None = None,
+    denoising_steps: int | None = None,
+    sp_size: int = 1,
+    ulysses_degree: int | None = None,
+    ring_degree: int | None = None,
+    sp_algorithm: str = "none",
+    attention_backend: str = "fa",
 ) -> EstimateResult:
     """
     Estimate TTFT, TPOT, and power for a single model/system/config combination.
@@ -782,6 +807,16 @@ def cli_estimate(
             get_model=get_model,
             free_gpu_memory_fraction=free_gpu_memory_fraction,
             max_seq_len=max_seq_len,
+            video_task=video_task,
+            video_height=video_height,
+            video_width=video_width,
+            video_frames=video_frames,
+            denoising_steps=denoising_steps,
+            sp_size=sp_size,
+            ulysses_degree=ulysses_degree,
+            ring_degree=ring_degree,
+            sp_algorithm=sp_algorithm,
+            attention_backend=attention_backend,
         )
     elif mode == "disagg":
         # Validate required disagg params
@@ -861,6 +896,16 @@ def _run_agg_estimate(
     get_model,
     free_gpu_memory_fraction=None,
     max_seq_len=None,
+    video_task=None,
+    video_height=None,
+    video_width=None,
+    video_frames=None,
+    denoising_steps=None,
+    sp_size=1,
+    ulysses_degree=None,
+    ring_degree=None,
+    sp_algorithm="none",
+    attention_backend="fa",
 ) -> EstimateResult:
     """Run aggregated (IFB) estimation."""
     from aiconfigurator.sdk.config import RuntimeConfig
@@ -882,18 +927,35 @@ def _run_agg_estimate(
         moe_quant_mode,
         comm_quant_mode,
     )
-    runtime_config = RuntimeConfig(isl=isl, osl=osl, batch_size=batch_size)
+    runtime_config = RuntimeConfig(
+        isl=isl,
+        osl=osl,
+        batch_size=batch_size,
+        video_task=video_task,
+        video_height=video_height,
+        video_width=video_width,
+        video_frames=video_frames,
+        denoising_steps=denoising_steps,
+        sp_size=sp_size,
+        ulysses_degree=ulysses_degree,
+        ring_degree=ring_degree,
+        sp_algorithm=sp_algorithm,
+        attention_backend=attention_backend,
+    )
 
     model = get_model(model_path, model_config, backend_name)
     database = load_database(system_name)
     backend = get_backend(backend_name)
     session = InferenceSession(model, database, backend)
-    summary = session.run_agg(
-        runtime_config,
-        ctx_tokens=ctx_tokens,
-        max_seq_len=max_seq_len if max_seq_len is not None else isl + osl,
-        free_gpu_memory_fraction=free_gpu_memory_fraction,
-    )
+    if getattr(model, "model_family", "") == "WAN":
+        summary = session.run_static(runtime_config, mode="static_ctx")
+    else:
+        summary = session.run_agg(
+            runtime_config,
+            ctx_tokens=ctx_tokens,
+            max_seq_len=max_seq_len if max_seq_len is not None else isl + osl,
+            free_gpu_memory_fraction=free_gpu_memory_fraction,
+        )
 
     if summary.check_oom():
         raise RuntimeError(
@@ -931,7 +993,7 @@ def _run_agg_estimate(
         backend_name=backend_name,
         backend_version=resolved_version,
         raw=result_dict,
-        mode="agg",
+        mode="static_ctx" if getattr(model, "model_family", "") == "WAN" else "agg",
         per_ops_data=summary.get_per_ops_data(),
         per_ops_source=summary.get_per_ops_source(),
         kv_cache_warning=kv_warning,

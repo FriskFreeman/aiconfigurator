@@ -485,6 +485,142 @@ def _parse_hf_config_json(config: dict) -> dict:
             f"Supported architectures: {', '.join(ARCHITECTURE_TO_MODEL_FAMILY.keys())}"
         )
 
+    if architecture == "WanTransformer3DModel":
+        profile_name = config.get("wan_model") or common.WAN_HF_MODEL_ALIASES.get(
+            config.get("_name_or_path", ""), "Wan2.2-T2V-A14B"
+        )
+        profile = common.WAN_DEFAULT_MODEL_CONFIGS.get(profile_name, common.WAN_DEFAULT_MODEL_CONFIGS["Wan2.2-T2V-A14B"])
+        text_cfg = _load_wan_module_config(profile_name, "TextEncoder") or {}
+        vae_cfg = _load_wan_module_config(profile_name, "VAE") or {}
+        scheduler_cfg = _load_wan_module_config(profile_name, "Scheduler") or {}
+        extra_params = {
+            "wan_model": profile_name,
+            "task": config.get("task", profile["task"]),
+            "height": config.get("height", profile["height"]),
+            "width": config.get("width", profile["width"]),
+            "frames": config.get("frames", profile["frames"]),
+            "has_image_context": config.get("has_image_context", profile["has_image_context"]),
+            "latent_channels": profile.get("vae_latent_channels", profile.get("latent_channels", 16)),
+            "vae_latent_channels": profile.get("vae_latent_channels", profile.get("latent_channels", 16)),
+            "patch_in_channels": config.get("in_channels", profile.get("patch_in_channels", 16)),
+            "patch_size": tuple(config.get("patch_size", (1, 2, 2))),
+            "vae_stride": tuple(config.get("vae_stride", profile.get("vae_stride", (4, 8, 8)))),
+            "latent_prepare_stride": tuple(
+                config.get(
+                    "latent_prepare_stride",
+                    profile.get(
+                        "latent_prepare_stride",
+                        profile.get("vae_stride", (4, 8, 8)),
+                    ),
+                )
+            ),
+            "text_tokens": config.get("text_tokens", 512),
+            "image_tokens": config.get("image_tokens", 257),
+            "denoising_steps": config.get("denoising_steps", 50),
+            "freq_dim": config.get("freq_dim", 256),
+            "text_dim": config.get("text_dim", text_cfg.get("d_model", 4096)),
+            "ffn_dim": config.get("ffn_dim", 13824),
+            "t5_d_model": config.get("t5_d_model", text_cfg.get("d_model", 4096)),
+            "t5_d_ff": config.get("t5_d_ff", text_cfg.get("d_ff", 10240)),
+            "t5_num_heads": config.get("t5_num_heads", text_cfg.get("num_heads", 64)),
+            "t5_d_kv": config.get("t5_d_kv", text_cfg.get("d_kv", 64)),
+            "t5_num_layers": config.get("t5_num_layers", text_cfg.get("num_layers", 24)),
+            "clip_hidden_size": config.get("clip_hidden_size", 768),
+            "clip_intermediate_size": config.get("clip_intermediate_size", 3072),
+            "clip_num_heads": config.get("clip_num_heads", 12),
+            "clip_head_dim": config.get("clip_head_dim", 64),
+            "clip_tokens": config.get("clip_tokens", 50),
+            "clip_num_layers": config.get("clip_num_layers", 12),
+            "vae_base_dim": config.get("vae_base_dim", vae_cfg.get("base_dim", 96)),
+            "vae_dim_mult": tuple(config.get("vae_dim_mult", vae_cfg.get("dim_mult", (1, 2, 4, 4)))),
+            "vae_temporal_downsample": tuple(
+                config.get(
+                    "vae_temporal_downsample",
+                    vae_cfg.get("temporal_downsample", vae_cfg.get("temperal_downsample", (False, True, True))),
+                )
+            ),
+            "scheduler_num_train_timesteps": scheduler_cfg.get("num_train_timesteps", 1000),
+            "dit_architecture": "WanTransformer3DModel",
+        }
+        return {
+            "architecture": architecture,
+            "layers": config.get("num_layers", config.get("num_hidden_layers", 40)),
+            "n": config.get("num_attention_heads", 40),
+            "n_kv": config.get("num_key_value_heads", config.get("num_attention_heads", 40)),
+            "d": config.get("attention_head_dim", config.get("head_dim", 128)),
+            "hidden_size": config.get(
+                "hidden_size",
+                config.get("num_attention_heads", 40) * config.get("attention_head_dim", config.get("head_dim", 128)),
+            ),
+            "inter_size": config.get("ffn_dim", config.get("intermediate_size", 13824)),
+            "vocab": config.get("out_channels", config.get("vocab_size", 16)),
+            "context": config.get("max_position_embeddings", 131072),
+            "topk": 0,
+            "num_experts": 0,
+            "moe_inter_size": 0,
+            "extra_params": extra_params,
+        }
+
+    if architecture == "WanModel":
+        profile_name = config.get("wan_model") or common.WAN_HF_MODEL_ALIASES.get(
+            config.get("_name_or_path", ""), "Wan2.2-T2V-A14B"
+        )
+        profile = common.WAN_DEFAULT_MODEL_CONFIGS.get(profile_name, common.WAN_DEFAULT_MODEL_CONFIGS["Wan2.2-T2V-A14B"])
+        text_cfg = _load_wan_module_config(profile_name, "TextEncoder") or {}
+        vae_cfg = _load_wan_module_config(profile_name, "VAE") or {}
+        return {
+            "architecture": architecture,
+            "layers": config.get("num_layers", config.get("num_hidden_layers", 40)),
+            "n": config.get("num_heads", config.get("num_attention_heads", 40)),
+            "n_kv": config.get("num_heads", config.get("num_attention_heads", 40)),
+            "d": config.get("attention_head_dim")
+            or (config.get("dim", 5120) // max(config.get("num_heads", config.get("num_attention_heads", 40)), 1)),
+            "hidden_size": config.get("dim", 5120),
+            "inter_size": config.get("ffn_dim", 13824),
+            "vocab": config.get("out_dim", 16),
+            "context": config.get("text_len", 512),
+            "topk": 0,
+            "num_experts": 0,
+            "moe_inter_size": 0,
+            "extra_params": {
+                "wan_model": profile_name,
+                "task": config.get("model_type", profile["task"]),
+                "height": profile["height"],
+                "width": profile["width"],
+                "frames": profile["frames"],
+                "has_image_context": profile["has_image_context"],
+                "latent_channels": profile.get("vae_latent_channels", profile.get("latent_channels", 16)),
+                "vae_latent_channels": profile.get("vae_latent_channels", profile.get("latent_channels", 16)),
+                "patch_in_channels": config.get("in_dim", profile.get("patch_in_channels", 16)),
+                "patch_size": tuple(config.get("patch_size", (1, 2, 2))),
+                "vae_stride": tuple(config.get("vae_stride", profile.get("vae_stride", (4, 8, 8)))),
+                "latent_prepare_stride": tuple(
+                    config.get(
+                        "latent_prepare_stride",
+                        profile.get(
+                            "latent_prepare_stride",
+                            profile.get("vae_stride", (4, 8, 8)),
+                        ),
+                    )
+                ),
+                "text_tokens": config.get("text_len", 512),
+                "image_tokens": 257,
+                "denoising_steps": config.get("denoising_steps", 50),
+                "freq_dim": config.get("freq_dim", 256),
+                "text_dim": config.get("text_dim", text_cfg.get("d_model", 4096)),
+                "ffn_dim": config.get("ffn_dim", 13824),
+                "vae_base_dim": config.get("vae_base_dim", vae_cfg.get("base_dim", 96)),
+                "vae_dim_mult": tuple(config.get("vae_dim_mult", vae_cfg.get("dim_mult", (1, 2, 4, 4)))),
+                "vae_temporal_downsample": tuple(
+                    config.get(
+                        "vae_temporal_downsample",
+                        vae_cfg.get("temporal_downsample", vae_cfg.get("temperal_downsample", (False, True, True))),
+                    )
+                ),
+                "dit_architecture": "WanModel",
+            },
+        }
+
     layers = config["num_hidden_layers"]
     hidden_size = config["hidden_size"]
     n = config["num_attention_heads"]
@@ -688,12 +824,34 @@ def _get_model_config_path():
     return pkg_resources.files("aiconfigurator") / "model_configs"
 
 
+def _load_wan_module_config(profile_name: str, module_suffix: str) -> dict | None:
+    """Load a cached Wan module config if available."""
+    candidates = []
+    if profile_name:
+        candidates.append(_get_model_config_path() / f"Wan-AI--{profile_name}-{module_suffix}_config.json")
+    if profile_name != "Wan2.2-T2V-A14B":
+        candidates.append(_get_model_config_path() / f"Wan-AI--Wan2.2-T2V-A14B-{module_suffix}_config.json")
+    for config_path in candidates:
+        if config_path.exists():
+            return _load_json_with_infinity(config_path)
+    return None
+
+
 def _load_pre_downloaded_hf_config(hf_id: str) -> dict:
     """Load a cached HuggingFace config.json from the model_configs package directory."""
     config_path = _get_model_config_path() / f"{hf_id.replace('/', '--')}_config.json"
+    if not config_path.exists() and hf_id in common.WAN_HF_MODEL_ALIASES:
+        wan_short_name = common.WAN_HF_MODEL_ALIASES[hf_id]
+        config_path = _get_model_config_path() / f"Wan-AI--{wan_short_name}_config.json"
     if not config_path.exists():
         raise ValueError(f"HuggingFace model {hf_id} is not cached in model_configs directory.")
-    return _load_json_with_infinity(config_path)
+    config = _load_json_with_infinity(config_path)
+    if config.get("_class_name") and "architectures" not in config:
+        config["architectures"] = [config["_class_name"]]
+    config.setdefault("_name_or_path", hf_id)
+    if hf_id in common.WAN_HF_MODEL_ALIASES:
+        config.setdefault("wan_model", common.WAN_HF_MODEL_ALIASES[hf_id])
+    return config
 
 
 def _load_pre_downloaded_hf_quant_config(hf_id: str) -> dict | None:

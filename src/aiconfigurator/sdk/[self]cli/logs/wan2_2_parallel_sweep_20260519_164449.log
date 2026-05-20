@@ -1,0 +1,137 @@
+16:44:49 [INFO] [root:84] Wan parallel sweep start: cases=40 log=/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/[self]cli/logs/wan2_2_parallel_sweep_20260519_164449.log summary=/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/[self]cli/logs/wan2_2_parallel_sweep_20260519_164449.json
+16:44:49 [INFO] [root:92] CASE 001/040 START tp1_sp1_u1_r1_none
+16:44:49 [INFO] [aiconfigurator.sdk.utils:1064] Quant inference result: quant_algo=None, kv_cache_quant_algo=None, quant_dynamic=None
+16:44:49 [INFO] [aiconfigurator.sdk.utils:1171] Loaded model config for Wan-AI/Wan2.2-T2V-A14B-Diffusers: architecture=WanTransformer3DModel, layers=40, n=40, n_kv=40, d=128, hidden_size=5120, inter_size=13824, vocab=16, context=131072, topk=0, num_experts=0, moe_inter_size=0, extra_params={'wan_model': 'Wan2.2-T2V-A14B', 'task': 't2v', 'height': 720, 'width': 1280, 'frames': 121, 'has_image_context': False, 'latent_channels': 16, 'patch_in_channels': 16, 'patch_size': (1, 2, 2), 'vae_stride': (4, 16, 16), 'text_tokens': 512, 'image_tokens': 257, 'denoising_steps': 50, 'freq_dim': 256, 'text_dim': 4096, 'ffn_dim': 13824, 't5_d_model': 4096, 't5_d_ff': 10240, 't5_num_heads': 64, 't5_d_kv': 64, 't5_num_layers': 24, 'clip_hidden_size': 768, 'clip_intermediate_size': 3072, 'clip_num_heads': 12, 'clip_head_dim': 64, 'clip_tokens': 50, 'clip_num_layers': 12, 'vae_base_dim': 96, 'vae_dim_mult': (1, 2, 4, 4), 'vae_temporal_downsample': (False, True, True), 'scheduler_num_train_timesteps': 1000, 'dit_architecture': 'WanTransformer3DModel'}
+16:44:49 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:49 [INFO] [aiconfigurator.sdk.perf_database:274] Loading database for system='h100_sxm', backend='sglang', version='0.5.10.post1-wan2.2-main0519-2'
+16:44:50 [INFO] [aiconfigurator.sdk.perf_database:2798] Merged GEMM fallback data for Wan profile: primary=/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/gemm_perf.txt fallback=/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10/gemm_perf.txt
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 106480, 106480, 40, 128, 1, 1, 'none') nearest=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 31590, 31590, 40, 128, 1, 1, 'none') result=nearest
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 106480, 512, 40, 128, 1, 1, 'none') nearest=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 31590, 512, 40, 128, 1, 1, 'none') result=nearest
+16:44:52 [INFO] [root:116] CASE 001/040 OK tp1_sp1_u1_r1_none latency=261376.549 gpus=1 parallel=tp1pp1dp1sp1u1r1etp1ep1 warnings=2
+16:44:52 [INFO] [root:92] CASE 002/040 START tp1_sp2_u1_r2_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 53240, 53240, 40, 128, 1, 2, 'ring') nearest=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 35640, 35640, 40, 128, 1, 2, 'ring') result=nearest
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 53240, 512, 40, 128, 1, 2, 'cross_local') nearest=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 35640, 512, 40, 128, 1, 2, 'cross_local') result=nearest
+16:44:52 [INFO] [root:116] CASE 002/040 OK tp1_sp2_u1_r2_ring latency=218561.237 gpus=2 parallel=tp1pp1dp1sp2u1r2etp1ep1 warnings=2
+16:44:52 [INFO] [root:92] CASE 003/040 START tp1_sp2_u2_r1_ulysses
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 106480, 106480, 20, 128, 1, 2, 'ulysses') nearest=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 47190, 47190, 20, 128, 1, 2, 'ulysses') result=nearest
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 53240, 512, 40, 128, 1, 2, 'cross_local') nearest=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 35640, 512, 40, 128, 1, 2, 'cross_local') result=nearest
+16:44:52 [INFO] [root:116] CASE 003/040 OK tp1_sp2_u2_r1_ulysses latency=167838.644 gpus=2 parallel=tp1pp1dp1sp2u2r1etp1ep1 warnings=2
+16:44:52 [INFO] [root:92] CASE 004/040 START tp1_sp4_u1_r4_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 004/040 OK tp1_sp4_u1_r4_ring latency=158721.271 gpus=4 parallel=tp1pp1dp1sp4u1r4etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 005/040 START tp1_sp4_u2_r2_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 005/040 OK tp1_sp4_u2_r2_usp latency=157731.195 gpus=4 parallel=tp1pp1dp1sp4u2r2etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 006/040 START tp1_sp4_u4_r1_ulysses
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 106480, 106480, 10, 128, 1, 4, 'ulysses') nearest=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 71280, 71280, 10, 128, 1, 4, 'ulysses') result=nearest
+16:44:52 [INFO] [root:116] CASE 006/040 OK tp1_sp4_u4_r1_ulysses latency=132445.339 gpus=4 parallel=tp1pp1dp1sp4u4r1etp1ep1 warnings=1
+16:44:52 [INFO] [root:92] CASE 007/040 START tp1_sp8_u1_r8_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 007/040 OK tp1_sp8_u1_r8_ring latency=112002.882 gpus=8 parallel=tp1pp1dp1sp8u1r8etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 008/040 START tp1_sp8_u2_r4_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 008/040 OK tp1_sp8_u2_r4_usp latency=80676.892 gpus=8 parallel=tp1pp1dp1sp8u2r4etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 009/040 START tp1_sp8_u4_r2_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 009/040 OK tp1_sp8_u4_r2_usp latency=79056.510 gpus=8 parallel=tp1pp1dp1sp8u4r2etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 010/040 START tp1_sp8_u8_r1_ulysses
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 010/040 OK tp1_sp8_u8_r1_ulysses latency=107724.685 gpus=8 parallel=tp1pp1dp1sp8u8r1etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 011/040 START tp1_sp16_u1_r16_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 011/040 OK tp1_sp16_u1_r16_ring latency=97362.071 gpus=16 parallel=tp1pp1dp1sp16u1r16etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 012/040 START tp1_sp16_u2_r8_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 012/040 OK tp1_sp16_u2_r8_usp latency=56802.840 gpus=16 parallel=tp1pp1dp1sp16u2r8etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 013/040 START tp1_sp16_u4_r4_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 013/040 OK tp1_sp16_u4_r4_usp latency=40632.386 gpus=16 parallel=tp1pp1dp1sp16u4r4etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 014/040 START tp1_sp16_u8_r2_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 014/040 OK tp1_sp16_u8_r2_usp latency=39558.093 gpus=16 parallel=tp1pp1dp1sp16u8r2etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 015/040 START tp1_sp32_u1_r32_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 015/040 OK tp1_sp32_u1_r32_ring latency=92339.305 gpus=32 parallel=tp1pp1dp1sp32u1r32etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 016/040 START tp1_sp32_u2_r16_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 016/040 OK tp1_sp32_u2_r16_usp latency=49443.690 gpus=32 parallel=tp1pp1dp1sp32u2r16etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 017/040 START tp1_sp32_u4_r8_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 017/040 OK tp1_sp32_u4_r8_usp latency=29029.867 gpus=32 parallel=tp1pp1dp1sp32u4r8etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 018/040 START tp1_sp32_u8_r4_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 018/040 OK tp1_sp32_u8_r4_usp latency=20826.785 gpus=32 parallel=tp1pp1dp1sp32u8r4etp1ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 019/040 START tp2_sp1_u1_r1_none
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 106480, 106480, 20, 128, 2, 1, 'none') nearest=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 47190, 47190, 20, 128, 2, 1, 'none') result=nearest
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 106480, 512, 20, 128, 2, 1, 'none') nearest=('Wan2.2-T2V-A14B', 't2v', 'cross_attn_text', 'fa', 1, 71280, 512, 20, 128, 2, 1, 'none') result=nearest
+16:44:52 [INFO] [root:116] CASE 019/040 OK tp2_sp1_u1_r1_none latency=184203.915 gpus=2 parallel=tp2pp1dp1sp1u1r1etp2ep1 warnings=2
+16:44:52 [INFO] [root:92] CASE 020/040 START tp2_sp2_u1_r2_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 020/040 OK tp2_sp2_u1_r2_ring latency=165976.189 gpus=4 parallel=tp2pp1dp1sp2u1r2etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 021/040 START tp2_sp2_u2_r1_ulysses
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 106480, 106480, 10, 128, 2, 2, 'ulysses') nearest=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 71280, 71280, 10, 128, 2, 2, 'ulysses') result=nearest
+16:44:52 [INFO] [root:116] CASE 021/040 OK tp2_sp2_u2_r1_ulysses latency=138429.581 gpus=4 parallel=tp2pp1dp1sp2u2r1etp2ep1 warnings=1
+16:44:52 [INFO] [root:92] CASE 022/040 START tp2_sp4_u1_r4_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 022/040 OK tp2_sp4_u1_r4_ring latency=84820.629 gpus=8 parallel=tp2pp1dp1sp4u1r4etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 023/040 START tp2_sp4_u2_r2_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 023/040 OK tp2_sp4_u2_r2_usp latency=86586.698 gpus=8 parallel=tp2pp1dp1sp4u2r2etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 024/040 START tp2_sp4_u4_r1_ulysses
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 024/040 OK tp2_sp4_u4_r1_ulysses latency=115575.149 gpus=8 parallel=tp2pp1dp1sp4u4r1etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 025/040 START tp2_sp8_u1_r8_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 025/040 OK tp2_sp8_u1_r8_ring latency=59448.016 gpus=16 parallel=tp2pp1dp1sp8u1r8etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 026/040 START tp2_sp8_u2_r4_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 026/040 OK tp2_sp8_u2_r4_usp latency=44505.118 gpus=16 parallel=tp2pp1dp1sp8u2r4etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 027/040 START tp2_sp8_u4_r2_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 027/040 OK tp2_sp8_u4_r2_usp latency=43981.096 gpus=16 parallel=tp2pp1dp1sp8u4r2etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 028/040 START tp2_sp16_u1_r16_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 028/040 OK tp2_sp16_u1_r16_ring latency=50960.179 gpus=32 parallel=tp2pp1dp1sp16u1r16etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 029/040 START tp2_sp16_u2_r8_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 029/040 OK tp2_sp16_u2_r8_usp latency=30685.981 gpus=32 parallel=tp2pp1dp1sp16u2r8etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 030/040 START tp2_sp16_u4_r4_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 030/040 OK tp2_sp16_u4_r4_usp latency=22612.028 gpus=32 parallel=tp2pp1dp1sp16u4r4etp2ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 031/040 START tp4_sp1_u1_r1_none
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [WARNING] [aiconfigurator.sdk.perf_database:4483] Wan attention query used nearest fallback: source=('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0519-2/wan_attention_perf.txt',) requested=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 106480, 106480, 10, 128, 4, 1, 'none') nearest=('Wan2.2-T2V-A14B', 't2v', 'self_attn', 'fa', 1, 71280, 71280, 10, 128, 4, 1, 'none') result=nearest
+16:44:52 [INFO] [root:116] CASE 031/040 OK tp4_sp1_u1_r1_none latency=162760.017 gpus=4 parallel=tp4pp1dp1sp1u1r1etp4ep1 warnings=1
+16:44:52 [INFO] [root:92] CASE 032/040 START tp4_sp2_u1_r2_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 032/040 OK tp4_sp2_u1_r2_ring latency=94580.339 gpus=8 parallel=tp4pp1dp1sp2u1r2etp4ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 033/040 START tp4_sp2_u2_r1_ulysses
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 033/040 OK tp4_sp2_u2_r1_ulysses latency=132430.997 gpus=8 parallel=tp4pp1dp1sp2u2r1etp4ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 034/040 START tp4_sp4_u1_r4_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 034/040 OK tp4_sp4_u1_r4_ring latency=48366.873 gpus=16 parallel=tp4pp1dp1sp4u1r4etp4ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 035/040 START tp4_sp4_u2_r2_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 035/040 OK tp4_sp4_u2_r2_usp latency=48750.400 gpus=16 parallel=tp4pp1dp1sp4u2r2etp4ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 036/040 START tp4_sp8_u1_r8_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 036/040 OK tp4_sp8_u1_r8_ring latency=33230.118 gpus=32 parallel=tp4pp1dp1sp8u1r8etp4ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 037/040 START tp4_sp8_u2_r4_usp
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 037/040 OK tp4_sp8_u2_r4_usp latency=24777.782 gpus=32 parallel=tp4pp1dp1sp8u2r4etp4ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 038/040 START tp8_sp1_u1_r1_none
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 038/040 OK tp8_sp1_u1_r1_none latency=154560.270 gpus=8 parallel=tp8pp1dp1sp1u1r1etp8ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 039/040 START tp8_sp2_u1_r2_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 039/040 OK tp8_sp2_u1_r2_ring latency=59762.481 gpus=16 parallel=tp8pp1dp1sp2u1r2etp8ep1 warnings=0
+16:44:52 [INFO] [root:92] CASE 040/040 START tp8_sp4_u1_r4_ring
+16:44:52 [INFO] [aiconfigurator.sdk.models:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+16:44:52 [INFO] [root:116] CASE 040/040 OK tp8_sp4_u1_r4_ring latency=30402.182 gpus=32 parallel=tp8pp1dp1sp4u1r4etp8ep1 warnings=0
+16:44:52 [INFO] [root:160] Wan parallel sweep complete: ok=40 error=0 warning_counts={'wan_attention_nearest': 11} summary=/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/[self]cli/logs/wan2_2_parallel_sweep_20260519_164449.json

@@ -14,7 +14,7 @@
 
 ## 常规 USPAttention 背景
 
-普通 Wan self-attention 的基本输入是 `q/k/v: [B, S_local, H_local, D]`。其中 `D=128`，全局 heads 为 `40`，TP 后 `H_local=40/tp_size`。如果启用 SP，`USPAttention` 可能包含两段通信：
+普通 Wan self-attention 的基本输入是 `q/k/v: [B, S_local, H_local, D]`。其中 `D=128`；A14B 全局 heads 为 `40`，TI2V 5B 全局 heads 为 `24`，TP 后 `H_local=model_heads/tp_size`。如果启用 SP，`USPAttention` 可能包含两段通信：
 
 | SP 算法 | 通信前本地形状 | 通信后本地 attention 形状 | collector 处理 |
 |---|---|---|---|

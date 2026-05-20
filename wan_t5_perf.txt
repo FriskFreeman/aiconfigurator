@@ -1,4 +1,0 @@
-framework,version,device,op_name,kernel_source,batch_size,seq_len,d_model,num_heads,d_kv,d_ff,latency
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_t5_ffn_gated_act_mul,torch_gelu_tanh_mul,1,256,4096,64,64,10240,0.008832000195980072
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_t5_rmsnorm,sglang_rmsnorm,1,256,4096,64,64,10240,0.034236800670623777
-SGLang,0.5.10.post1,NVIDIA H100 80GB HBM3,wan_t5_attention_compute_bias_softmax,sglang_t5_einsum_softmax,1,128,4096,64,64,10240,0.025366398692131042

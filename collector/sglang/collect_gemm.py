@@ -15,6 +15,21 @@ from sgl_kernel import (
 )
 
 from collector.common_test_cases import get_gemm_common_test_cases
+from collector.sglang.wan_common import (
+    WAN_CLIP_HIDDEN_SIZE,
+    WAN_CLIP_INTERMEDIATE_SIZE,
+    WAN_CLIP_NUM_HEADS,
+    WAN_CLIP_HEAD_DIM,
+    WAN_IMAGE_TOKENS,
+    WAN_T5_D_FF,
+    WAN_T5_D_KV,
+    WAN_T5_D_MODEL,
+    WAN_T5_NUM_HEADS,
+    WAN_TEXT_TOKENS,
+    valid_parallel_cases,
+    iter_wan_video_cases,
+    seq_len_from_video,
+)
 
 try:
     from flashinfer import fp4_quantize as flashinfer_fp4_quantize
@@ -38,22 +53,6 @@ from collector.helper import benchmark_with_power, get_sm_version, log_perf
 os.environ.setdefault("SGLANG_JIT_DEEPGEMM_PRECOMPILE", "0")
 
 
-def _wan_latent_seq_lens() -> list[int]:
-    """Return representative Wan2.2 DiT latent token counts after patching."""
-    resolutions = [(704, 1280), (720, 1280), (480, 832)]
-    frames = [121, 81, 49]
-    vae_stride_ti2v = (4, 16, 16)
-    patch_size = (1, 2, 2)
-    seq_lens = set()
-    for num_frames in frames:
-        for height, width in resolutions:
-            latent_t = num_frames
-            latent_h = height // vae_stride_ti2v[1]
-            latent_w = width // vae_stride_ti2v[2]
-            seq_lens.add((latent_t // patch_size[0]) * (latent_h // patch_size[1]) * (latent_w // patch_size[2]))
-    return sorted(seq_lens)
-
-
 def _get_wan_gemm_common_test_cases() -> list[tuple[int, int, int]]:
     """Generate Wan2.2 DiT-specific (m, n, k) GEMM shapes.
 
@@ -64,31 +63,30 @@ def _get_wan_gemm_common_test_cases() -> list[tuple[int, int, int]]:
     global and representative SP-local token counts to keep the GEMM table
     useful for single-card compute modeling.
     """
-    hidden = 5120
-    ffn = 13824
-    text_dim = 4096
-    freq_dim = 256
-    image_tokens = 257
-    text_tokens = 512
-    t5_d_model = 4096
-    t5_d_ff = 10240
-    t5_heads = 64
-    t5_d_kv = 64
-    clip_hidden = 768
-    clip_intermediate = 3072
     clip_tokens = 50
     vae_conv_tokens = [64, 256, 1024, 4096]
     vae_channels = [96, 192, 384]
     tp_list = [1, 2, 4, 8]
-    sp_list = [1, 2, 4, 8]
+    sp_list = [1, 2, 4, 8, 16, 32]
 
     shapes: set[tuple[int, int, int]] = set()
-    latent_seq_lens = _wan_latent_seq_lens()
 
-    for seq_len in latent_seq_lens:
+    for profile, num_frames, height, width in iter_wan_video_cases():
+        seq_len = seq_len_from_video(
+            num_frames,
+            height,
+            width,
+            latent_stride=profile.latent_prepare_stride,
+        )
+        hidden = profile.hidden_size
+        ffn = profile.ffn_dim
         for sp_size in sp_list:
             local_seq_len = (seq_len + sp_size - 1) // sp_size
             for tp_size in tp_list:
+                if tp_size * sp_size > 32:
+                    continue
+                if hidden % tp_size != 0 or ffn % tp_size != 0:
+                    continue
                 hidden_per_tp = hidden // tp_size
                 ffn_per_tp = ffn // tp_size
 
@@ -100,42 +98,60 @@ def _get_wan_gemm_common_test_cases() -> list[tuple[int, int, int]]:
                 shapes.add((local_seq_len, ffn_per_tp, hidden))  # fc_in
                 shapes.add((local_seq_len, hidden, ffn_per_tp))  # fc_out
 
-    for tp_size in tp_list:
-        hidden_per_tp = hidden // tp_size
-        ffn_per_tp = ffn // tp_size
+        for tp_size in tp_list:
+            if hidden % tp_size != 0 or ffn % tp_size != 0:
+                continue
+            hidden_per_tp = hidden // tp_size
 
-        # Cross attention projections: q uses latent tokens, k/v use text/image.
-        for seq_len in latent_seq_lens:
+            # Cross attention projections: q uses latent tokens, k/v use text/image.
             shapes.add((seq_len, hidden_per_tp, hidden))
             shapes.add((seq_len, hidden, hidden_per_tp))
-        shapes.add((text_tokens, hidden_per_tp, hidden))
-        shapes.add((image_tokens, hidden_per_tp, hidden))
+            shapes.add((WAN_TEXT_TOKENS, hidden_per_tp, hidden))
+            if profile.has_image_context:
+                shapes.add((WAN_IMAGE_TOKENS, hidden_per_tp, hidden))
+                shapes.add((WAN_IMAGE_TOKENS, hidden, hidden_per_tp))
 
-        # Condition embedders.
-        shapes.add((text_tokens, hidden_per_tp, text_dim))
-        shapes.add((text_tokens, hidden, hidden_per_tp))
-        shapes.add((image_tokens, hidden_per_tp, hidden))
-        shapes.add((image_tokens, hidden, ffn_per_tp))
-        shapes.add((1, hidden_per_tp, freq_dim))
-        shapes.add((1, hidden, hidden_per_tp))
-        shapes.add((1, (hidden * 6) // tp_size, hidden))  # time modulation
+            # Condition embedders and timestep modulation.
+            shapes.add((WAN_TEXT_TOKENS, hidden_per_tp, profile.text_dim))
+            shapes.add((WAN_TEXT_TOKENS, hidden, hidden_per_tp))
+            shapes.add((1, hidden_per_tp, profile.freq_dim))
+            shapes.add((1, hidden, hidden_per_tp))
+            shapes.add((1, (hidden * 6) // tp_size, hidden))  # time modulation
 
-        # Wan T5 text encoder parallel Linear shapes.
-        t5_qkv_per_tp = (3 * t5_heads * t5_d_kv) // tp_size
-        t5_ff_per_tp = t5_d_ff // tp_size
-        for seq_len in (128, 256, text_tokens):
-            shapes.add((seq_len, t5_qkv_per_tp, t5_d_model))
-            shapes.add((seq_len, t5_d_model, (t5_heads * t5_d_kv) // tp_size))
-            shapes.add((seq_len, t5_ff_per_tp, t5_d_model))
-            shapes.add((seq_len, t5_d_model, t5_ff_per_tp))
+        # Final DiT head projection back to patchified latent channels.
+        patch_volume = profile.patch_size[0] * profile.patch_size[1] * profile.patch_size[2]
+        shapes.add((seq_len, profile.latent_channels * patch_volume, hidden))
 
-        # Wan I2V CLIP vision encoder Linear shapes.
-        clip_qkv_per_tp = (3 * clip_hidden) // tp_size
-        clip_intermediate_per_tp = clip_intermediate // tp_size
-        shapes.add((clip_tokens, clip_qkv_per_tp, clip_hidden))
-        shapes.add((clip_tokens, clip_hidden, clip_hidden // tp_size))
-        shapes.add((clip_tokens, clip_intermediate_per_tp, clip_hidden))
-        shapes.add((clip_tokens, clip_hidden, clip_intermediate_per_tp))
+    for tp_size in tp_list:
+        # Shared Wan T5 text encoder parallel Linear shapes.
+        group_sizes = {tp_size}
+        if tp_size == 1:
+            group_sizes.update(sp_size for _, sp_size, _, _, _ in valid_parallel_cases(WAN_T5_NUM_HEADS))
+        for group_size in group_sizes:
+            if (
+                (3 * WAN_T5_NUM_HEADS * WAN_T5_D_KV) % group_size != 0
+                or (WAN_T5_NUM_HEADS * WAN_T5_D_KV) % group_size != 0
+                or WAN_T5_D_FF % group_size != 0
+            ):
+                continue
+            t5_qkv_per_tp = (3 * WAN_T5_NUM_HEADS * WAN_T5_D_KV) // group_size
+            t5_out_in = (WAN_T5_NUM_HEADS * WAN_T5_D_KV) // group_size
+            t5_ff_per_tp = WAN_T5_D_FF // group_size
+            for seq_len in (128, 256, WAN_TEXT_TOKENS):
+                shapes.add((seq_len, t5_qkv_per_tp, WAN_T5_D_MODEL))
+                shapes.add((seq_len, WAN_T5_D_MODEL, t5_out_in))
+                shapes.add((seq_len, t5_ff_per_tp, WAN_T5_D_MODEL))
+                shapes.add((seq_len, WAN_T5_D_MODEL, t5_ff_per_tp))
+
+    for tp_size in tp_list:
+        # Wan I2V/TI2V CLIP vision encoder Linear shapes.
+        clip_qkv_per_tp = (3 * WAN_CLIP_NUM_HEADS * WAN_CLIP_HEAD_DIM) // tp_size
+        clip_hidden_per_tp = WAN_CLIP_HIDDEN_SIZE // tp_size
+        clip_intermediate_per_tp = WAN_CLIP_INTERMEDIATE_SIZE // tp_size
+        shapes.add((clip_tokens, clip_qkv_per_tp, WAN_CLIP_HIDDEN_SIZE))
+        shapes.add((clip_tokens, WAN_CLIP_HIDDEN_SIZE, clip_hidden_per_tp))
+        shapes.add((clip_tokens, clip_intermediate_per_tp, WAN_CLIP_HIDDEN_SIZE))
+        shapes.add((clip_tokens, WAN_CLIP_HIDDEN_SIZE, clip_intermediate_per_tp))
 
         # Wan VAE 1x1 Conv2d/QKV and projection map to small GEMM-like shapes.
         for tokens in vae_conv_tokens:

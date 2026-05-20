@@ -134,6 +134,66 @@ class NCCL(Operation):
         return self._weights * self._scale_factor
 
 
+class WanParallelComm(Operation):
+    """Wan2.2 communication op estimated with NCCL or P2P bandwidth models."""
+
+    def __init__(
+        self,
+        name: str,
+        scale_factor: float,
+        comm_kind: str,
+        group_size: int,
+        message_tokens: int,
+        message_elems_per_token: int,
+        *,
+        bytes_per_element: float = 2.0,
+        comm_quant_mode: common.CommQuantMode = common.CommQuantMode.half,
+        hop_count: int = 1,
+    ) -> None:
+        super().__init__(name, scale_factor)
+        self._comm_kind = comm_kind
+        self._group_size = group_size
+        self._message_tokens = message_tokens
+        self._message_elems_per_token = message_elems_per_token
+        self._bytes_per_element = bytes_per_element
+        self._comm_quant_mode = comm_quant_mode
+        self._hop_count = hop_count
+        self._weights = 0.0
+
+    def query(self, database: PerfDatabase, **kwargs) -> PerformanceResult:
+        tokens = max(1, self._message_tokens)
+        message_size = tokens * self._message_elems_per_token
+        if self._group_size <= 1 or message_size <= 0:
+            return PerformanceResult(0.0, energy=0.0)
+
+        if self._comm_kind == "p2p":
+            message_bytes = message_size * self._bytes_per_element
+            result = database.query_p2p(message_bytes, database_mode=common.DatabaseMode.EMPIRICAL)
+            latency = float(result) * max(1, self._hop_count)
+            energy = getattr(result, "energy", 0.0) * max(1, self._hop_count)
+            source = "empirical"
+        else:
+            result = database.query_nccl(
+                self._comm_quant_mode,
+                self._group_size,
+                self._comm_kind,
+                message_size,
+                database_mode=common.DatabaseMode.EMPIRICAL,
+            )
+            latency = float(result)
+            energy = getattr(result, "energy", 0.0)
+            source = "empirical"
+
+        return PerformanceResult(
+            latency * self._scale_factor,
+            energy=energy * self._scale_factor,
+            source=source,
+        )
+
+    def get_weights(self, **kwargs):
+        return self._weights * self._scale_factor
+
+
 class GEMM(Operation):
     """
     GEMM operation with power tracking.
@@ -1914,6 +1974,128 @@ class MLAModule(Operation):
 
     def get_weights(self, **kwargs):
         return self._weights * self._scale_factor
+
+
+class WanMeasuredOp(Operation):
+    """Wan2.2 collector-backed operation with static model/runtime parameters."""
+
+    def __init__(self, name: str, scale_factor: float, query_name: str, params: dict, weights: float = 0.0) -> None:
+        super().__init__(name, scale_factor)
+        self._query_name = query_name
+        self._params = params
+        self._weights = weights
+
+    def query(self, database: PerfDatabase, **kwargs) -> PerformanceResult:
+        query_fn = getattr(database, self._query_name)
+        result = query_fn(**self._params)
+        return PerformanceResult(
+            float(result) * self._scale_factor,
+            energy=getattr(result, "energy", 0.0) * self._scale_factor,
+            source=getattr(result, "source", "silicon"),
+        )
+
+    def get_weights(self, **kwargs):
+        return self._weights * self._scale_factor
+
+
+class WanStaticGEMM(Operation):
+    """Wan2.2 fixed-shape GEMM whose M dimension is video tokens, not LLM ISL."""
+
+    def __init__(
+        self,
+        name: str,
+        scale_factor: float,
+        m: int,
+        n: int,
+        k: int,
+        quant_mode: common.GEMMQuantMode,
+        *,
+        low_precision_input: bool = False,
+    ) -> None:
+        super().__init__(name, scale_factor)
+        self._m = m
+        self._n = n
+        self._k = k
+        self._quant_mode = quant_mode
+        self._low_precision_input = low_precision_input
+        self._weights = n * k * quant_mode.value.memory
+
+    def query(self, database: PerfDatabase, **kwargs) -> PerformanceResult:
+        quant_mode = kwargs.get("quant_mode") or self._quant_mode
+        result = database.query_gemm(self._m, self._n, self._k, quant_mode)
+        latency = float(result)
+        energy = getattr(result, "energy", 0.0)
+        source = getattr(result, "source", "silicon")
+
+        if quant_mode == common.GEMMQuantMode.fp8_static:
+            compute_scale_result = database.query_compute_scale(self._m, self._k, quant_mode)
+            latency -= float(compute_scale_result)
+            energy -= compute_scale_result.energy
+            if getattr(compute_scale_result, "source", "silicon") != source:
+                source = "mixed"
+            if self._low_precision_input:
+                scale_matrix_result = database.query_scale_matrix(self._m, self._k, quant_mode)
+                latency -= float(scale_matrix_result)
+                energy -= scale_matrix_result.energy
+                if getattr(scale_matrix_result, "source", "silicon") != source:
+                    source = "mixed"
+
+        return PerformanceResult(
+            max(0.0, latency) * self._scale_factor,
+            energy=max(0.0, energy) * self._scale_factor,
+            source=source,
+        )
+
+    def get_weights(self, **kwargs):
+        return self._weights * self._scale_factor
+
+
+class WanStaticMemOp(Operation):
+    """Wan2.2 fixed-shape memory/elementwise op for uncollected simple kernels."""
+
+    def __init__(
+        self,
+        name: str,
+        scale_factor: float,
+        num_tokens: int,
+        dim_in: int,
+        dim_out: int,
+        *,
+        bytes_per_element: int = 2,
+    ) -> None:
+        super().__init__(name, scale_factor)
+        self._num_tokens = num_tokens
+        self._dim_in = dim_in
+        self._dim_out = dim_out
+        self._bytes_per_element = bytes_per_element
+        self._weights = 0.0
+
+    def query(self, database: PerfDatabase, **kwargs) -> PerformanceResult:
+        read_bytes = self._num_tokens * self._dim_in * self._bytes_per_element
+        write_bytes = self._num_tokens * self._dim_out * self._bytes_per_element
+        result = database.query_mem_op(read_bytes + write_bytes)
+        return PerformanceResult(
+            float(result) * self._scale_factor,
+            energy=getattr(result, "energy", 0.0) * self._scale_factor,
+            source=getattr(result, "source", "empirical"),
+        )
+
+    def get_weights(self, **kwargs):
+        return self._weights
+
+
+class WanMockComm(Operation):
+    """Zero-latency placeholder for Wan TP/SP communication not yet measured."""
+
+    def __init__(self, name: str, scale_factor: float = 1.0) -> None:
+        super().__init__(name, scale_factor)
+        self._weights = 0.0
+
+    def query(self, database: PerfDatabase, **kwargs) -> PerformanceResult:
+        return PerformanceResult(0.0, energy=0.0, source="mock")
+
+    def get_weights(self, **kwargs):
+        return self._weights
 
 
 class FallbackOp(Operation):

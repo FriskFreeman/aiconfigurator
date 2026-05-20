@@ -555,7 +555,18 @@ class SGLANGBackend(BaseBackend):
         # ==== SGLANG backend specific memory calculations ====
         # SGLANG typically has higher activation memory due to Python overhead
         # and dynamic execution patterns
-        if model.model_family == "GPT":
+        if model.model_family == "WAN":
+            seq_len = getattr(model, "_seq_len", lambda: max(isl - prefix, 1))()
+            hidden = getattr(model, "_hidden_size", h)
+            denoising_steps = max(1, getattr(model, "_denoising_steps", 1))
+            latent_frames = getattr(model, "_vae_latent_frames", lambda: 1)()
+            activations = 2 * batch_size * seq_len * hidden * 8 / max(model.config.tp_size, 1)
+            activations += 2 * batch_size * latent_frames * hidden * 4
+            activations = max(activations, 512 * 1024 * 1024)
+            kvcache = 0.0
+            sglang_overhead = activations * min(0.30, 0.15 + 0.001 * denoising_steps)
+            activations += sglang_overhead
+        elif model.model_family == "GPT":
             c_dict = {1: 13, 2: 8, 4: 6.5, 8: 6.5}
             activations = 2 * num_tokens * h * c_dict[min(model.config.tp_size, 8)]
             activations = max(activations, 90 * 1024 * 1024)  # Higher minimum for SGLANG
@@ -587,16 +598,18 @@ class SGLANGBackend(BaseBackend):
             activations = 2 * num_tokens * h * c_dict[min(model.config.tp_size, 8)]
             activations = max(activations, 90 * 1024 * 1024)  # Higher minimum for SGLANG
 
-        # MTP correction: additional activation memory for draft tokens (applies to all models)
-        if model.config.nextn > 0:
+        # MTP correction: additional activation memory for draft tokens (applies to LLM models)
+        if model.model_family != "WAN" and model.config.nextn > 0:
             activations = activations * (model.config.nextn + 1)
 
-        sglang_overhead = activations * 0.15  # 15% additional overhead for SGLANG
-        activations += sglang_overhead
+        if model.model_family != "WAN":
+            sglang_overhead = activations * 0.15  # 15% additional overhead for SGLANG
+            activations += sglang_overhead
 
         # ==== KV Cache calculation - SGLANG specific ====
-        seq_tokens = isl + beam_width * osl
-        kvcache = batch_size * model.get_kvcache_bytes_per_sequence(seq_tokens)
+        if model.model_family != "WAN":
+            seq_tokens = isl + beam_width * osl
+            kvcache = batch_size * model.get_kvcache_bytes_per_sequence(seq_tokens)
 
         # ==== Communication and system memory ====
         nccl_mem = database.system_spec["misc"]["nccl_mem"][min(model.config.tp_size, 8)]

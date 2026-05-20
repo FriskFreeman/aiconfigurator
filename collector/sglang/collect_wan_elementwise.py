@@ -7,7 +7,7 @@ import pkg_resources
 import torch
 
 from collector.helper import benchmark_with_power, log_perf
-from collector.sglang.wan_common import WAN_HIDDEN_SIZE, iter_wan_video_cases, seq_len_from_video
+from collector.sglang.wan_common import iter_wan_video_cases, seq_len_from_video, sequence_shard_len, valid_parallel_cases
 
 
 def get_wan_elementwise_test_cases():
@@ -18,13 +18,29 @@ def get_wan_elementwise_test_cases():
         "scale_residual",
     ]
     tp_list = [1, 2, 4, 8]
-    seq_lens = sorted({seq_len_from_video(frames, height, width) for _p, frames, height, width in iter_wan_video_cases()})
+    video_cases = list(iter_wan_video_cases())
     test_cases = []
+    seen = set()
     for op_name in ops:
-        for seq_len in seq_lens:
+        for profile, frames, height, width in video_cases:
+            global_seq_len = seq_len_from_video(
+                frames,
+                height,
+                width,
+                latent_stride=profile.latent_prepare_stride,
+            )
+            sp_sizes = {sp_size for _, sp_size, _, _, _ in valid_parallel_cases(profile.num_heads)}
             for tp_size in tp_list:
-                hidden_size = WAN_HIDDEN_SIZE // tp_size if op_name == "rmsnorm_qk" else WAN_HIDDEN_SIZE
-                test_cases.append([op_name, 1, seq_len, hidden_size, tp_size])
+                if profile.hidden_size % tp_size != 0:
+                    continue
+                hidden_size = profile.hidden_size // tp_size if op_name == "rmsnorm_qk" else profile.hidden_size
+                for sp_size in sp_sizes:
+                    seq_len = sequence_shard_len(global_seq_len, sp_size)
+                    key = (op_name, 1, seq_len, hidden_size, tp_size)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    test_cases.append(list(key))
     return test_cases
 
 

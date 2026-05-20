@@ -11,8 +11,6 @@ import torch
 from collector.helper import benchmark_with_power, log_perf
 from collector.sglang.wan_common import (
     SingleRankGroup,
-    WAN_HEAD_DIM,
-    WAN_NUM_HEADS,
     WAN_PATCH_SIZE,
     iter_wan_video_cases,
     latent_shape,
@@ -39,12 +37,12 @@ def _sparse_case_is_reasonable(seq_len: int, num_heads: int, head_dim: int) -> b
     return seq_len * max(1, num_heads) * head_dim <= max_output_elems
 
 
-def _a2a_parallel_cases() -> list[tuple[int, int, str]]:
+def _a2a_parallel_cases(num_heads: int) -> list[tuple[int, int, str]]:
     cases = []
     for tp_size in (1, 2, 4, 8):
-        if WAN_NUM_HEADS % tp_size != 0:
+        if num_heads % tp_size != 0:
             continue
-        heads_after_tp = WAN_NUM_HEADS // tp_size
+        heads_after_tp = num_heads // tp_size
         for sp_size in (1, 2, 4, 8):
             if sp_size == 1:
                 cases.append((tp_size, sp_size, "none"))
@@ -53,8 +51,8 @@ def _a2a_parallel_cases() -> list[tuple[int, int, str]]:
     return cases
 
 
-def _post_a2a_shape(global_seq_len: int, tp_size: int, sp_size: int) -> tuple[int, int]:
-    return global_seq_len, (WAN_NUM_HEADS // tp_size) // sp_size
+def _post_a2a_shape(global_seq_len: int, tp_size: int, sp_size: int, num_heads: int) -> tuple[int, int]:
+    return global_seq_len, (num_heads // tp_size) // sp_size
 
 
 def get_wan_sparse_attention_test_cases():
@@ -68,11 +66,18 @@ def get_wan_sparse_attention_test_cases():
         default=(0.0, 0.3, 0.5),
     )
     for profile, num_frames, height, width in iter_wan_video_cases():
-        global_seq_len = seq_len_from_video(num_frames, height, width)
-        raw_latent_t, raw_latent_h, raw_latent_w = latent_shape(num_frames, height, width)
-        for tp_size, sp_size, sp_algorithm in _a2a_parallel_cases():
-            q_seq_len, local_heads = _post_a2a_shape(global_seq_len, tp_size, sp_size)
-            if local_heads <= 0 or not _sparse_case_is_reasonable(q_seq_len, local_heads, WAN_HEAD_DIM):
+        global_seq_len = seq_len_from_video(
+            num_frames,
+            height,
+            width,
+            latent_stride=profile.latent_prepare_stride,
+        )
+        raw_latent_t, raw_latent_h, raw_latent_w = latent_shape(
+            num_frames, height, width, stride=profile.latent_prepare_stride
+        )
+        for tp_size, sp_size, sp_algorithm in _a2a_parallel_cases(profile.num_heads):
+            q_seq_len, local_heads = _post_a2a_shape(global_seq_len, tp_size, sp_size, profile.num_heads)
+            if local_heads <= 0 or not _sparse_case_is_reasonable(q_seq_len, local_heads, profile.head_dim):
                 continue
             for attention_type in sla_attention_types:
                 key = (
@@ -83,7 +88,7 @@ def get_wan_sparse_attention_test_cases():
                     1,
                     q_seq_len,
                     local_heads,
-                    WAN_HEAD_DIM,
+                    profile.head_dim,
                     tp_size,
                     sp_size,
                     sp_algorithm,
@@ -106,7 +111,7 @@ def get_wan_sparse_attention_test_cases():
                         1,
                         q_seq_len,
                         local_heads,
-                        WAN_HEAD_DIM,
+                        profile.head_dim,
                         tp_size,
                         sp_size,
                         "vsa_ulysses" if sp_size > 1 else "none",

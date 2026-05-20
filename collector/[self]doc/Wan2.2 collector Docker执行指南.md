@@ -137,13 +137,25 @@ docker run --gpus '"device=7"' --ipc=host --rm \
 
 | collector | 测试对象 | 对齐方式 | 备注 |
 |---|---|---|---|
-| `collect_wan_patch_embed.py` | Wan `PatchEmbed.proj` 的 `Conv3d(kernel=stride=patch_size)` | 使用 PyTorch/CUDA `Conv3d` | 单算子粒度，仅测卷积，不测 flatten/norm |
-| `collect_wan_rope.py` | q/k RoPE inplace | 调用 `apply_flashinfer_rope_qk_inplace` | 与 Wan CUDA 路径一致 |
-| `collect_wan_attention.py` | attention 本地 compute | 通过 SGLang `current_platform.get_attn_backend_cls_str()` 选择后端并实例化 impl | H100 实测为 `sglang_fa`，即 SGLang FA 后端 |
-| `collect_wan_elementwise.py` | Wan block 非 GEMM fused op | 调用 SGLang `LayerNormScaleShift`、`RMSNorm`、`ScaleResidualLayerNormScaleShift`、`MulAdd` | 不默认回退到 native torch |
+| `collect_wan_patch_embed.py` | Wan `PatchEmbed.proj` 的 `Conv3d(kernel=stride=patch_size)` | 使用 PyTorch/CUDA `Conv3d` | 单算子粒度；CSV 额外记录 `hidden_size`，以区分 A14B 与 TI2V |
+| `collect_wan_rope.py` | q/k RoPE inplace | 调用 `apply_flashinfer_rope_qk_inplace` | 与 Wan CUDA 路径一致；按 profile 生成 `head_dim=128`、`num_heads=40/24` 的本地 shape |
+| `collect_wan_attention.py` | attention 本地 compute | 通过 SGLang `current_platform.get_attn_backend_cls_str()` 选择后端并实例化 impl | H100 实测为 `sglang_fa`；TI2V 额外覆盖 `24` heads 的 Ulysses/Ring 组合 |
+| `collect_wan_elementwise.py` | Wan block 非 GEMM fused op | 调用 SGLang `LayerNormScaleShift`、`RMSNorm`、`ScaleResidualLayerNormScaleShift`、`MulAdd` | A14B 与 TI2V 都纳入；`rmsnorm_qk` 使用 `hidden_size=hidden/tp` |
 | `collect_gemm.py` | Wan DiT Linear/GEMM shape | 复用 SGLang GEMM collector，增加 Wan shape 与 `COLLECTOR_GEMM_ONLY_WAN` | `fp8_block` 已过滤 `K % 128 != 0` case |
 
 `SP/USP/Ring` 通信不计入单卡算子 latency；collector 只使用通信后本地 compute shape，并在数据列中记录 `tp_size`、`sp_size`、`sp_algorithm`。
+
+### 4.1 Config 驱动维度更新
+
+SDK 接入 HF config 后发现旧数据对 TI2V/I2V 维度覆盖不足：`wan_patch_embed` 只有 `in_channels=16`，attention/rope 只覆盖 A14B `40` heads 派生的 local heads，elementwise 只覆盖 `hidden=5120`。当前 collector 已按 `collector/sglang/wan_common.py::WAN_PROFILES` 生成真实 profile 维度：
+
+| Profile | patch embed | heads/head_dim | FFN | elementwise |
+|---|---|---|---|---|
+| T2V A14B | `in_channels=16,hidden=5120` | `40/128` | `13824` | `5120` 与 RMSNorm TP shard |
+| I2V A14B | `in_channels=36,hidden=5120` | `40/128` | `13824` | `5120` 与 RMSNorm TP shard |
+| TI2V 5B | `in_channels=48,hidden=3072` | `24/128` | `14336` | `3072` 与 RMSNorm TP shard `1536/768/384` |
+
+复合 SP 更新后，当前期望 case 数约为 `wan_patch_embed=15`、`wan_rope=270`、`wan_attention=1117`、`wan_elementwise=576`；`wan_sparse_attention` 不纳入主链路。旧 H100 `20260512_171000-full` 数据仍可作为历史验收记录，但用于新 SDK 仿真时建议补采新目录，避免 `SILICON` 缺表或 `HYBRID` 回退。
 
 ## 5. Blackwell 兼容性说明
 
@@ -205,3 +217,34 @@ PY
 | `fp8_block` 报 `K % 128` | DeepGEMM group quant 要求 `group_size=128` 对齐 | 已过滤不对齐 case；使用 BF16/FP8 数据补充 |
 | elementwise 缺 `cutlass` | Docker 环境不完整 | 更换官方完整镜像；不要把 native fallback 当真实数据 |
 | 输出文件追加到旧目录 | collector 使用追加写入 | 每次创建新时间戳输出目录 |
+
+## 8. Ulysses × Ring 并行维度更新
+
+本轮 collector 已按 SGLang `sp_degree = ulysses_degree * ring_degree` 补齐复合并行 shape。核心规则如下：
+
+| 场景 | collector 维度 | 说明 |
+|---|---|---|
+| self-attn / RoPE | `seq_len=ceil(global_seq_len/ring_degree)`，`num_heads=(heads/tp_size)/ulysses_degree` | 对应 USPAttention 内部 A2A 后的本地 attention compute |
+| cross-attn text/image | `q_seq_len=ceil(global_seq_len/sp_size)`，`num_heads=heads/tp_size`，`sp_algorithm=cross_local` | SGLang cross attention 设置 `skip_sequence_parallel=True`，不执行 Ulysses head A2A |
+| DiT elementwise | `seq_len=ceil(global_seq_len/sp_size)` | block 输入已 sequence shard，避免用全局 token shape 查询 |
+| T5 GEMM | `tp_size==1 && sp_size>1` 时额外生成 `group_size=sp_size` 的 QKV/FFN GEMM | 对应 SGLang `parallel_folding_mode="sp"` |
+| VAE | conv/attention/elementwise 额外覆盖 SP local height | 对应 parallel encode/decode 的 height split |
+
+新增 `wan_rope_perf.txt` / `wan_attention_perf.txt` 新采集行会写入 `ulysses_degree`、`ring_degree` 两列。`PerfDatabase` 当前 key 仍保持旧格式，用实际 `seq_len/num_heads/sp_algorithm` 区分计算 shape；新增列主要用于人工验收和后续迁移。
+
+通信仍不由 collector 实测。SDK 侧使用 `WanParallelComm` 按 system YAML 带宽做 empirical 估算：DiT Ulysses AllToAll、Ring KV P2P、TP AllReduce、T5 folding AllReduce、VAE height gather/halo P2P 都在仿真端补齐。
+
+## 9. 2026-05-19 扩展采集维度建议
+
+本轮代码已把主链路 collector 的合法并行 envelope 扩展到 `tp*sp<=32`，其中 `sp=ulysses_degree*ring_degree`：
+
+| collector | 新增/修正 | 目的 |
+|---|---|---|
+| `wan_common.valid_parallel_cases()` | `sp_size` 扩展到 `1/2/4/8/16/32`，并过滤 `tp*sp>32` 与非法 head 切分 | 覆盖 32 卡内 Ulysses×Ring 组合 |
+| `collect_gemm.py` | Wan DiT GEMM local token M 增加 SP=16/32 shape | 避免 SDK 在大 SP 下 GEMM 只能插值 |
+| `collect_wan_t5.py` | T5 attention compute 与 gated activation 增加 `group_size=1/2/4/8/16/32` 的 local heads / local d_ff | 对齐 SGLang `tp=1 && sp>1` 时 `parallel_folding_mode="sp"` |
+| `collect_wan_vae.py` | VAE local height 增加 SP=16/32 | 支持 VAE parallel encode/decode 的 height split |
+
+注意：已有 `main0519` 数据未包含全部 SP=16/32 维度，SDK 在 HYBRID 下会用 warning 标注最近邻或 GEMM 插值。若要减少 warning 并提高 32 卡评估可信度，应优先补采 `wan_rope/wan_attention/wan_elementwise/wan_t5/wan_vae/wan_vae_attention/wan_vae_elementwise`，再补采 `COLLECTOR_GEMM_ONLY_WAN=1` 的 Wan GEMM shape。
+
+`batch_size>1` 暂不建议直接扩展 collector 全量采集。当前 SDK 将多视频 batch 视为多条单视频 pipeline 串行累加；如果后续确认 SGLang 实际会把多视频合成 batch 进入同一 kernel，再为 patch/attention/elementwise/T5/VAE 增加 `batch_size=2/4/...` 分层采集。

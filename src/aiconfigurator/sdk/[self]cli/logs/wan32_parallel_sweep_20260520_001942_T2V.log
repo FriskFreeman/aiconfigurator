@@ -1,0 +1,40 @@
+00:19:42 [aiconfigurator] [I] [wan32_sweep.py:120] === WAN 32GPU sweep start ===
+00:19:42 [aiconfigurator] [I] [wan32_sweep.py:121] model=Wan-AI/Wan2.2-T2V-A14B-Diffusers backend=sglang backend_version=0.5.10.post1-wan2.2-main0520 database_mode=HYBRID
+00:19:42 [aiconfigurator] [I] [wan32_sweep.py:122] task=t2v shape=720x1280x121 num_heads=40
+00:19:42 [aiconfigurator] [I] [wan32_sweep.py:124] legal configs=10
+00:19:42 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=1 sp=32 ulysses=1 ring=32 alg=ring ---
+00:19:42 [aiconfigurator] [I] [utils.py:1084] Quant inference result: quant_algo=None, kv_cache_quant_algo=None, quant_dynamic=None
+00:19:42 [aiconfigurator] [I] [utils.py:1191] Loaded model config for Wan-AI/Wan2.2-T2V-A14B-Diffusers: architecture=WanTransformer3DModel, layers=40, n=40, n_kv=40, d=128, hidden_size=5120, inter_size=13824, vocab=16, context=131072, topk=0, num_experts=0, moe_inter_size=0, extra_params={'wan_model': 'Wan2.2-T2V-A14B', 'task': 't2v', 'height': 720, 'width': 1280, 'frames': 121, 'has_image_context': False, 'latent_channels': 16, 'vae_latent_channels': 16, 'patch_in_channels': 16, 'patch_size': (1, 2, 2), 'vae_stride': (4, 8, 8), 'latent_prepare_stride': (4, 8, 8), 'text_tokens': 512, 'image_tokens': 257, 'denoising_steps': 50, 'freq_dim': 256, 'text_dim': 4096, 'ffn_dim': 13824, 't5_d_model': 4096, 't5_d_ff': 10240, 't5_num_heads': 64, 't5_d_kv': 64, 't5_num_layers': 24, 'clip_hidden_size': 768, 'clip_intermediate_size': 3072, 'clip_num_heads': 12, 'clip_head_dim': 64, 'clip_tokens': 50, 'clip_num_layers': 12, 'vae_base_dim': 96, 'vae_dim_mult': (1, 2, 4, 4), 'vae_temporal_downsample': (False, True, True), 'scheduler_num_train_timesteps': 1000, 'dit_architecture': 'WanTransformer3DModel'}
+00:19:42 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:42 [aiconfigurator] [I] [perf_database.py:274] Loading database for system='h100_sxm', backend='sglang', version='0.5.10.post1-wan2.2-main0520'
+00:19:43 [aiconfigurator] [I] [perf_database.py:2798] Merged GEMM fallback data for Wan profile: primary=/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10.post1-wan2.2-main0520/gemm_perf.txt fallback=/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10/gemm_perf.txt
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp1pp1dp1sp32u1r32etp1ep1 ttft=97278.66140439677 tpot=0.0 req_lat=97278.66140439677 tok/s/gpu=0.010279746714882349
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=1 sp=32 ulysses=2 ring=16 alg=usp ---
+00:19:45 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp1pp1dp1sp32u2r16etp1ep1 ttft=52278.659274427235 tpot=0.0 req_lat=52278.659274427235 tok/s/gpu=0.01912826407331304
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=1 sp=32 ulysses=4 ring=8 alg=usp ---
+00:19:45 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp1pp1dp1sp32u4r8etp1ep1 ttft=30830.379811461582 tpot=0.0 req_lat=30830.379811461582 tok/s/gpu=0.032435539429463575
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=1 sp=32 ulysses=8 ring=4 alg=usp ---
+00:19:45 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp1pp1dp1sp32u8r4etp1ep1 ttft=22212.90563760167 tpot=0.0 req_lat=22212.90563760167 tok/s/gpu=0.045018873996710056
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=2 sp=16 ulysses=1 ring=16 alg=ring ---
+00:19:45 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp2pp1dp1sp16u1r16etp2ep1 ttft=53299.181490942196 tpot=0.0 req_lat=53299.181490942196 tok/s/gpu=0.009381007100174161
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=2 sp=16 ulysses=2 ring=8 alg=usp ---
+00:19:45 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp2pp1dp1sp16u2r8etp2ep1 ttft=32066.144648710444 tpot=0.0 req_lat=32066.144648710444 tok/s/gpu=0.015592769429489482
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=2 sp=16 ulysses=4 ring=4 alg=usp ---
+00:19:45 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp2pp1dp1sp16u4r4etp2ep1 ttft=23595.296808458523 tpot=0.0 req_lat=23595.296808458523 tok/s/gpu=0.021190663718235504
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=4 sp=8 ulysses=1 ring=8 alg=ring ---
+00:19:45 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp4pp1dp1sp8u1r8etp4ep1 ttft=34911.19442451916 tpot=0.0 req_lat=34911.19442451916 tok/s/gpu=0.007161026831680603
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=4 sp=8 ulysses=2 ring=4 alg=usp ---
+00:19:45 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp4pp1dp1sp8u2r4etp4ep1 ttft=26633.715868801693 tpot=0.0 req_lat=26633.715868801693 tok/s/gpu=0.009386598596737527
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:126] --- config tp=8 sp=4 ulysses=1 ring=4 alg=ring ---
+00:19:45 [aiconfigurator] [I] [models.py:176] Resolved quant modes for WanTransformer3DModel: gemm=GEMMQuantMode.bfloat16 moe=MoEQuantMode.bfloat16 kvcache=KVCacheQuantMode.bfloat16 fmha=FMHAQuantMode.bfloat16 comm=CommQuantMode.half
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:174] result parallel=tp8pp1dp1sp4u1r4etp8ep1 ttft=32776.57482711439 tpot=0.0 req_lat=32776.57482711439 tok/s/gpu=0.003813699285521252
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:185] === WAN 32GPU sweep end ===
+00:19:45 [aiconfigurator] [I] [wan32_sweep.py:186] summary={'ok': 10}

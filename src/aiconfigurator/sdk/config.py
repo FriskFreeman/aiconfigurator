@@ -54,3 +54,15 @@ class RuntimeConfig:
     seq_imbalance_correction_scale: float = 1.0
     # Separate correction scale for generation/decoding stage (do NOT reuse ctx scale).
     gen_seq_imbalance_correction_scale: float = 1.0
+    # Diffusion/video-model fields. They are ignored by existing LLM ops and
+    # consumed by Wan-specific ops/models when model_family == "WAN".
+    video_task: str | None = None
+    video_height: int | None = None
+    video_width: int | None = None
+    video_frames: int | None = None
+    denoising_steps: int | None = None
+    sp_size: int = 1
+    ulysses_degree: int | None = None
+    ring_degree: int | None = None
+    sp_algorithm: str = "none"
+    attention_backend: str = "fa"

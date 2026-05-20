@@ -8,7 +8,6 @@ import torch
 
 from collector.helper import benchmark_with_power, log_perf
 from collector.sglang.wan_common import (
-    WAN_HEAD_DIM,
     iter_wan_video_cases,
     local_attention_shape,
     valid_parallel_cases,
@@ -18,18 +17,25 @@ from collector.sglang.wan_common import (
 def get_wan_rope_test_cases():
     test_cases = []
     seen = set()
-    for _profile, num_frames, height, width in iter_wan_video_cases():
+    for profile, num_frames, height, width in iter_wan_video_cases():
         from collector.sglang.wan_common import seq_len_from_video
 
-        global_seq_len = seq_len_from_video(num_frames, height, width)
-        for tp_size, sp_size, sp_algorithm in valid_parallel_cases():
+        global_seq_len = seq_len_from_video(
+            num_frames,
+            height,
+            width,
+            latent_stride=profile.latent_prepare_stride,
+        )
+        for tp_size, sp_size, ulysses_degree, ring_degree, sp_algorithm in valid_parallel_cases(profile.num_heads):
             seq_len, num_heads = local_attention_shape(
                 global_seq_len=global_seq_len,
                 tp_size=tp_size,
                 sp_size=sp_size,
-                sp_algorithm=sp_algorithm,
+                ulysses_degree=ulysses_degree,
+                ring_degree=ring_degree,
+                num_heads=profile.num_heads,
             )
-            key = (1, seq_len, num_heads, WAN_HEAD_DIM, tp_size, sp_size, sp_algorithm)
+            key = (1, seq_len, num_heads, profile.head_dim, tp_size, sp_size, ulysses_degree, ring_degree, sp_algorithm)
             if num_heads <= 0 or key in seen:
                 continue
             seen.add(key)
@@ -44,6 +50,8 @@ def run_wan_rope(
     head_dim,
     tp_size,
     sp_size,
+    ulysses_degree,
+    ring_degree,
     sp_algorithm,
     *,
     perf_filename,
@@ -83,6 +91,8 @@ def run_wan_rope(
                 "head_dim": head_dim,
                 "tp_size": tp_size,
                 "sp_size": sp_size,
+                "ulysses_degree": ulysses_degree,
+                "ring_degree": ring_degree,
                 "sp_algorithm": sp_algorithm,
                 "latency": results["latency_ms"],
             }

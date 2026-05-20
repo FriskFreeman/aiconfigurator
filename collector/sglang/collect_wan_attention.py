@@ -10,9 +10,9 @@ import torch
 
 from collector.helper import benchmark_with_power, log_perf
 from collector.sglang.wan_common import (
-    WAN_HEAD_DIM,
     WAN_IMAGE_TOKENS,
     WAN_TEXT_TOKENS,
+    cross_attention_shape,
     iter_wan_video_cases,
     local_attention_shape,
     seq_len_from_video,
@@ -33,9 +33,39 @@ def _backend_names() -> list[str]:
     return names
 
 
-def _attention_case_is_reasonable(q_seq_len: int, kv_seq_len: int, num_heads: int, head_dim: int) -> bool:
-    max_work = int(os.environ.get("COLLECTOR_WAN_MAX_ATTN_WORK", "2000000000"))
-    max_output_elems = int(os.environ.get("COLLECTOR_WAN_MAX_ATTN_OUTPUT_ELEMS", "80000000"))
+def _attention_case_is_reasonable(
+    attn_kind: str,
+    q_seq_len: int,
+    kv_seq_len: int,
+    num_heads: int,
+    head_dim: int,
+) -> bool:
+    if attn_kind.startswith("cross_attn"):
+        max_work = int(
+            os.environ.get(
+                "COLLECTOR_WAN_MAX_CROSS_ATTN_WORK",
+                os.environ.get("COLLECTOR_WAN_MAX_ATTN_WORK", "80000000000"),
+            )
+        )
+        max_output_elems = int(
+            os.environ.get(
+                "COLLECTOR_WAN_MAX_CROSS_ATTN_OUTPUT_ELEMS",
+                "600000000",
+            )
+        )
+    else:
+        max_work = int(
+            os.environ.get(
+                "COLLECTOR_WAN_MAX_SELF_ATTN_WORK",
+                os.environ.get("COLLECTOR_WAN_MAX_ATTN_WORK", "120000000000"),
+            )
+        )
+        max_output_elems = int(
+            os.environ.get(
+                "COLLECTOR_WAN_MAX_SELF_ATTN_OUTPUT_ELEMS",
+                "300000000",
+            )
+        )
     if q_seq_len * kv_seq_len * max(1, num_heads) > max_work:
         return False
     if q_seq_len * max(1, num_heads) * head_dim > max_output_elems:
@@ -47,13 +77,26 @@ def get_wan_attention_test_cases():
     test_cases = []
     seen = set()
     for profile, num_frames, height, width in iter_wan_video_cases():
-        global_seq_len = seq_len_from_video(num_frames, height, width)
-        for tp_size, sp_size, sp_algorithm in valid_parallel_cases():
+        global_seq_len = seq_len_from_video(
+            num_frames,
+            height,
+            width,
+            latent_stride=profile.latent_prepare_stride,
+        )
+        for tp_size, sp_size, ulysses_degree, ring_degree, sp_algorithm in valid_parallel_cases(profile.num_heads):
             self_q_seq_len, local_heads = local_attention_shape(
                 global_seq_len=global_seq_len,
                 tp_size=tp_size,
                 sp_size=sp_size,
-                sp_algorithm=sp_algorithm,
+                ulysses_degree=ulysses_degree,
+                ring_degree=ring_degree,
+                num_heads=profile.num_heads,
+            )
+            cross_q_seq_len, cross_heads = cross_attention_shape(
+                global_seq_len=global_seq_len,
+                tp_size=tp_size,
+                sp_size=sp_size,
+                num_heads=profile.num_heads,
             )
             for backend in _backend_names():
                 if backend in ("sla", "sagesla"):
@@ -65,13 +108,21 @@ def get_wan_attention_test_cases():
 
                 for attn_kind in attn_kinds:
                     if attn_kind == "cross_attn_text":
-                        q_seq_len, kv_seq_len = self_q_seq_len, WAN_TEXT_TOKENS
+                        q_seq_len, kv_seq_len = cross_q_seq_len, WAN_TEXT_TOKENS
+                        num_heads = cross_heads
+                        effective_sp_algorithm = "cross_local" if sp_size > 1 else "none"
                     elif attn_kind == "cross_attn_image":
-                        q_seq_len, kv_seq_len = self_q_seq_len, WAN_IMAGE_TOKENS
+                        q_seq_len, kv_seq_len = cross_q_seq_len, WAN_IMAGE_TOKENS
+                        num_heads = cross_heads
+                        effective_sp_algorithm = "cross_local" if sp_size > 1 else "none"
                     else:
                         q_seq_len = kv_seq_len = self_q_seq_len
+                        num_heads = local_heads
+                        effective_sp_algorithm = sp_algorithm
 
-                    if not _attention_case_is_reasonable(q_seq_len, kv_seq_len, local_heads, WAN_HEAD_DIM):
+                    if not _attention_case_is_reasonable(
+                        attn_kind, q_seq_len, kv_seq_len, num_heads, profile.head_dim
+                    ):
                         continue
 
                     key = (
@@ -82,13 +133,15 @@ def get_wan_attention_test_cases():
                         1,
                         q_seq_len,
                         kv_seq_len,
-                        local_heads,
-                        WAN_HEAD_DIM,
+                        num_heads,
+                        profile.head_dim,
                         tp_size,
                         sp_size,
-                        sp_algorithm,
+                        ulysses_degree,
+                        ring_degree,
+                        effective_sp_algorithm,
                     )
-                    if local_heads <= 0 or key in seen:
+                    if num_heads <= 0 or key in seen:
                         continue
                     seen.add(key)
                     test_cases.append(list(key))
@@ -150,6 +203,8 @@ def run_wan_attention(
     head_dim,
     tp_size,
     sp_size,
+    ulysses_degree,
+    ring_degree,
     sp_algorithm,
     *,
     perf_filename,
@@ -195,6 +250,8 @@ def run_wan_attention(
                 "head_dim": head_dim,
                 "tp_size": tp_size,
                 "sp_size": sp_size,
+                "ulysses_degree": ulysses_degree,
+                "ring_degree": ring_degree,
                 "sp_algorithm": sp_algorithm,
                 "latency": results["latency_ms"],
             }

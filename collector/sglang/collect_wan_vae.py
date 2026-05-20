@@ -21,6 +21,9 @@ from collector.sglang.wan_common import (
 )
 
 
+VAE_SP_SIZES = (1, 2, 4, 8, 16, 32)
+
+
 def _vae_latent_frames(num_frames: int) -> int:
     return (num_frames - 1) // WAN_VAE_STRIDE[0] + 1
 
@@ -37,10 +40,30 @@ def _video_cases():
                 yield profile.model, profile.task, num_frames, height, width
 
 
-def _decode_shapes(num_frames: int, height: int, width: int):
+def _vae_parallel_height(height: int, sp_size: int) -> int:
+    return ceil_div(height, max(1, sp_size))
+
+
+def _align_down_to_multiple(value: int, multiple: int) -> int:
+    if multiple <= 1:
+        return max(1, value)
+    aligned = value - value % multiple
+    return max(multiple, aligned)
+
+
+def _vae_encode_input_local_height(height: int, sp_size: int) -> int:
+    downsample_count = max(len(WAN_VAE_DIM_MULT) - 1, 0)
+    factor = max(1, sp_size) * (2**downsample_count)
+    padded = height + ((factor - height % factor) % factor)
+    return max(1, padded // max(1, sp_size))
+
+
+def _decode_shapes(num_frames: int, height: int, width: int, sp_size: int):
     frames = _vae_latent_frames(num_frames)
-    h = height // WAN_VAE_STRIDE[1]
+    h = _vae_parallel_height(height // WAN_VAE_STRIDE[1], sp_size)
     w = width // WAN_VAE_STRIDE[2]
+    h = _align_down_to_multiple(h, 2)
+    w = _align_down_to_multiple(w, 2)
     dims = [WAN_VAE_BASE_DIM * u for u in [WAN_VAE_DIM_MULT[-1]] + list(WAN_VAE_DIM_MULT[::-1])]
     yield "decode_post_quant_conv", WAN_VAE_Z_DIM, WAN_VAE_Z_DIM, frames, h, w, "1x1"
     yield "decode_conv_in", WAN_VAE_Z_DIM, dims[0], 1, h, w, "3x3x3"
@@ -56,9 +79,9 @@ def _decode_shapes(num_frames: int, height: int, width: int):
     yield "decode_conv_out", dims[-1], 3, 1, h, w, "3x3x3"
 
 
-def _encode_shapes(num_frames: int, height: int, width: int):
+def _encode_shapes(num_frames: int, height: int, width: int, sp_size: int):
     frames = 1
-    h = height
+    h = _vae_encode_input_local_height(height, sp_size)
     w = width
     dims = [WAN_VAE_BASE_DIM * u for u in [1] + list(WAN_VAE_DIM_MULT)]
     yield "encode_conv_in", 3, dims[0], frames, h, w, "3x3x3"
@@ -79,27 +102,28 @@ def get_wan_vae_test_cases():
     test_cases = []
     seen = set()
     for model, task, num_frames, height, width in _video_cases():
-        for path, iterator in (("decode", _decode_shapes), ("encode", _encode_shapes)):
-            for stage, in_channels, out_channels, frames, local_height, local_width, conv_kind in iterator(num_frames, height, width):
-                if in_channels * max(1, frames) * local_height * local_width > max_elems:
-                    continue
-                key = (
-                    model,
-                    task,
-                    path,
-                    stage,
-                    1,
-                    in_channels,
-                    out_channels,
-                    frames,
-                    local_height,
-                    local_width,
-                    conv_kind,
-                )
-                if key in seen:
-                    continue
-                seen.add(key)
-                test_cases.append(list(key))
+        for sp_size in VAE_SP_SIZES:
+            for path, iterator in (("decode", _decode_shapes), ("encode", _encode_shapes)):
+                for stage, in_channels, out_channels, frames, local_height, local_width, conv_kind in iterator(num_frames, height, width, sp_size):
+                    if in_channels * max(1, frames) * local_height * local_width > max_elems:
+                        continue
+                    key = (
+                        model,
+                        task,
+                        path,
+                        stage,
+                        1,
+                        in_channels,
+                        out_channels,
+                        frames,
+                        local_height,
+                        local_width,
+                        conv_kind,
+                    )
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    test_cases.append(list(key))
     return test_cases
 
 
@@ -108,13 +132,14 @@ def get_wan_vae_attention_test_cases():
     seen = set()
     for model, task, num_frames, height, width in _video_cases():
         frames = 1
-        for channels, spatial_div in ((384, 16), (192, 8), (96, 4)):
-            local_height = max(1, height // spatial_div)
-            local_width = max(1, width // spatial_div)
-            key = (model, task, 1, channels, frames, local_height, local_width)
-            if key not in seen:
-                seen.add(key)
-                test_cases.append(list(key))
+        for sp_size in VAE_SP_SIZES:
+            for channels, spatial_div in ((384, 16), (192, 8), (96, 4)):
+                local_height = _vae_parallel_height(max(1, height // spatial_div), sp_size)
+                local_width = max(1, width // spatial_div)
+                key = (model, task, 1, channels, frames, local_height, local_width)
+                if key not in seen:
+                    seen.add(key)
+                    test_cases.append(list(key))
     return test_cases
 
 
@@ -123,15 +148,20 @@ def get_wan_vae_elementwise_test_cases():
     seen = set()
     for model, task, num_frames, height, width in _video_cases():
         frames = _vae_latent_frames(num_frames)
-        for op_name in ("rms_norm_5d", "silu", "avg_down3d", "dup_up3d"):
-            for channels, spatial_div in ((96, 4), (192, 8), (384, 16)):
-                local_height = max(1, height // spatial_div)
-                local_width = max(1, width // spatial_div)
-                case_frames = 1 if op_name in ("avg_down3d", "dup_up3d") else frames
-                key = (model, task, op_name, 1, channels, case_frames, local_height, local_width)
-                if key not in seen:
-                    seen.add(key)
-                    test_cases.append(list(key))
+        for sp_size in VAE_SP_SIZES:
+            for op_name in ("rms_norm_5d", "silu", "avg_down3d", "dup_up3d"):
+                for channels, spatial_div in ((96, 4), (192, 8), (384, 16)):
+                    local_height = _vae_parallel_height(max(1, height // spatial_div), sp_size)
+                    local_width = max(1, width // spatial_div)
+                    if op_name == "avg_down3d":
+                        # SGLang AvgDown3D only pads time; spatial dims must already be even.
+                        local_height = _align_down_to_multiple(local_height, 2)
+                        local_width = _align_down_to_multiple(local_width, 2)
+                    case_frames = 1 if op_name in ("avg_down3d", "dup_up3d") else frames
+                    key = (model, task, op_name, 1, channels, case_frames, local_height, local_width)
+                    if key not in seen:
+                        seen.add(key)
+                        test_cases.append(list(key))
     return test_cases
 
 

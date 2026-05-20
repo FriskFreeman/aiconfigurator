@@ -11,7 +11,7 @@
 | 文本编码 | `stages/text_encoding.py` + `runtime/models/encoders/t5.py` | 三类任务均执行 | `input_ids/attention_mask -> prompt_embeds[B,512,4096]` | `wan_t5` + GEMM |
 | 图像编码 | `stages/image_encoding.py` + `runtime/models/encoders/clip.py` | I2V/TI2V 条件图像执行 | CLIP hidden states，Wan I2V cross-attn 取 257 image tokens | `wan_clip` + GEMM |
 | 图像 VAE encode | `stages/image_encoding.py::ImageVAEEncodingStage` + `wanvae.py` | I2V/TI2V 条件图像执行 | `condition_image -> image_latent` | `wan_vae` / `wan_vae_attention` / `wan_vae_elementwise` |
-| Latent 准备 | `stages/latent_preparation.py` | 三类任务均执行 | `latents[B,16,F_lat,H/16,W/16]`；TI2V 覆写为 `(B,16,F,H/16,W/16)` | 文档说明，不测随机数 |
+| Latent 准备 | `stages/latent_preparation.py` | 三类任务均执行 | A14B latent `B,16,F_lat,H/8,W/8`；TI2V-5B 官方 `prepare_latent_shape()` 为 `B,48,F_lat,H/16,W/16`，`F_lat=(F-1)//4+1` | 文档说明，不测随机数 |
 | Timesteps | `stages/timestep_preparation.py` | 三类任务均执行 | scheduler timesteps/sigmas；TI2V 可扩展到 token 级 timestep | 文档说明，不测 |
 | DiT denoise | `stages/denoising.py` + `runtime/models/dits/wanvideo.py` | 三类任务均执行；A14B 有 high/low expert | latent tokens、text tokens、image tokens、timestep modulation | `wan_patch_embed` / `wan_rope` / `wan_attention` / `wan_elementwise` + GEMM |
 | VAE decode | `stages/decoding.py` + `runtime/models/vaes/wanvae.py` | 三类任务均执行 | `latents -> video[B,3,F,H,W]` | `wan_vae` / `wan_vae_attention` / `wan_vae_elementwise` |
@@ -20,9 +20,9 @@
 
 | Profile | SGLang 配置类 | Task | 分辨率/帧数采样 | VAE | DiT token 设计 |
 |---|---|---|---|---|---|
-| Wan2.2 TI2V 5B | `Wan2_2_TI2V_5B_Config` | `TI2V` | collector 覆盖 `704x1280`，`121/81/49` 帧 | encoder+decoder；`vae_stride=(4,16,16)`；源码中 `prepare_latent_shape` 使用 `F=num_frames` | hidden `5120`、heads `40`、head_dim `128`、patch `(1,2,2)` |
-| Wan2.2 T2V A14B | `Wan2_2_T2V_A14B_Config` | `T2V` | `720x1280`、`480x832`，`121/81/49` 帧 | decoder only | text tokens `512`，无 image context |
-| Wan2.2 I2V A14B | `Wan2_2_I2V_A14B_Config` | `I2V` | `720x1280`、`480x832`，`121/81/49` 帧 | encoder+decoder | text tokens `512` + image tokens `257` |
+| Wan2.2 TI2V 5B | `Wan2_2_TI2V_5B_Config` | `TI2V` | collector 覆盖 `704x1280`，`121/81/49` 帧 | encoder+decoder；VAE arch stride `(4,8,8)`；DiT latent prepare stride `(4,16,16)` | hidden `3072`、heads `24`、head_dim `128`、FFN `14336`、patch input/output `48` |
+| Wan2.2 T2V A14B | `Wan2_2_T2V_A14B_Config` | `T2V` | `720x1280`、`480x832`，`121/81/49` 帧 | decoder only | hidden `5120`、heads `40`、FFN `13824`、patch input `16` |
+| Wan2.2 I2V A14B | `Wan2_2_I2V_A14B_Config` | `I2V` | `720x1280`、`480x832`，`121/81/49` 帧 | encoder+decoder | hidden `5120`、heads `40`、FFN `13824`、patch input `36`、image tokens `257` |
 
 ## 3. 文本编码器 T5 拆解
 
@@ -50,15 +50,15 @@ I2V/TI2V pipeline 在有 `image_encoder` 与 `image_processor` 时执行 `ImageE
 
 ## 5. Wan DiT 主干拆解
 
-DiT collector 已覆盖主干：`PatchEmbed`、RoPE、attention local compute、fused layernorm/residual/modulation，以及 Linear/GEMM 维度。SP/USP/Ring 的通信不纳入 latency，只用通信后的本地 shape：Ulysses 近似为 `seq_len=global_seq`、`heads=heads/tp/sp`；Ring 近似为 `seq_len=ceil(global_seq/sp)`、`heads=heads/tp`。
+DiT collector 已覆盖主干：`PatchEmbed`、RoPE、attention local compute、fused layernorm/residual/modulation，以及 Linear/GEMM 维度。SP/USP/Ring 的通信不纳入 latency，只用通信后的本地 shape：Ulysses 近似为 `seq_len=global_seq`、`heads=heads/tp/sp`；Ring 近似为 `seq_len=ceil(global_seq/sp)`、`heads=heads/tp`。A14B 的 DiT token grid 来自 VAE arch `(4,8,8)` 后再 patch `(1,2,2)`；TI2V-5B 则按官方 `prepare_latent_shape()` 使用 `(4,16,16)` 的 DiT latent prepare grid，例如 `704x1280x121 -> 31x44x80 -> 27280 tokens`。
 
 | 算子类别 | SGLang 源码载体 | collector |
 |---|---|---|
-| Latent patch embed | `WanTransformer3DModel.patch_embedding` | `wan_patch_embed` |
+| Latent patch embed | `WanTransformer3DModel.patch_embedding` / `WanModel.patch_embedding` | `wan_patch_embed` |
 | RoPE | `rotary_embedding.apply_flashinfer_rope_qk_inplace` | `wan_rope` |
-| USPAttention 本地 compute | `USPAttention` 经 platform backend 选 FA/SDPA/Sage/SLA | `wan_attention` |
-| LayerNorm/Scale/Residual fused | `LayerNormScaleShift`、`ScaleResidualLayerNormScaleShift`、`MulAdd`、`RMSNorm` | `wan_elementwise` |
-| Linear/GEMM | `to_q/k/v/out`、FFN、text/time/image embedder | `gemm` Wan-only 维度 |
+| USPAttention 本地 compute | `USPAttention` 经 platform backend 选 FA/SDPA/Sage/SLA；按 A14B `40` heads 与 TI2V `24` heads 生成本地 shape | `wan_attention` |
+| LayerNorm/Scale/Residual fused | `LayerNormScaleShift`、`ScaleResidualLayerNormScaleShift`、`MulAdd`、`RMSNorm`；覆盖 hidden `5120/3072` 与 RMSNorm TP shard | `wan_elementwise` |
+| Linear/GEMM | `to_q/k/v/out`、FFN、text/time/image embedder；覆盖 A14B `ffn=13824` 与 TI2V `ffn=14336` | `gemm` Wan-only 维度 |
 
 ## 6. WanVAE encode/decode 拆解
 
@@ -87,14 +87,32 @@ DiT collector 已覆盖主干：`PatchEmbed`、RoPE、attention local compute、
 
 | OpEntry | 输出文件 | 覆盖范围 | 是否接入 PerfDatabase |
 |---|---|---|---|
-| `wan_t5` | `wan_t5_perf.txt` | T5 embedding、attention compute、RMSNorm、FFN gated elementwise | 否 |
-| `wan_clip` | `wan_clip_perf.txt` | CLIP patch embedding、attention compute、LayerNorm、quick_gelu | 否 |
-| `wan_vae` | `wan_vae_perf.txt` | VAE causal Conv3d 与 2D resample conv | 否 |
-| `wan_vae_attention` | `wan_vae_attention_perf.txt` | VAE mid-block SDPA | 否 |
-| `wan_vae_elementwise` | `wan_vae_elementwise_perf.txt` | VAE norm、activation、AvgDown/DupUp | 否 |
+| `wan_patch_embed` | `wan_patch_embed_perf.txt` | DiT patch Conv3d；区分 `in_channels` 与 `hidden_size` | 是 |
+| `wan_rope` | `wan_rope_perf.txt` | q/k RoPE inplace；按 profile heads 生成 | 是 |
+| `wan_attention` | `wan_attention_perf.txt` | USPAttention 本地 compute | 是 |
+| `wan_elementwise` | `wan_elementwise_perf.txt` | DiT norm/residual/modulation/RMSNorm | 是 |
+| `wan_t5` | `wan_t5_perf.txt` | T5 embedding、attention compute、RMSNorm、FFN gated elementwise | 是 |
+| `wan_clip` | `wan_clip_perf.txt` | CLIP patch embedding、attention compute、LayerNorm、quick_gelu | 是 |
+| `wan_vae` | `wan_vae_perf.txt` | VAE causal Conv3d 与 2D resample conv | 是 |
+| `wan_vae_attention` | `wan_vae_attention_perf.txt` | VAE mid-block SDPA | 是 |
+| `wan_vae_elementwise` | `wan_vae_elementwise_perf.txt` | VAE norm、activation、AvgDown/DupUp | 是 |
 
 ## 9. 静态校验结果
 
 - 已在 Docker `10.110.181.132:5000/sglang:0.5.10.post1` 中通过 `py_compile`。
-- 已在同一 Docker 中校验 registry 测试用例生成：`wan_t5=12`、`wan_clip=4`、`wan_vae=165`、`wan_vae_attention=15`、`wan_vae_elementwise=120`。
+- 已在本机 `ljc01` 环境中静态校验当前 registry 测试用例生成：`wan_patch_embed=15`、`wan_rope=198`、`wan_attention=505`、`wan_elementwise=144`、`wan_sparse_attention=384`；`wan_t5=12`、`wan_clip=4`、`wan_vae=165`、`wan_vae_attention=15`、`wan_vae_elementwise=120`。
 - 已用 GPU 7 做 smoke：`wan_t5` 与 `wan_clip` 均通过 collector `--smoke`；`wan_vae`、`wan_vae_attention`、`wan_vae_elementwise` 通过 collector `--smoke`；同时对 VAE 小 shape 做过直接 run 函数 smoke。
+
+## 10. 复合 SP 与通信补充
+
+SGLang 0.5.10 中 Wan 的总 SP 满足 `sp_degree = ulysses_degree * ring_degree`。如果用户只给 `sp_degree>1`，SGLang 默认采用纯 Ulysses：`ulysses_degree=sp_degree, ring_degree=1`。本仓库 collector 与 SDK 已按以下事实对齐：
+
+| 模块 | SGLang 行为 | collector / SDK 处理 |
+|---|---|---|
+| DiT self-attn | Q/K/V 先 Ulysses AllToAll，再在 Ring 分组上做本地 attention，最后输出 AllToAll 回 sequence shard | collector 测 post-A2A/Ring local compute；SDK 额外加 AllToAll 与 Ring P2P empirical 通信 |
+| DiT cross-attn | `skip_sequence_parallel=True`，Q 保持 SP sequence shard，KV text/image replicated，不做 Ulysses head A2A | collector 使用 `cross_local` shape；SDK cross attention heads 只除 TP，不除 Ulysses |
+| DiT GEMM/elementwise | block 内非 self-attn 输入是 SP 后 local tokens | collector 和 SDK 均使用 `ceil(global_seq/sp_size)` |
+| T5 encoder | 默认跟 TP group；`tp_size==1 && sp_degree>1` 时 parallel linear/embedding 复用 SP group | GEMM collector 补 group size；SDK 加 embedding/attention/FFN all-reduce empirical 通信 |
+| VAE encode/decode | 按 height 维做 split/gather，distributed conv 有 halo P2P | VAE collector 补 local height shape；SDK 加 height all-gather 与 halo P2P empirical 通信 |
+
+本轮仍不考虑 VSA/SLA 稀疏 attention 路径；`collect_wan_sparse_attention.py` 保留为专项实验入口，不纳入主 Wan 仿真链路。

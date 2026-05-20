@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import dataclasses
 import logging
+import math
 from collections import Counter
 from functools import cache
 from typing import ClassVar, Optional
@@ -527,6 +528,22 @@ def get_model(
             model_config,
             extra_params,
         )
+    elif model_family == "WAN":
+        model = WanVideoModel(
+            model_path,
+            model_family,
+            architecture,
+            layers,
+            n,
+            n_kv,
+            d,
+            hidden,
+            inter,
+            vocab,
+            context,
+            model_config,
+            extra_params,
+        )
 
     return model
 
@@ -667,6 +684,715 @@ class BaseModel:
         seq_len = max(0, seq_len)
         return seq_len * self.config.kvcache_quant_mode.value.memory * self.get_kvcache_elements_per_token()
 
+
+
+class WanVideoModel(BaseModel):
+    """SGLang Wan2.2 video diffusion model assembled from collector-backed ops.
+
+    The model is represented as a static context-only pipeline because diffusion
+    inference is step-batched video generation rather than LLM prefill/decode.
+    `RuntimeConfig.isl/osl` are kept for compatibility with the existing SDK
+    summary schema; Wan-specific shape knobs live in RuntimeConfig's video_* and
+    denoising fields.
+    """
+
+    _PROFILE_DEFAULTS: ClassVar[dict[str, dict]] = {
+        "Wan2.2-TI2V-5B": {
+            "task": "ti2v",
+            "height": 704,
+            "width": 1280,
+            "frames": 121,
+            "has_image_context": True,
+            "latent_prepare_stride": (4, 16, 16),
+            "vae_stride": (4, 8, 8),
+        },
+        "Wan2.2-T2V-A14B": {
+            "task": "t2v",
+            "height": 720,
+            "width": 1280,
+            "frames": 121,
+            "has_image_context": False,
+            "latent_prepare_stride": (4, 8, 8),
+            "vae_stride": (4, 8, 8),
+        },
+        "Wan2.2-I2V-A14B": {
+            "task": "i2v",
+            "height": 720,
+            "width": 1280,
+            "frames": 121,
+            "has_image_context": True,
+            "latent_prepare_stride": (4, 8, 8),
+            "vae_stride": (4, 8, 8),
+        },
+    }
+
+    def __init__(self, *args) -> None:
+        super().__init__(*args)
+        self.model_name = self._resolve_wan_model_name(self.model_path, self.extra_params)
+        self._wan_task = self._resolve_profile_value("task")
+        self._video_height = int(self._resolve_profile_value("height"))
+        self._video_width = int(self._resolve_profile_value("width"))
+        self._video_frames = int(self._resolve_profile_value("frames"))
+        self._has_image_context = bool(self._resolve_profile_value("has_image_context"))
+        self._denoising_steps = int(self._get_extra("denoising_steps", 50))
+        self._sp_size = int(self._get_extra("sp_size", 1))
+        self._ulysses_degree = self._get_extra("ulysses_degree", None)
+        self._ring_degree = self._get_extra("ring_degree", None)
+        self._ulysses_degree, self._ring_degree, self._sp_size = self._resolve_sp_degrees(
+            self._sp_size, self._ulysses_degree, self._ring_degree
+        )
+        self._sp_algorithm = str(self._get_extra("sp_algorithm", "none"))
+        self._attention_backend = str(self._get_extra("attention_backend", "fa"))
+        self._text_tokens = int(self._get_extra("text_tokens", 512))
+        self._image_tokens = int(self._get_extra("image_tokens", 257))
+        self._patch_size = tuple(self._get_extra("patch_size", (1, 2, 2)))
+        self._patch_in_channels = int(self._get_extra("patch_in_channels", self._get_extra("latent_channels", 16)))
+        self._vae_stride = tuple(self._get_extra("vae_stride", self._resolve_profile_value("vae_stride")))
+        self._latent_prepare_stride = tuple(
+            self._get_extra(
+                "latent_prepare_stride",
+                self._resolve_profile_value("latent_prepare_stride"),
+            )
+        )
+        self._vae_base_dim = int(self._get_extra("vae_base_dim", 96))
+        self._vae_dim_mult = tuple(self._get_extra("vae_dim_mult", (1, 2, 4, 4)))
+        self._vae_temporal_downsample = tuple(self._get_extra("vae_temporal_downsample", (False, True, True)))
+        self._latent_channels = int(self._get_extra("vae_latent_channels", self._get_extra("latent_channels", 16)))
+        self._build_wan_pipeline()
+
+    def configure_from_runtime(self, runtime_config: config.RuntimeConfig) -> None:
+        """Apply Wan video/runtime knobs before a static run and rebuild op list if needed."""
+        updates = {
+            "_wan_task": runtime_config.video_task,
+            "_video_height": runtime_config.video_height,
+            "_video_width": runtime_config.video_width,
+            "_video_frames": runtime_config.video_frames,
+            "_denoising_steps": runtime_config.denoising_steps,
+            "_sp_size": runtime_config.sp_size,
+            "_ulysses_degree": runtime_config.ulysses_degree,
+            "_ring_degree": runtime_config.ring_degree,
+            "_sp_algorithm": runtime_config.sp_algorithm,
+            "_attention_backend": runtime_config.attention_backend,
+        }
+        changed = False
+        for attr, value in updates.items():
+            if value is None:
+                continue
+            new_value = (
+                int(value)
+                if attr
+                in {
+                    "_video_height",
+                    "_video_width",
+                    "_video_frames",
+                    "_denoising_steps",
+                    "_sp_size",
+                    "_ulysses_degree",
+                    "_ring_degree",
+                }
+                else str(value)
+            )
+            if getattr(self, attr) != new_value:
+                setattr(self, attr, new_value)
+                changed = True
+        if changed:
+            self._ulysses_degree, self._ring_degree, self._sp_size = self._resolve_sp_degrees(
+                self._sp_size, self._ulysses_degree, self._ring_degree
+            )
+            self._build_wan_pipeline()
+
+    @classmethod
+    def _resolve_wan_model_name(cls, model_path: str, extra_params) -> str:
+        if isinstance(extra_params, dict) and extra_params.get("wan_model"):
+            return str(extra_params["wan_model"])
+        if isinstance(extra_params, dict) and extra_params.get("task"):
+            task = str(extra_params["task"]).lower()
+            if task == "ti2v":
+                return "Wan2.2-TI2V-5B"
+            if task == "i2v":
+                return "Wan2.2-I2V-A14B"
+            return "Wan2.2-T2V-A14B"
+        if "ti2v" in model_path.lower():
+            return "Wan2.2-TI2V-5B"
+        if "i2v" in model_path.lower():
+            return "Wan2.2-I2V-A14B"
+        if "t2v" in model_path.lower():
+            return "Wan2.2-T2V-A14B"
+        lower = model_path.lower()
+        if "fastwan2.2" in lower:
+            return "Wan2.2-TI2V-5B"
+        return "Wan2.2-T2V-A14B"
+
+    def _get_extra(self, key: str, default):
+        if isinstance(self.extra_params, dict):
+            return self.extra_params.get(key, default)
+        return default
+
+    def _resolve_profile_value(self, key: str):
+        if isinstance(self.extra_params, dict) and self.extra_params.get(key) is not None:
+            return self.extra_params[key]
+        return self._PROFILE_DEFAULTS[self.model_name][key]
+
+    @staticmethod
+    def _ceil_div(a: int, b: int) -> int:
+        return (a + b - 1) // b
+
+    @staticmethod
+    def _resolve_sp_degrees(
+        sp_size: int | None,
+        ulysses_degree: int | None,
+        ring_degree: int | None,
+    ) -> tuple[int, int, int]:
+        sp = max(1, int(sp_size or 1))
+        ulysses = None if ulysses_degree is None else max(1, int(ulysses_degree))
+        ring = None if ring_degree is None else max(1, int(ring_degree))
+        if sp > 1 and ulysses is None and ring is None:
+            ulysses = sp
+            ring = 1
+        elif ulysses is None and ring is None:
+            ulysses = 1
+            ring = 1
+        elif ulysses is None:
+            if sp % ring != 0:
+                raise ValueError(f"Wan SP config invalid: sp_size={sp} is not divisible by ring_degree={ring}.")
+            ulysses = max(1, sp // ring)
+        elif ring is None:
+            if sp % ulysses != 0:
+                raise ValueError(f"Wan SP config invalid: sp_size={sp} is not divisible by ulysses_degree={ulysses}.")
+            ring = max(1, sp // ulysses)
+        if sp != ulysses * ring:
+            raise ValueError(
+                f"Wan SP config invalid: sp_size ({sp}) must equal "
+                f"ulysses_degree * ring_degree ({ulysses} * {ring} = {ulysses * ring})."
+            )
+        return ulysses, ring, sp
+
+    @staticmethod
+    def _align_down_to_multiple(value: int, multiple: int) -> int:
+        if multiple <= 1:
+            return max(1, value)
+        aligned = value - value % multiple
+        return max(multiple, aligned)
+
+    def _latent_shape(self) -> tuple[int, int, int]:
+        stride_t, stride_h, stride_w = self._latent_prepare_stride
+        return (
+            (self._video_frames - 1) // stride_t + 1,
+            self._video_height // stride_h,
+            self._video_width // stride_w,
+        )
+
+    def _seq_len(self) -> int:
+        latent_t, latent_h, latent_w = self._latent_shape()
+        patch_t, patch_h, patch_w = self._patch_size
+        return (latent_t // patch_t) * (latent_h // patch_h) * (latent_w // patch_w)
+
+    def _video_tokens(self) -> int:
+        return max(1, self._seq_len())
+
+    def _parallel_label(self) -> str:
+        if self._sp_size <= 1:
+            return "none"
+        if self._ulysses_degree > 1 and self._ring_degree > 1:
+            return "usp"
+        if self._ulysses_degree > 1:
+            return "ulysses"
+        if self._ring_degree > 1:
+            return "ring"
+        return "none"
+
+    def _local_attention_shape(self, global_seq_len: int) -> tuple[int, int, str, int]:
+        tp_size = self.config.tp_size
+        sp_size = max(1, self._sp_size)
+        ulysses_degree = max(1, self._ulysses_degree)
+        ring_degree = max(1, self._ring_degree)
+        total_parallel = tp_size * self.config.pp_size * self.config.attention_dp_size * sp_size
+        if total_parallel > 32:
+            raise ValueError(
+                f"Wan parallel config uses {total_parallel} GPUs, exceeding the supported 32-GPU envelope "
+                f"(tp={tp_size}, pp={self.config.pp_size}, dp={self.config.attention_dp_size}, sp={sp_size})."
+            )
+        if self._num_heads % tp_size != 0:
+            raise ValueError(f"Wan TP config invalid: num_heads={self._num_heads} is not divisible by tp_size={tp_size}.")
+        heads_after_tp = self._num_heads // tp_size
+        if sp_size == 1:
+            return global_seq_len, heads_after_tp, "none", 1
+        if sp_size != ulysses_degree * ring_degree:
+            raise ValueError(
+                f"Wan SP config invalid: sp_size ({sp_size}) must equal "
+                f"ulysses_degree * ring_degree ({ulysses_degree} * {ring_degree})."
+            )
+        if heads_after_tp % ulysses_degree != 0:
+            raise ValueError(
+                f"Wan Ulysses degree {ulysses_degree} does not divide heads_after_tp={heads_after_tp} "
+                f"(num_heads={self._num_heads}, tp_size={tp_size})."
+            )
+        return (
+            self._ceil_div(global_seq_len, ring_degree),
+            heads_after_tp // ulysses_degree,
+            self._parallel_label(),
+            sp_size,
+        )
+
+    def _add(self, op: ops.Operation) -> None:
+        self.context_ops.append(op)
+
+    def _wan_op(self, name: str, scale_factor: float, query_name: str, params: dict, weights: float = 0.0) -> None:
+        self._add(ops.WanMeasuredOp(name, scale_factor, query_name, params, weights=weights))
+
+    def _wan_gemm(
+        self,
+        name: str,
+        scale_factor: float,
+        m: int,
+        n: int,
+        k: int,
+        *,
+        low_precision_input: bool = False,
+    ) -> None:
+        self._add(
+            ops.WanStaticGEMM(
+                name,
+                scale_factor,
+                max(1, m),
+                n,
+                k,
+                self.config.gemm_quant_mode,
+                low_precision_input=low_precision_input,
+            )
+        )
+
+    def _wan_mem(self, name: str, scale_factor: float, num_tokens: int, dim_in: int, dim_out: int) -> None:
+        self._add(ops.WanStaticMemOp(name, scale_factor, max(1, num_tokens), dim_in, dim_out))
+
+    def _wan_comm(
+        self,
+        name: str,
+        scale_factor: float,
+        comm_kind: str,
+        group_size: int,
+        message_tokens: int,
+        elems_per_token: int,
+        *,
+        hop_count: int = 1,
+    ) -> None:
+        if group_size <= 1 or message_tokens <= 0 or elems_per_token <= 0:
+            return
+        self._add(
+            ops.WanParallelComm(
+                name,
+                scale_factor,
+                comm_kind,
+                group_size,
+                max(1, message_tokens),
+                elems_per_token,
+                comm_quant_mode=self.config.comm_quant_mode or common.CommQuantMode.half,
+                hop_count=hop_count,
+            )
+        )
+
+    def _add_row_parallel_allreduce(self, name: str, scale_factor: float, tokens: int, hidden_size: int) -> None:
+        self._wan_comm(name, scale_factor, "all_reduce", self.config.tp_size, tokens, hidden_size)
+
+    def _sequence_shard_len(self, seq_len: int) -> int:
+        return self._ceil_div(seq_len, max(1, self._sp_size))
+
+    def _vae_parallel_height(self, height: int) -> int:
+        return self._ceil_div(height, max(1, self._sp_size))
+
+    def _vae_encode_input_local_height(self) -> int:
+        downsample_count = max(len(self._vae_dim_mult) - 1, 0)
+        factor = max(1, self._sp_size) * (2**downsample_count)
+        padded = self._video_height + ((factor - self._video_height % factor) % factor)
+        return max(1, padded // max(1, self._sp_size))
+
+    def _vae_decode_output_local_height(self) -> int:
+        return self._vae_parallel_height(self._video_height)
+
+    def _add_vae_split_gather_comm(self, path: str) -> None:
+        sp_size = max(1, self._sp_size)
+        if sp_size <= 1:
+            return
+        if path == "encode":
+            elems = self._latent_channels * 2 * self._vae_latent_frames() * max(1, self._video_width // self._vae_stride[2])
+            self._wan_comm(
+                "wan_vae_encode_height_all_gather",
+                1,
+                "all_gather",
+                sp_size,
+                max(1, self._video_height // self._vae_stride[1]),
+                elems,
+            )
+        else:
+            elems = 3 * self._video_frames * self._video_width
+            self._wan_comm(
+                "wan_vae_decode_height_all_gather",
+                1,
+                "all_gather",
+                sp_size,
+                self._vae_decode_output_local_height(),
+                elems,
+            )
+
+    def _add_vae_halo_comm(
+        self,
+        path: str,
+        stage: str,
+        scale_factor: float,
+        channels: int,
+        frames: int,
+        width: int,
+        conv_kind: str,
+    ) -> None:
+        sp_size = max(1, self._sp_size)
+        if sp_size <= 1 or conv_kind in {"1x1", "3x1x1"}:
+            return
+        elems_per_halo_row = channels * max(1, frames) * max(1, width)
+        self._wan_comm(
+            f"wan_vae_{path}_{stage}_height_halo_p2p",
+            scale_factor,
+            "p2p",
+            2,
+            1,
+            elems_per_halo_row,
+            hop_count=2,
+        )
+
+    def _gemm_m(self, seq_len: int, tokens_per_call: int = 1) -> int:
+        return max(1, seq_len // max(1, tokens_per_call))
+
+    def _build_wan_pipeline(self) -> None:
+        self.context_ops = []
+        self.generation_ops = []
+        h = self._hidden_size
+        head_dim = self._head_size
+        tp_size = self.config.tp_size
+        seq_len = self._seq_len()
+        local_seq_len, local_heads, sp_algorithm, sp_size = self._local_attention_shape(seq_len)
+        steps = self._denoising_steps
+        latent_t, latent_h, latent_w = self._latent_shape()
+        dit_tokens = self._sequence_shard_len(seq_len) if sp_size > 1 else seq_len
+
+        # One-time condition encoders.
+        self._build_t5_ops()
+        if self._has_image_context:
+            self._build_clip_ops()
+            self._build_vae_encode_ops()
+
+        # DiT denoising path, repeated once per scheduler step.
+        patch_t, patch_h, patch_w = self._patch_size
+        self._wan_op(
+            "wan_dit_patch_embed",
+            steps,
+            "query_wan_patch_embed",
+            {
+                "model": self.model_name,
+                "task": self._wan_task,
+                "batch_size": 1,
+                "in_channels": self._patch_in_channels,
+                "hidden_size": h,
+                "frames": latent_t,
+                "height": latent_h,
+                "width": latent_w,
+                "patch_t": patch_t,
+                "patch_h": patch_h,
+                "patch_w": patch_w,
+                "seq_len": seq_len,
+            },
+            weights=self._patch_in_channels * h * patch_t * patch_h * patch_w * 2,
+        )
+        if sp_size > 1:
+            self._wan_mem("wan_dit_sequence_shard_slice", steps, seq_len, h, h)
+        self._build_condition_embed_ops(steps)
+        self._wan_op(
+            "wan_dit_norm_modulation",
+            steps * self._num_layers,
+            "query_wan_elementwise",
+            {"op_name": "fp32_layernorm_modulation", "batch_size": 1, "seq_len": dit_tokens, "hidden_size": h, "tp_size": tp_size},
+        )
+        self._wan_gemm("wan_dit_self_q_gemm", steps * self._num_layers, dit_tokens, h // tp_size, h)
+        self._wan_gemm("wan_dit_self_k_gemm", steps * self._num_layers, dit_tokens, h // tp_size, h)
+        self._wan_gemm("wan_dit_self_v_gemm", steps * self._num_layers, dit_tokens, h // tp_size, h)
+        self._wan_op(
+            "wan_dit_qk_rmsnorm",
+            steps * self._num_layers * 2,
+            "query_wan_elementwise",
+            {"op_name": "rmsnorm_qk", "batch_size": 1, "seq_len": dit_tokens, "hidden_size": h // tp_size, "tp_size": tp_size},
+        )
+        if tp_size > 1:
+            self._wan_comm("wan_dit_qk_tp_rmsnorm_all_reduce", steps * self._num_layers * 2, "all_reduce", tp_size, dit_tokens, 1)
+        self._wan_op(
+            "wan_dit_rope",
+            steps * self._num_layers,
+            "query_wan_rope",
+            {
+                "batch_size": 1,
+                "seq_len": local_seq_len,
+                "num_heads": local_heads,
+                "head_dim": head_dim,
+                "tp_size": tp_size,
+                "sp_size": sp_size,
+                "sp_algorithm": sp_algorithm,
+            },
+        )
+        self._add_usp_attention_comm(steps * self._num_layers, dit_tokens, local_seq_len, local_heads, head_dim)
+        self._wan_op(
+            "wan_dit_self_attention",
+            steps * self._num_layers,
+            "query_wan_attention",
+            {
+                "model": self.model_name,
+                "task": self._wan_task,
+                "attn_kind": "self_attn",
+                "backend": self._attention_backend,
+                "batch_size": 1,
+                "q_seq_len": local_seq_len,
+                "kv_seq_len": local_seq_len,
+                "num_heads": local_heads,
+                "head_dim": head_dim,
+                "tp_size": tp_size,
+                "sp_size": sp_size,
+                "sp_algorithm": sp_algorithm,
+            },
+        )
+        self._wan_gemm("wan_dit_self_out_gemm", steps * self._num_layers, dit_tokens, h, h // tp_size)
+        self._add_row_parallel_allreduce("wan_dit_self_out_tp_all_reduce", steps * self._num_layers, dit_tokens, h)
+        self._wan_op(
+            "wan_dit_self_residual_norm",
+            steps * self._num_layers,
+            "query_wan_elementwise",
+            {"op_name": "scale_residual_layernorm_scale_shift", "batch_size": 1, "seq_len": dit_tokens, "hidden_size": h, "tp_size": tp_size},
+        )
+        self._build_cross_attention_ops(steps, dit_tokens, sp_size)
+        self._wan_gemm("wan_dit_ffn_fc_in_gemm", steps * self._num_layers, dit_tokens, self._inter_size // tp_size, h)
+        self._wan_mem(
+            "wan_dit_ffn_gelu",
+            steps * self._num_layers,
+            dit_tokens,
+            self._inter_size // tp_size,
+            self._inter_size // tp_size,
+        )
+        self._wan_gemm("wan_dit_ffn_fc_out_gemm", steps * self._num_layers, dit_tokens, h, self._inter_size // tp_size)
+        self._add_row_parallel_allreduce("wan_dit_ffn_fc_out_tp_all_reduce", steps * self._num_layers, dit_tokens, h)
+        self._wan_op(
+            "wan_dit_mlp_residual",
+            steps * self._num_layers,
+            "query_wan_elementwise",
+            {"op_name": "scale_residual", "batch_size": 1, "seq_len": dit_tokens, "hidden_size": h, "tp_size": tp_size},
+        )
+        if sp_size > 1:
+            self._wan_comm("wan_dit_output_sequence_all_gather", steps, "all_gather", sp_size, dit_tokens, h)
+        self._wan_op(
+            "wan_dit_final_norm_modulation",
+            steps,
+            "query_wan_elementwise",
+            {"op_name": "fp32_layernorm_modulation", "batch_size": 1, "seq_len": seq_len, "hidden_size": h, "tp_size": tp_size},
+        )
+        self._wan_gemm(
+            "wan_dit_proj_out_gemm",
+            steps,
+            seq_len,
+            self._latent_channels * patch_t * patch_h * patch_w,
+            h,
+        )
+        self._build_vae_decode_ops()
+
+    def _add_usp_attention_comm(
+        self,
+        scale_factor: float,
+        input_seq_len: int,
+        post_ulysses_seq_len: int,
+        local_heads: int,
+        head_dim: int,
+    ) -> None:
+        ulysses = max(1, self._ulysses_degree)
+        ring = max(1, self._ring_degree)
+        heads_after_tp = self._num_heads // self.config.tp_size
+        if ulysses > 1:
+            elems_per_token = heads_after_tp * head_dim
+            self._wan_comm("wan_dit_usp_input_q_alltoall", scale_factor, "alltoall", ulysses, input_seq_len, elems_per_token)
+            self._wan_comm("wan_dit_usp_input_k_alltoall", scale_factor, "alltoall", ulysses, input_seq_len, elems_per_token)
+            self._wan_comm("wan_dit_usp_input_v_alltoall", scale_factor, "alltoall", ulysses, input_seq_len, elems_per_token)
+        if ring > 1:
+            elems_per_token = local_heads * head_dim
+            self._wan_comm(
+                "wan_dit_ring_attention_kv_p2p",
+                scale_factor,
+                "p2p",
+                ring,
+                post_ulysses_seq_len,
+                elems_per_token * 2,
+                hop_count=ring - 1,
+            )
+        if ulysses > 1:
+            elems_per_token = local_heads * head_dim
+            self._wan_comm("wan_dit_usp_output_alltoall", scale_factor, "alltoall", ulysses, post_ulysses_seq_len, elems_per_token)
+
+    def _build_t5_ops(self) -> None:
+        d_model = int(self._get_extra("t5_d_model", 4096))
+        d_ff = int(self._get_extra("t5_d_ff", 10240))
+        n_heads = int(self._get_extra("t5_num_heads", 64))
+        d_kv = int(self._get_extra("t5_d_kv", 64))
+        layers = int(self._get_extra("t5_num_layers", 24))
+        tokens = self._text_tokens
+        tp_group_size = self._t5_parallel_group_size()
+        if n_heads % tp_group_size != 0:
+            raise ValueError(
+                f"Wan T5 parallel folding invalid: num_heads={n_heads} is not divisible by group_size={tp_group_size}."
+            )
+        if d_ff % tp_group_size != 0:
+            raise ValueError(
+                f"Wan T5 parallel folding invalid: d_ff={d_ff} is not divisible by group_size={tp_group_size}."
+            )
+        local_heads = n_heads // tp_group_size
+        self._wan_op("wan_t5_embedding", 1, "query_wan_t5", {"op_name": "wan_t5_embedding", "batch_size": 1, "seq_len": tokens, "d_model": d_model, "num_heads": n_heads, "d_kv": d_kv, "d_ff": d_ff}, weights=32128 * d_model * 2)
+        self._wan_comm("wan_t5_embedding_all_reduce", 1, "all_reduce", tp_group_size, tokens, d_model)
+        self._wan_op("wan_t5_rmsnorm", layers + 1, "query_wan_t5", {"op_name": "wan_t5_rmsnorm", "batch_size": 1, "seq_len": tokens, "d_model": d_model, "num_heads": n_heads, "d_kv": d_kv, "d_ff": d_ff})
+        self._wan_gemm("wan_t5_qkv_gemm", layers, tokens, 3 * n_heads * d_kv // tp_group_size, d_model)
+        self._wan_op("wan_t5_attention_compute", layers, "query_wan_t5", {"op_name": "wan_t5_attention_compute_bias_softmax", "batch_size": 1, "seq_len": tokens, "d_model": d_model, "num_heads": local_heads, "d_kv": d_kv, "d_ff": d_ff})
+        self._wan_gemm("wan_t5_out_gemm", layers, tokens, d_model, n_heads * d_kv // tp_group_size)
+        self._wan_comm("wan_t5_attention_out_all_reduce", layers, "all_reduce", tp_group_size, tokens, d_model)
+        self._wan_gemm("wan_t5_ffn_in_gemm", layers * 2, tokens, d_ff // tp_group_size, d_model)
+        self._wan_op("wan_t5_ffn_gated_act_mul", layers, "query_wan_t5", {"op_name": "wan_t5_ffn_gated_act_mul", "batch_size": 1, "seq_len": tokens, "d_model": d_model, "num_heads": n_heads, "d_kv": d_kv, "d_ff": d_ff // tp_group_size})
+        self._wan_gemm("wan_t5_ffn_out_gemm", layers, tokens, d_model, d_ff // tp_group_size)
+        self._wan_comm("wan_t5_ffn_out_all_reduce", layers, "all_reduce", tp_group_size, tokens, d_model)
+
+    def _t5_parallel_group_size(self) -> int:
+        if self.config.tp_size == 1 and self._sp_size > 1:
+            return self._sp_size
+        return self.config.tp_size
+
+    def _build_clip_ops(self) -> None:
+        hidden = int(self._get_extra("clip_hidden_size", 768))
+        inter = int(self._get_extra("clip_intermediate_size", 3072))
+        n_heads = int(self._get_extra("clip_num_heads", 12))
+        head_dim = int(self._get_extra("clip_head_dim", 64))
+        tokens = int(self._get_extra("clip_tokens", 50))
+        layers = int(self._get_extra("clip_num_layers", 12))
+        params = {"batch_size": 1, "seq_len": tokens, "hidden_size": hidden, "num_heads": n_heads, "head_dim": head_dim, "intermediate_size": inter}
+        self._wan_op("wan_clip_patch_embed", 1, "query_wan_clip", {"op_name": "wan_clip_vision_patch_embed", **params}, weights=3 * hidden * 32 * 32 * 2)
+        self._wan_op("wan_clip_layernorm", layers * 2 + 2, "query_wan_clip", {"op_name": "wan_clip_layernorm", **params})
+        self._wan_gemm("wan_clip_qkv_gemm", layers, tokens, 3 * hidden // self.config.tp_size, hidden)
+        self._wan_op("wan_clip_attention_compute", layers, "query_wan_clip", {"op_name": "wan_clip_attention_compute", **params})
+        self._wan_gemm("wan_clip_out_gemm", layers, tokens, hidden, hidden // self.config.tp_size)
+        self._add_row_parallel_allreduce("wan_clip_out_tp_all_reduce", layers, tokens, hidden)
+        self._wan_gemm("wan_clip_mlp_in_gemm", layers, tokens, inter // self.config.tp_size, hidden)
+        self._wan_op("wan_clip_mlp_activation", layers, "query_wan_clip", {"op_name": "wan_clip_mlp_activation", **params})
+        self._wan_gemm("wan_clip_mlp_out_gemm", layers, tokens, hidden, inter // self.config.tp_size)
+        self._add_row_parallel_allreduce("wan_clip_mlp_out_tp_all_reduce", layers, tokens, hidden)
+
+    def _build_condition_embed_ops(self, steps: int) -> None:
+        h = self._hidden_size
+        tp_size = self.config.tp_size
+        text_dim = int(self._get_extra("text_dim", 4096))
+        self._wan_gemm("wan_dit_text_embed_fc_in", steps, self._text_tokens, h // tp_size, text_dim)
+        self._wan_mem("wan_dit_text_embed_gelu", steps, self._text_tokens, h // tp_size, h // tp_size)
+        self._wan_gemm("wan_dit_text_embed_fc_out", steps, self._text_tokens, h, h // tp_size)
+        self._add_row_parallel_allreduce("wan_dit_text_embed_fc_out_tp_all_reduce", steps, self._text_tokens, h)
+        if self._has_image_context:
+            self._wan_gemm("wan_dit_image_embed_fc_in", steps, self._image_tokens, h // tp_size, h)
+            self._wan_gemm("wan_dit_image_embed_fc_out", steps, self._image_tokens, h, h // tp_size)
+            self._add_row_parallel_allreduce("wan_dit_image_embed_fc_out_tp_all_reduce", steps, self._image_tokens, h)
+        self._wan_gemm("wan_dit_time_embed_fc_in", steps, 1, h // tp_size, int(self._get_extra("freq_dim", 256)))
+        self._wan_gemm("wan_dit_time_embed_fc_out", steps, 1, h, h // tp_size)
+        self._add_row_parallel_allreduce("wan_dit_time_embed_fc_out_tp_all_reduce", steps, 1, h)
+        self._wan_gemm("wan_dit_time_modulation", steps, 1, (h * 6) // tp_size, h)
+
+    def _build_cross_attention_ops(self, steps: int, seq_len: int, sp_size: int) -> None:
+        h = self._hidden_size
+        tp_size = self.config.tp_size
+        cross_heads = self._num_heads // tp_size
+        self._wan_gemm("wan_dit_cross_q_gemm", steps * self._num_layers, seq_len, h // tp_size, h)
+        self._wan_gemm("wan_dit_cross_k_text_gemm", steps * self._num_layers, self._text_tokens, h // tp_size, h)
+        self._wan_gemm("wan_dit_cross_v_text_gemm", steps * self._num_layers, self._text_tokens, h // tp_size, h)
+        self._wan_op("wan_dit_cross_qk_rmsnorm_text", steps * self._num_layers * 2, "query_wan_elementwise", {"op_name": "rmsnorm_qk", "batch_size": 1, "seq_len": seq_len, "hidden_size": h // tp_size, "tp_size": tp_size})
+        if tp_size > 1:
+            self._wan_comm("wan_dit_cross_text_qk_tp_rmsnorm_all_reduce", steps * self._num_layers * 2, "all_reduce", tp_size, seq_len, 1)
+        common_params = {"model": self.model_name, "task": self._wan_task, "backend": self._attention_backend, "batch_size": 1, "q_seq_len": seq_len, "num_heads": cross_heads, "head_dim": self._head_size, "tp_size": tp_size, "sp_size": sp_size, "sp_algorithm": "cross_local" if sp_size > 1 else "none"}
+        self._wan_op("wan_dit_cross_attention_text", steps * self._num_layers, "query_wan_attention", {**common_params, "attn_kind": "cross_attn_text", "kv_seq_len": self._text_tokens})
+        if self._has_image_context:
+            self._wan_gemm("wan_dit_cross_k_image_gemm", steps * self._num_layers, self._image_tokens, h // tp_size, h)
+            self._wan_gemm("wan_dit_cross_v_image_gemm", steps * self._num_layers, self._image_tokens, h // tp_size, h)
+            self._wan_op("wan_dit_cross_qk_rmsnorm_image", steps * self._num_layers, "query_wan_elementwise", {"op_name": "rmsnorm_qk", "batch_size": 1, "seq_len": seq_len, "hidden_size": h // tp_size, "tp_size": tp_size})
+            if tp_size > 1:
+                self._wan_comm("wan_dit_cross_image_qk_tp_rmsnorm_all_reduce", steps * self._num_layers, "all_reduce", tp_size, seq_len, 1)
+            self._wan_op("wan_dit_cross_attention_image", steps * self._num_layers, "query_wan_attention", {**common_params, "attn_kind": "cross_attn_image", "kv_seq_len": self._image_tokens})
+        self._wan_gemm("wan_dit_cross_out_gemm", steps * self._num_layers, seq_len, h, h // tp_size)
+        self._add_row_parallel_allreduce("wan_dit_cross_out_tp_all_reduce", steps * self._num_layers, seq_len, h)
+        self._wan_op("wan_dit_cross_residual_norm", steps * self._num_layers, "query_wan_elementwise", {"op_name": "scale_residual_layernorm_scale_shift", "batch_size": 1, "seq_len": seq_len, "hidden_size": h, "tp_size": tp_size})
+
+    def _vae_latent_frames(self) -> int:
+        return (self._video_frames - 1) // self._vae_stride[0] + 1
+
+    def _build_vae_decode_ops(self) -> None:
+        for stage, in_channels, out_channels, frames, height, width, conv_kind in self._decode_shapes():
+            self._wan_op(f"wan_vae_decode_{stage}", self._vae_latent_frames() if frames == 1 else 1, "query_wan_vae", {"model": self.model_name, "task": self._wan_task, "path": "decode", "stage": stage, "batch_size": 1, "in_channels": in_channels, "out_channels": out_channels, "frames": frames, "height": height, "width": width, "conv_kind": conv_kind}, weights=in_channels * out_channels * 27 * 2)
+            self._add_vae_halo_comm("decode", stage, self._vae_latent_frames() if frames == 1 else 1, in_channels, frames, width, conv_kind)
+        self._build_vae_elementwise_ops("decode")
+        self._add_vae_split_gather_comm("decode")
+
+    def _build_vae_encode_ops(self) -> None:
+        for stage, in_channels, out_channels, frames, height, width, conv_kind in self._encode_shapes():
+            self._wan_op(f"wan_vae_encode_{stage}", 1, "query_wan_vae", {"model": self.model_name, "task": self._wan_task, "path": "encode", "stage": stage, "batch_size": 1, "in_channels": in_channels, "out_channels": out_channels, "frames": frames, "height": height, "width": width, "conv_kind": conv_kind}, weights=in_channels * out_channels * 27 * 2)
+            self._add_vae_halo_comm("encode", stage, 1, in_channels, frames, width, conv_kind)
+        self._build_vae_elementwise_ops("encode")
+        self._add_vae_split_gather_comm("encode")
+
+    def _build_vae_elementwise_ops(self, path: str) -> None:
+        frames = self._vae_latent_frames()
+        scale = frames if path == "decode" else 1
+        for op_name in ("wan_vae_rms_norm_5d", "wan_vae_silu"):
+            for channels, spatial_div in ((96, 4), (192, 8), (384, 16)):
+                self._wan_op(f"{path}_{op_name}_{channels}", scale, "query_wan_vae_elementwise", {"model": self.model_name, "task": self._wan_task, "op_name": op_name, "batch_size": 1, "channels": channels, "frames": frames, "height": self._vae_parallel_height(max(1, self._video_height // spatial_div)), "width": max(1, self._video_width // spatial_div)})
+        for op_name in ("wan_vae_avg_down3d", "wan_vae_dup_up3d"):
+            for channels, spatial_div in ((96, 4), (192, 8), (384, 16)):
+                height = self._vae_parallel_height(max(1, self._video_height // spatial_div))
+                width = max(1, self._video_width // spatial_div)
+                if op_name == "wan_vae_avg_down3d":
+                    height = self._align_down_to_multiple(height, 2)
+                    width = self._align_down_to_multiple(width, 2)
+                self._wan_op(f"{path}_{op_name}_{channels}", scale, "query_wan_vae_elementwise", {"model": self.model_name, "task": self._wan_task, "op_name": op_name, "batch_size": 1, "channels": channels, "frames": 1, "height": height, "width": width})
+        for channels, spatial_div in ((384, 16), (192, 8), (96, 4)):
+            height = self._vae_parallel_height(max(1, self._video_height // spatial_div))
+            width = max(1, self._video_width // spatial_div)
+            self._wan_op(f"{path}_wan_vae_attention_{channels}", scale, "query_wan_vae_attention", {"model": self.model_name, "task": self._wan_task, "batch_size": 1, "channels": channels, "frames": 1, "height": height, "width": width, "tokens_per_frame": height * width})
+
+    def _decode_shapes(self):
+        frames = self._vae_latent_frames()
+        h = self._vae_parallel_height(self._video_height // self._vae_stride[1])
+        w = self._video_width // self._vae_stride[2]
+        h = self._align_down_to_multiple(h, 2)
+        w = self._align_down_to_multiple(w, 2)
+        dims = [self._vae_base_dim * u for u in [self._vae_dim_mult[-1]] + list(self._vae_dim_mult[::-1])]
+        yield "decode_post_quant_conv", self._latent_channels, self._latent_channels, frames, h, w, "1x1"
+        yield "decode_conv_in", self._latent_channels, dims[0], 1, h, w, "3x3x3"
+        for idx, (in_dim, out_dim) in enumerate(zip(dims[:-1], dims[1:], strict=True)):
+            yield f"decode_resblock_{idx}_conv1", in_dim, out_dim, 1, h, w, "3x3x3"
+            yield f"decode_resblock_{idx}_conv2", out_dim, out_dim, 1, h, w, "3x3x3"
+            if idx != len(self._vae_dim_mult) - 1:
+                h *= 2
+                w *= 2
+                if self._vae_temporal_downsample[::-1][idx]:
+                    yield f"decode_upsample3d_{idx}_time_conv", out_dim, out_dim * 2, 1, h // 2, w // 2, "3x1x1"
+                yield f"decode_upsample2d_{idx}_conv", out_dim, out_dim, 1, h, w, "2d_3x3"
+        yield "decode_conv_out", dims[-1], 3, 1, h, w, "3x3x3"
+
+    def _encode_shapes(self):
+        frames = 1
+        h = self._vae_encode_input_local_height()
+        w = self._video_width
+        dims = [self._vae_base_dim * u for u in [1] + list(self._vae_dim_mult)]
+        yield "encode_conv_in", 3, dims[0], frames, h, w, "3x3x3"
+        for idx, (in_dim, out_dim) in enumerate(zip(dims[:-1], dims[1:], strict=True)):
+            yield f"encode_resblock_{idx}_conv1", in_dim, out_dim, frames, h, w, "3x3x3"
+            yield f"encode_resblock_{idx}_conv2", out_dim, out_dim, frames, h, w, "3x3x3"
+            if idx != len(self._vae_dim_mult) - 1:
+                if self._vae_temporal_downsample[idx]:
+                    yield f"encode_downsample3d_{idx}_time_conv", out_dim, out_dim, frames, self._ceil_div(h, 2), self._ceil_div(w, 2), "3x1x1"
+                yield f"encode_downsample2d_{idx}_conv", out_dim, out_dim, frames, self._ceil_div(h, 2), self._ceil_div(w, 2), "2d_3x3"
+                h = self._ceil_div(h, 2)
+                w = self._ceil_div(w, 2)
+        yield "encode_quant_conv", self._latent_channels * 2, self._latent_channels * 2, frames, h, w, "1x1"
 
 class GPTModel(BaseModel):
     """
