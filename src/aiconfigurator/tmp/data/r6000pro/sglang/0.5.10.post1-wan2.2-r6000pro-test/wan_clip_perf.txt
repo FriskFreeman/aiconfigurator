@@ -1,0 +1,5 @@
+framework,version,device,op_name,kernel_source,batch_size,seq_len,hidden_size,num_heads,head_dim,intermediate_size,latency
+SGLang,0.5.10.post1,NVIDIA RTX PRO 6000 Blackwell Server Edition,wan_clip_layernorm,torch_layernorm,1,50,768,12,64,3072,0.00966399982571602
+SGLang,0.5.10.post1,NVIDIA RTX PRO 6000 Blackwell Server Edition,wan_clip_attention_compute,torch_sdpa,1,50,768,12,64,3072,0.009372799843549728
+SGLang,0.5.10.post1,NVIDIA RTX PRO 6000 Blackwell Server Edition,wan_clip_mlp_activation,sglang_quick_gelu,1,50,768,12,64,3072,0.007766400277614593
+SGLang,0.5.10.post1,NVIDIA RTX PRO 6000 Blackwell Server Edition,wan_clip_vision_patch_embed,sglang_clip_vision_embeddings,1,50,768,12,64,3072,0.18156479597091674
