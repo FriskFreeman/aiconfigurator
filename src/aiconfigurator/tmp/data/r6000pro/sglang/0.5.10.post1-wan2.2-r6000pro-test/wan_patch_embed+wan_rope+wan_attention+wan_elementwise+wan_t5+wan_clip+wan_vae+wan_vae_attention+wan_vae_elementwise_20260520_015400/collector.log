@@ -1,0 +1,72 @@
+2026-05-20 01:54:01,102|INFO|root|main|Starting collection with 2 GPU processes
+2026-05-20 01:54:01,124|INFO|root|collect_sglang|SGLang version: 0.5.10.post1
+2026-05-20 01:54:01,214|INFO|root|collect_module_safe|Starting collection: sglang.wan_patch_embed
+2026-05-20 01:54:01,214|INFO|root|collect_module_safe|Generated 15 test cases for sglang.wan_patch_embed
+2026-05-20 01:54:03,130|INFO|root|start_process|Started worker process 185 on device 0
+2026-05-20 01:54:03,132|INFO|root|start_process|Started worker process 186 on device 1
+2026-05-20 01:54:05,586|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_patch_embed
+2026-05-20 01:54:05,620|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_patch_embed
+2026-05-20 01:54:07,384|INFO|root|parallel_run|sglang.wan_patch_embed: Completed successfully with no errors
+2026-05-20 01:54:07,390|INFO|root|collect_module_safe|Starting collection: sglang.wan_rope
+2026-05-20 01:54:07,393|INFO|root|collect_module_safe|Generated 360 test cases for sglang.wan_rope
+2026-05-20 01:54:09,587|INFO|root|start_process|Started worker process 406 on device 0
+2026-05-20 01:54:09,588|INFO|root|start_process|Started worker process 407 on device 1
+2026-05-20 01:54:12,059|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_rope
+2026-05-20 01:54:12,105|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_rope
+2026-05-20 01:54:24,626|WARNING|root|parallel_run|Progress stalled at 0/360
+2026-05-20 01:54:29,874|INFO|root|parallel_run|sglang.wan_rope: Completed successfully with no errors
+2026-05-20 01:54:29,883|INFO|root|collect_module_safe|Starting collection: sglang.wan_attention
+2026-05-20 01:54:29,913|INFO|root|collect_module_safe|Generated 1544 test cases for sglang.wan_attention
+2026-05-20 01:54:31,908|INFO|root|start_process|Started worker process 772 on device 0
+2026-05-20 01:54:31,909|INFO|root|start_process|Started worker process 773 on device 1
+2026-05-20 01:54:34,328|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_attention
+2026-05-20 01:54:34,411|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_attention
+2026-05-20 01:55:57,015|INFO|root|parallel_run|sglang.wan_attention: Completed successfully with no errors
+2026-05-20 01:55:57,021|INFO|root|collect_module_safe|Starting collection: sglang.wan_elementwise
+2026-05-20 01:55:57,028|INFO|root|collect_module_safe|Generated 864 test cases for sglang.wan_elementwise
+2026-05-20 01:55:58,543|INFO|root|start_process|Started worker process 1128 on device 0
+2026-05-20 01:55:58,544|INFO|root|start_process|Started worker process 1129 on device 1
+2026-05-20 01:56:00,242|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_elementwise
+2026-05-20 01:56:00,607|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_elementwise
+2026-05-20 01:56:22,356|INFO|root|parallel_run|sglang.wan_elementwise: Completed successfully with no errors
+2026-05-20 01:56:22,363|INFO|root|collect_module_safe|Starting collection: sglang.wan_t5
+2026-05-20 01:56:22,363|INFO|root|collect_module_safe|Generated 42 test cases for sglang.wan_t5
+2026-05-20 01:56:24,211|INFO|root|start_process|Started worker process 1754 on device 0
+2026-05-20 01:56:24,212|INFO|root|start_process|Started worker process 1755 on device 1
+2026-05-20 01:56:26,808|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_t5
+2026-05-20 01:56:26,826|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_t5
+2026-05-20 01:56:42,385|INFO|root|parallel_run|sglang.wan_t5: Completed successfully with no errors
+2026-05-20 01:56:42,391|INFO|root|collect_module_safe|Starting collection: sglang.wan_clip
+2026-05-20 01:56:42,391|INFO|root|collect_module_safe|Generated 4 test cases for sglang.wan_clip
+2026-05-20 01:56:44,327|INFO|root|start_process|Started worker process 2160 on device 0
+2026-05-20 01:56:44,328|INFO|root|start_process|Started worker process 2161 on device 1
+2026-05-20 01:56:46,767|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_clip
+2026-05-20 01:56:46,826|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_clip
+2026-05-20 01:57:00,892|INFO|root|parallel_run|sglang.wan_clip: Completed successfully with no errors
+2026-05-20 01:57:00,906|INFO|root|collect_module_safe|Starting collection: sglang.wan_vae
+2026-05-20 01:57:00,915|INFO|root|collect_module_safe|Generated 990 test cases for sglang.wan_vae
+2026-05-20 01:57:02,870|INFO|root|start_process|Started worker process 2516 on device 0
+2026-05-20 01:57:02,871|INFO|root|start_process|Started worker process 2517 on device 1
+2026-05-20 01:57:05,333|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_vae
+2026-05-20 01:57:05,386|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_vae
+2026-05-20 01:57:34,380|INFO|root|parallel_run|sglang.wan_vae: Completed successfully with no errors
+2026-05-20 01:57:34,382|INFO|root|collect_module_safe|Starting collection: sglang.wan_vae_attention
+2026-05-20 01:57:34,383|INFO|root|collect_module_safe|Generated 90 test cases for sglang.wan_vae_attention
+2026-05-20 01:57:35,974|INFO|root|start_process|Started worker process 2872 on device 0
+2026-05-20 01:57:35,975|INFO|root|start_process|Started worker process 2873 on device 1
+2026-05-20 01:57:37,670|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_vae_attention
+2026-05-20 01:57:38,086|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_vae_attention
+2026-05-20 01:57:40,248|INFO|root|parallel_run|sglang.wan_vae_attention: Completed successfully with no errors
+2026-05-20 01:57:40,249|INFO|root|collect_module_safe|Starting collection: sglang.wan_vae_elementwise
+2026-05-20 01:57:40,253|INFO|root|collect_module_safe|Generated 715 test cases for sglang.wan_vae_elementwise
+2026-05-20 01:57:41,863|INFO|root|start_process|Started worker process 3092 on device 0
+2026-05-20 01:57:41,864|INFO|root|start_process|Started worker process 3093 on device 1
+2026-05-20 01:57:43,567|INFO|Worker-worker_0|worker|Worker 0 initialized for sglang.wan_vae_elementwise
+2026-05-20 01:57:43,947|INFO|Worker-worker_1|worker|Worker 1 initialized for sglang.wan_vae_elementwise
+2026-05-20 01:57:57,730|INFO|root|parallel_run|sglang.wan_vae_elementwise: Completed successfully with no errors
+2026-05-20 01:57:57,732|INFO|root|generate_collection_summary|============================================================
+2026-05-20 01:57:57,732|INFO|root|generate_collection_summary|COLLECTION SUMMARY - sglang v0.5.10.post1
+2026-05-20 01:57:57,732|INFO|root|generate_collection_summary|============================================================
+2026-05-20 01:57:57,732|INFO|root|generate_collection_summary|Total errors: 0
+2026-05-20 01:57:57,732|INFO|root|generate_collection_summary|
+Detailed error report saved to: wan_patch_embed+wan_rope+wan_attention+wan_elementwise+wan_t5+wan_clip+wan_vae+wan_vae_attention+wan_vae_elementwise_20260520_015400/collection_summary_sglang.json

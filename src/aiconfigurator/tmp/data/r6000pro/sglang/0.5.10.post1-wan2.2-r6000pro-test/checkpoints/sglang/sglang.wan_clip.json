@@ -1,0 +1,14 @@
+{
+  "schema": "collector-resume-v1",
+  "backend": "sglang",
+  "module": "sglang.wan_clip",
+  "run_func": "run_wan_clip",
+  "updated_at": "2026-05-20T01:56:58.354619",
+  "done": [
+    "sglang.wan_clip:run_wan_clip:['attention_compute', 1, 50, 768, 12, 64, 3072]",
+    "sglang.wan_clip:run_wan_clip:['layernorm', 1, 50, 768, 12, 64, 3072]",
+    "sglang.wan_clip:run_wan_clip:['mlp_activation', 1, 50, 768, 12, 64, 3072]",
+    "sglang.wan_clip:run_wan_clip:['vision_patch_embed', 1, 50, 768, 12, 64, 3072]"
+  ],
+  "failed": []
+}

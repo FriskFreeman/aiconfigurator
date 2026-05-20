@@ -1,0 +1,25 @@
+{
+  "schema": "collector-resume-v1",
+  "backend": "sglang",
+  "module": "sglang.wan_patch_embed",
+  "run_func": "run_wan_patch_embed",
+  "updated_at": "2026-05-20T01:54:06.647477",
+  "done": [
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-I2V-A14B', 'i2v', 1, 36, 5120, 13, 60, 104, 1, 2, 2, 20280]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-I2V-A14B', 'i2v', 1, 36, 5120, 13, 90, 160, 1, 2, 2, 46800]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-I2V-A14B', 'i2v', 1, 36, 5120, 21, 60, 104, 1, 2, 2, 32760]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-I2V-A14B', 'i2v', 1, 36, 5120, 21, 90, 160, 1, 2, 2, 75600]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-I2V-A14B', 'i2v', 1, 36, 5120, 31, 60, 104, 1, 2, 2, 48360]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-I2V-A14B', 'i2v', 1, 36, 5120, 31, 90, 160, 1, 2, 2, 111600]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-T2V-A14B', 't2v', 1, 16, 5120, 13, 60, 104, 1, 2, 2, 20280]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-T2V-A14B', 't2v', 1, 16, 5120, 13, 90, 160, 1, 2, 2, 46800]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-T2V-A14B', 't2v', 1, 16, 5120, 21, 60, 104, 1, 2, 2, 32760]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-T2V-A14B', 't2v', 1, 16, 5120, 21, 90, 160, 1, 2, 2, 75600]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-T2V-A14B', 't2v', 1, 16, 5120, 31, 60, 104, 1, 2, 2, 48360]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-T2V-A14B', 't2v', 1, 16, 5120, 31, 90, 160, 1, 2, 2, 111600]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-TI2V-5B', 'ti2v', 1, 48, 3072, 13, 44, 80, 1, 2, 2, 11440]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-TI2V-5B', 'ti2v', 1, 48, 3072, 21, 44, 80, 1, 2, 2, 18480]",
+    "sglang.wan_patch_embed:run_wan_patch_embed:['Wan2.2-TI2V-5B', 'ti2v', 1, 48, 3072, 31, 44, 80, 1, 2, 2, 27280]"
+  ],
+  "failed": []
+}

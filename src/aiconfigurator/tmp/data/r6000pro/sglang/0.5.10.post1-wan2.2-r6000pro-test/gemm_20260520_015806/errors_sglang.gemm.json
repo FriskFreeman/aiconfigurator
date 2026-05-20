@@ -1,0 +1,342 @@
+[
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 256, 320, 4096]",
+    "task_params": "['nvfp4', 256, 320, 4096]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:58:37.296801"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 27900, 1728, 5120]",
+    "task_params": "['nvfp4', 27900, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:58:51.929691"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 10140, 1728, 5120]",
+    "task_params": "['nvfp4', 10140, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:58:53.461095"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 50, 576, 768]",
+    "task_params": "['nvfp4', 50, 576, 768]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:00.290013"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 46800, 1728, 5120]",
+    "task_params": "['nvfp4', 46800, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:00.777086"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 4096, 576, 192]",
+    "task_params": "['nvfp4', 4096, 576, 192]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:02.411092"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 128, 320, 4096]",
+    "task_params": "['nvfp4', 128, 320, 4096]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:05.584974"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 11700, 1728, 5120]",
+    "task_params": "['nvfp4', 11700, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:05.728553"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 55800, 1728, 5120]",
+    "task_params": "['nvfp4', 55800, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:06.882544"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 64, 576, 192]",
+    "task_params": "['nvfp4', 64, 576, 192]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:07.662316"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 1024, 192, 192]",
+    "task_params": "['nvfp4', 1024, 192, 192]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:08.505474"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 27280, 192, 3072]",
+    "task_params": "['nvfp4', 27280, 192, 3072]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:26.338109"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 111600, 1728, 5120]",
+    "task_params": "['nvfp4', 111600, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:28.251893"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 12090, 1728, 5120]",
+    "task_params": "['nvfp4', 12090, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:31.371865"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 18900, 1728, 5120]",
+    "task_params": "['nvfp4', 18900, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:34.311786"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 512, 320, 4096]",
+    "task_params": "['nvfp4', 512, 320, 4096]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:36.660402"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 11440, 192, 3072]",
+    "task_params": "['nvfp4', 11440, 192, 3072]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:39.876355"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 64, 192, 192]",
+    "task_params": "['nvfp4', 64, 192, 192]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:40.667323"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 256, 576, 192]",
+    "task_params": "['nvfp4', 256, 576, 192]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:41.957889"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 50, 288, 768]",
+    "task_params": "['nvfp4', 50, 288, 768]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:45.961437"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 1024, 576, 192]",
+    "task_params": "['nvfp4', 1024, 576, 192]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T01:59:48.479211"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 256, 192, 192]",
+    "task_params": "['nvfp4', 256, 192, 192]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:12.685303"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 23400, 1728, 5120]",
+    "task_params": "['nvfp4', 23400, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:19.546698"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 16380, 1728, 5120]",
+    "task_params": "['nvfp4', 16380, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:20.883126"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 20280, 1728, 5120]",
+    "task_params": "['nvfp4', 20280, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:31.383335"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 32760, 1728, 5120]",
+    "task_params": "['nvfp4', 32760, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:32.776195"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 75600, 1728, 5120]",
+    "task_params": "['nvfp4', 75600, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:33.819316"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 8190, 1728, 5120]",
+    "task_params": "['nvfp4', 8190, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:40.975197"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 18480, 192, 3072]",
+    "task_params": "['nvfp4', 18480, 192, 3072]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:52.833855"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 37800, 1728, 5120]",
+    "task_params": "['nvfp4', 37800, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:57.324664"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 5070, 1728, 5120]",
+    "task_params": "['nvfp4', 5070, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:57.349983"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 48360, 1728, 5120]",
+    "task_params": "['nvfp4', 48360, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:00:59.805232"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 1,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 4096, 192, 192]",
+    "task_params": "['nvfp4', 4096, 192, 192]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:01:00.567712"
+  },
+  {
+    "module": "sglang.gemm",
+    "device_id": 0,
+    "task_id": "sglang.gemm:run_gemm:['nvfp4', 24180, 1728, 5120]",
+    "task_params": "['nvfp4', 24180, 1728, 5120]",
+    "error_type": "AssertionError",
+    "error_message": "",
+    "traceback": "Traceback (most recent call last):\n  File \"/workspace/collector/collect.py\", line 364, in worker\n    func(*task, device=device)\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 384, in run_gemm\n    op = create_gemm()\n         ^^^^^^^^^^^^^\n  File \"/workspace/collector/sglang/collect_gemm.py\", line 305, in create_gemm\n    b_sf_shuffled = flashinfer_shuffle_sf_a(b_sf_linear.view(torch.uint8), epilogue_tile_m).view(\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/quantization/fp4_quantization.py\", line 820, in shuffle_matrix_sf_a\n    row_indices = get_shuffle_matrix_sf_a_row_indices(input_tensor, epilogue_tile_m)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/dist-packages/flashinfer/utils.py\", line 869, in get_shuffle_matrix_sf_a_row_indices\n    assert M % 128 == 0\n           ^^^^^^^^^^^^\nAssertionError\n",
+    "timestamp": "2026-05-20T02:01:02.196648"
+  }
+]
