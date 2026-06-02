@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+.vscode/
+__pycache__/
+.DS_Store
+dev/
+results/
+archived/
+*.egg-info/
+.VSCodeCounter/
+build/
+dist/
+*/automation/dynamo/
+aiconf_save/
+.collector_checkpoint/
+venv/
+env/
+.venv/
+aiconfigurator-dsv4-sjy/src/aiconfigurator/systems/data/
+src/aiconfigurator/systems/data/
+
+*.pyc
+*.pyo
+*.pyd
+collector/nccl-tests/

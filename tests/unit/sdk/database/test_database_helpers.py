@@ -1,0 +1,332 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+import importlib
+import sys
+from pathlib import Path
+
+import pytest
+import yaml
+
+pytestmark = pytest.mark.unit
+
+
+def _find_repo_root(start: Path) -> Path:
+    """Find repository root.
+
+    In the Docker test image we copy `src/` and `tests/` into `/workspace/` but do
+    not copy `pyproject.toml`, so we detect the repo root via `src/aiconfigurator/`.
+    """
+    start = start.resolve()
+    for parent in [start, *start.parents]:
+        if (parent / "src" / "aiconfigurator").is_dir():
+            return parent
+    raise RuntimeError("Cannot find repository root (expected src/aiconfigurator/)")
+
+
+@pytest.fixture(scope="module")
+def perf_database():
+    """
+    Import the local aiconfigurator.sdk.perf_database module from src/,
+    ensuring it takes precedence over any installed package.
+    """
+    project_root = _find_repo_root(Path(__file__))
+    src_path = project_root / "src"
+    sys.path.insert(0, str(src_path))
+
+    saved_aiconfigurator_modules = {}
+
+    # Purge already-imported site-packages version if present
+    for key in list(sys.modules.keys()):
+        if key == "aiconfigurator" or key.startswith("aiconfigurator."):
+            saved_aiconfigurator_modules[key] = sys.modules.pop(key)
+
+    import aiconfigurator.sdk.perf_database as perf_database
+
+    importlib.reload(perf_database)
+    yield perf_database
+
+    # Restore aiconfigurator modules after the tests in this file finish.
+    sys.modules.update(saved_aiconfigurator_modules)
+
+
+@pytest.fixture
+def temp_systems_dir(tmp_path: Path) -> Path:
+    return tmp_path
+
+
+def setup_mock_filesystem(systems_dir: Path, layout: dict) -> None:
+    for system_name, backends in layout.items():
+        data_dir_name = f"data_{system_name}"
+        data_dir = systems_dir / data_dir_name
+        data_dir.mkdir(parents=True, exist_ok=True)
+
+        (systems_dir / f"{system_name}.yaml").write_text(yaml.safe_dump({"data_dir": data_dir_name}))
+
+        for backend_name, versions in backends.items():
+            backend_dir = data_dir / backend_name
+            backend_dir.mkdir(exist_ok=True)
+            for version in versions:
+                # Hidden dirs should be ignored by implementation
+                if version.startswith("."):
+                    (backend_dir / version).mkdir(exist_ok=True)
+                else:
+                    (backend_dir / version).mkdir(exist_ok=True)
+
+
+# ----------------------------- get_supported_databases -----------------------------
+
+
+def test_get_supported_databases_basic(temp_systems_dir: Path, perf_database):
+    setup_mock_filesystem(
+        temp_systems_dir,
+        {
+            "h100": {"trtllm": ["1.0.0", "1.1.0", ".hidden"], "vllm": ["0.5.0"]},
+            "h200": {"trtllm": ["1.2.0", "1.3.0rc2"]},
+        },
+    )
+
+    result = perf_database.get_supported_databases(str(temp_systems_dir))
+
+    assert "h100" in result and "h200" in result
+    assert result["h100"]["trtllm"] == ["1.0.0", "1.1.0"]
+    assert result["h100"]["vllm"] == ["0.5.0"]
+    assert result["h200"]["trtllm"] == ["1.2.0", "1.3.0rc2"]
+
+
+def test_get_supported_databases_empty_dir(temp_systems_dir: Path, perf_database):
+    result = perf_database.get_supported_databases(str(temp_systems_dir))
+    # defaultdict, but empty
+    assert isinstance(result, dict)
+    assert len(result) == 0
+
+
+def test_get_supported_databases_edge_cases(temp_systems_dir: Path, perf_database):
+    """Tests that get_supported_databases handles various edge cases gracefully."""
+    # Case 1: Empty directory
+    assert perf_database.get_supported_databases(str(temp_systems_dir)) == {}
+
+    # Case 2: Invalid YAML file should be skipped
+    (temp_systems_dir / "invalid.yaml").write_text("key: [")
+    setup_mock_filesystem(temp_systems_dir, {"h100": {"trtllm": ["1.0.0"]}})
+    result = perf_database.get_supported_databases(str(temp_systems_dir))
+    assert "invalid" not in result
+    assert "h100" in result  # Valid system should still be processed
+
+    # Case 3: System YAML pointing to a non-existent data_dir
+    (temp_systems_dir / "bad_path.yaml").write_text(yaml.safe_dump({"data_dir": "nonexistent_dir"}))
+    result = perf_database.get_supported_databases(str(temp_systems_dir))
+    assert "bad_path" not in result
+
+
+def test_get_supported_databases_multiple_paths(temp_systems_dir: Path, perf_database):
+    setup_mock_filesystem(temp_systems_dir, {"h100": {"trtllm": ["1.0.0"]}})
+    other_dir = temp_systems_dir / "other"
+    other_dir.mkdir()
+    setup_mock_filesystem(other_dir, {"h200": {"vllm": ["0.6.0"]}})
+
+    result = perf_database.get_supported_databases([str(temp_systems_dir), str(other_dir)])
+
+    assert result["h100"]["trtllm"] == ["1.0.0"]
+    assert result["h200"]["vllm"] == ["0.6.0"]
+
+
+def test_build_no_databases_message_with_missing_path(temp_systems_dir: Path, perf_database):
+    custom_systems_dir = temp_systems_dir / "custom_systems"
+    custom_systems_dir.mkdir()
+    previous_paths = perf_database.get_systems_paths()
+    try:
+        perf_database.set_systems_paths(str(custom_systems_dir))
+        message = perf_database.build_no_databases_message()
+        assert "No loadable performance databases found under --systems-paths" in message
+        assert "Configured systems paths:" in message
+        assert str(custom_systems_dir) in message
+        assert "adding `default`" in message
+    finally:
+        perf_database.set_systems_paths(previous_paths)
+
+
+def test_build_no_databases_message_with_existing_empty_path(temp_systems_dir: Path, perf_database):
+    previous_paths = perf_database.get_systems_paths()
+    try:
+        perf_database.set_systems_paths("default")
+        message = perf_database.build_no_databases_message()
+        assert "No loadable performance databases found under --systems-paths" in message
+        assert "Configured systems paths:" in message
+        assert "already included" in message
+    finally:
+        perf_database.set_systems_paths(previous_paths)
+
+
+def test_set_systems_paths_invalid_entry_raises(temp_systems_dir: Path, perf_database):
+    missing_path = temp_systems_dir / "missing_systems_path"
+    with pytest.raises(ValueError, match="Invalid --systems-paths"):
+        perf_database.set_systems_paths(str(missing_path))
+
+
+def test_estimate_only_database_can_load_without_perf_files(perf_database):
+    """SOL/EMPIRICAL modes can instantiate from system specs without silicon files."""
+    from aiconfigurator.sdk import common
+
+    db = perf_database.get_database("h100_pcie", "trtllm", "estimate", allow_missing_data=True)
+
+    assert db is not None
+    db.set_default_database_mode(common.DatabaseMode.SOL)
+    result = db.query_mem_op(1024)
+    assert float(result) > 0
+
+
+# ----------------------------- get_latest_database_version -----------------------------
+
+
+def test_get_latest_database_version_prefers_stable_over_rc(temp_systems_dir: Path, perf_database):
+    # With the corrected logic, 2.0.0rc1 is correctly considered newer than 1.1.0
+    mock_supported = {"h100": {"trtllm": ["1.1.0", "2.0.0rc1"]}}
+
+    original = perf_database.get_supported_databases
+    try:
+        perf_database.get_supported_databases = lambda: mock_supported
+        latest = perf_database.get_latest_database_version("h100", "trtllm")
+        assert latest == "2.0.0rc1"
+    finally:
+        perf_database.get_supported_databases = original
+
+
+def test_get_latest_database_version_rc_only(temp_systems_dir: Path, perf_database):
+    mock_supported = {"h100": {"trtllm": ["1.0.0rc1", "1.0.0rc2", "1.1.0rc1"]}}
+
+    original = perf_database.get_supported_databases
+    try:
+        perf_database.get_supported_databases = lambda: mock_supported
+        latest = perf_database.get_latest_database_version("h100", "trtllm")
+        assert latest == "1.1.0rc1"
+    finally:
+        perf_database.get_supported_databases = original
+
+
+def test_get_latest_database_version_nonexistent_returns_none(temp_systems_dir: Path, perf_database):
+    mock_supported = {"h100": {"trtllm": ["1.0.0"]}}
+
+    original = perf_database.get_supported_databases
+    try:
+        perf_database.get_supported_databases = lambda: mock_supported
+        assert perf_database.get_latest_database_version("nonexistent", "trtllm") is None
+        assert perf_database.get_latest_database_version("h100", "nonexistent") is None
+    finally:
+        perf_database.get_supported_databases = original
+
+
+def test_get_latest_database_version_unparseable_versions(temp_systems_dir: Path, perf_database):
+    """Tests that it falls back gracefully when versions are unparseable."""
+    mock_supported = {"h100": {"trtllm": ["foo", "bar"]}}
+
+    original = perf_database.get_supported_databases
+    try:
+        perf_database.get_supported_databases = lambda: mock_supported
+        # It should return the 'max' of the unparseable strings as a fallback
+        latest = perf_database.get_latest_database_version("h100", "trtllm")
+        assert latest == "foo"
+    finally:
+        perf_database.get_supported_databases = original
+
+
+def test_get_latest_database_version_major_version_rc_is_newer(temp_systems_dir: Path, perf_database):
+    """Tests that a v1.0 RC is correctly considered newer than a v0.20 stable."""
+    mock_supported = {"h200": {"trtllm": ["0.20.0", "1.0.0rc3"]}}
+
+    original = perf_database.get_supported_databases
+    try:
+        perf_database.get_supported_databases = lambda: mock_supported
+        latest = perf_database.get_latest_database_version("h200", "trtllm")
+        assert latest == "1.0.0rc3"
+    finally:
+        perf_database.get_supported_databases = original
+
+
+def test_get_latest_database_version_preserves_suffix_order(perf_database):
+    mock_supported = {"h100": {"trtllm": ["v0.20_fix0719", "v0.20_fix0720"]}}
+
+    original = perf_database.get_supported_databases
+    try:
+        perf_database.get_supported_databases = lambda: mock_supported
+        latest = perf_database.get_latest_database_version("h100", "trtllm")
+        assert latest == "v0.20_fix0720"
+    finally:
+        perf_database.get_supported_databases = original
+
+
+def test_get_latest_database_version_two_part_rc_does_not_outrank_stable(perf_database):
+    mock_supported = {"h100": {"trtllm": ["1.2.0", "1.2rc1"]}}
+
+    original = perf_database.get_supported_databases
+    try:
+        perf_database.get_supported_databases = lambda systems_paths=None: mock_supported
+        latest = perf_database.get_latest_database_version("h100", "trtllm")
+        assert latest == "1.2.0"
+    finally:
+        perf_database.get_supported_databases = original
+
+
+def test_get_database_prefers_measured_later_path_over_estimate_fallback(tmp_path: Path, perf_database, monkeypatch):
+    first_root = tmp_path / "first"
+    second_root = tmp_path / "second"
+    for root in (first_root, second_root):
+        root.mkdir()
+        (root / "data_sys").mkdir()
+        (root / "sys.yaml").write_text(yaml.safe_dump({"data_dir": "data_sys"}), encoding="utf-8")
+    (second_root / "data_sys" / "trtllm" / "1.0.0").mkdir(parents=True)
+
+    class FakePerfDatabase:
+        def __init__(self, system, backend, version, systems_root, database_mode=None):
+            self.systems_root = systems_root
+
+    monkeypatch.setattr(perf_database, "PerfDatabase", FakePerfDatabase)
+    cache_snapshot = dict(perf_database.databases_cache)
+    try:
+        perf_database.databases_cache.clear()
+
+        db = perf_database.get_database(
+            "sys",
+            "trtllm",
+            "1.0.0",
+            systems_paths=[str(first_root), str(second_root)],
+            allow_missing_data=True,
+        )
+
+        assert db.systems_root == str(second_root)
+    finally:
+        perf_database.databases_cache.clear()
+        perf_database.databases_cache.update(cache_snapshot)
+
+
+def test_get_database_skips_incomplete_version_directory(tmp_path: Path, perf_database, monkeypatch):
+    first_root = tmp_path / "first"
+    second_root = tmp_path / "second"
+    for root in (first_root, second_root):
+        root.mkdir()
+        (root / "data_sys").mkdir()
+        (root / "sys.yaml").write_text(yaml.safe_dump({"data_dir": "data_sys"}), encoding="utf-8")
+    incomplete_path = first_root / "data_sys" / "trtllm" / "1.0.0"
+    incomplete_path.mkdir(parents=True)
+    (incomplete_path / "INCOMPLETE.txt").write_text("collection did not finish", encoding="utf-8")
+    (second_root / "data_sys" / "trtllm" / "1.0.0").mkdir(parents=True)
+
+    class FakePerfDatabase:
+        def __init__(self, system, backend, version, systems_root, database_mode=None):
+            self.systems_root = systems_root
+
+    monkeypatch.setattr(perf_database, "PerfDatabase", FakePerfDatabase)
+    cache_snapshot = dict(perf_database.databases_cache)
+    try:
+        perf_database.databases_cache.clear()
+
+        db = perf_database.get_database(
+            "sys",
+            "trtllm",
+            "1.0.0",
+            systems_paths=[str(first_root), str(second_root)],
+        )
+
+        assert db.systems_root == str(second_root)
+    finally:
+        perf_database.databases_cache.clear()
+        perf_database.databases_cache.update(cache_snapshot)

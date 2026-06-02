@@ -1,0 +1,403 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+"""
+Script to create visualization charts from performance data files in the systems directory.
+This script is designed to run in GitHub Actions to visualize new performance data added in PRs.
+"""
+
+import argparse
+import functools
+import math
+import os
+import subprocess
+import sys
+import textwrap
+from collections import defaultdict
+
+from aiconfigurator.sdk.perf_database import get_database
+
+# Disable interactive backend
+os.environ["MPLBACKEND"] = "agg"
+import matplotlib.pyplot as plt
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# Import validate_database.ipynb jupyter notebook
+old_cwd = os.getcwd()
+os.chdir(os.path.abspath(os.path.dirname(__file__)))
+import import_ipynb  # noqa: F401
+import validate_database
+
+os.chdir(old_cwd)
+
+
+CLI_SMOKE_REQUIRED_PERF_FILES = (
+    "gemm_perf.txt",
+    "context_attention_perf.txt",
+    "generation_attention_perf.txt",
+)
+
+
+class SkippedSiliconPoints:
+    """Temporarily skip unavailable SILICON query points while drawing charts."""
+
+    QUERY_METHODS = (
+        "query_gemm",
+        "query_context_attention",
+        "query_generation_attention",
+        "query_context_mla",
+        "query_generation_mla",
+    )
+
+    def __init__(self, database):
+        self.database = database
+        self.calls = 0
+        self.successes = 0
+        self.skipped = 0
+        self._originals = {}
+
+    def __enter__(self):
+        for name in self.QUERY_METHODS:
+            if not hasattr(self.database, name):
+                continue
+            original = getattr(self.database, name)
+            self._originals[name] = original
+            setattr(self.database, name, self._wrap(original))
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        for name, original in self._originals.items():
+            setattr(self.database, name, original)
+
+    def _wrap(self, original):
+        def wrapped(*args, **kwargs):
+            database_mode = str(kwargs.get("database_mode", ""))
+            is_silicon = database_mode.endswith(".SILICON") or database_mode == "SILICON"
+            if is_silicon:
+                self.calls += 1
+            try:
+                result = original(*args, **kwargs)
+            except Exception:
+                if not is_silicon:
+                    raise
+                self.skipped += 1
+                return math.nan
+            if is_silicon:
+                try:
+                    if math.isfinite(float(result)):
+                        self.successes += 1
+                except (TypeError, ValueError):
+                    pass
+            return result
+
+        return wrapped
+
+
+def run_cli_smoke_test(system: str, backend: str, backend_version: str) -> tuple[list[str], bool, str, str]:
+    """Run aiconfigurator cli default for the given system/backend/version. Returns (cmd, success, stdout, stderr)."""
+    cmd = [
+        "aiconfigurator",
+        "cli",
+        "default",
+        "--backend",
+        backend,
+        "--backend-version",
+        backend_version,
+        "--system",
+        system,
+        "--model",
+        "Qwen/Qwen3-32B",
+        "--total-gpus",
+        "16",
+    ]
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=240,
+        )
+        return (cmd, result.returncode == 0, result.stdout or "", result.stderr or "")
+    except subprocess.TimeoutExpired as e:
+        out = getattr(e, "stdout", None) or ""
+        err = getattr(e, "stderr", None) or ""
+        if isinstance(out, bytes):
+            out = out.decode("utf-8", errors="replace")
+        if isinstance(err, bytes):
+            err = err.decode("utf-8", errors="replace")
+        return (cmd, False, out, err + "\n(Command timed out after 240s)")
+    except Exception as e:
+        return (cmd, False, "", str(e))
+
+
+def should_run_cli_smoke_test(system: str, backend: str, backend_version: str) -> tuple[bool, str]:
+    """Return whether the default Qwen CLI smoke test has enough data to be meaningful."""
+    data_dir = os.path.join(
+        REPO_ROOT,
+        "src",
+        "aiconfigurator",
+        "systems",
+        "data",
+        system,
+        backend,
+        backend_version,
+    )
+    missing_files = [
+        perf_file
+        for perf_file in CLI_SMOKE_REQUIRED_PERF_FILES
+        if not os.path.exists(os.path.join(data_dir, perf_file))
+    ]
+    if missing_files:
+        return (
+            False,
+            f"required default-model perf files are not present for this backend version: {', '.join(missing_files)}",
+        )
+    return True, ""
+
+
+def get_changed_files(base_ref: str, head_ref: str) -> list[str]:
+    """Get list of files changed between base and head refs."""
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--name-only", f"{base_ref}...{head_ref}"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        changed_files = [f.strip() for f in result.stdout.split("\n") if f.strip()]
+        return [f for f in changed_files if f.startswith("src/aiconfigurator/systems/")]
+    except subprocess.CalledProcessError as e:
+        print(f"Error getting changed files: {e}", file=sys.stderr)
+        return []
+
+
+def create_charts(
+    backend: str,
+    backend_version: str,
+    system: str,
+    perf_files: list[str],
+    output_dir: str,
+    output_md_file: str,
+):
+    new_nccl_perf_collected = False  # FIXME
+    database = get_database(system=system, backend=backend, version=backend_version)
+
+    # TODO: for simplicity & maintainability, maybe better to ignore perf_files and
+    # just call all chart functions in validate_database?
+
+    op_to_chart_function = {
+        "gemm": [validate_database.visualize_gemm],
+        "context_attention": [
+            validate_database.visualize_context_attention,
+            validate_database.visualize_context_attention_with_prefix,
+        ],
+        "generation_attention": [
+            validate_database.visualize_generation_attention,
+            validate_database.visualize_generation_attention_b,
+        ],
+        "context_mla": [
+            validate_database.visualize_context_mla_with_prefix,
+        ],
+        "generation_mla": [
+            validate_database.visualize_generation_mla,
+            validate_database.visualize_generation_mla_b,
+        ],
+        "moe": [validate_database.visualize_moe],
+        "custom_allreduce": [validate_database.visualize_allreduce],
+        "nccl": [
+            functools.partial(validate_database.visualize_nccl, operation="all_gather"),
+            functools.partial(validate_database.visualize_nccl, operation="all_reduce"),
+            functools.partial(validate_database.visualize_nccl, operation="alltoall"),
+            functools.partial(validate_database.visualize_nccl, operation="reduce_scatter"),
+        ],
+        "dsa_context_module": [validate_database.visualize_dsa_module],
+        "dsa_generation_module": [validate_database.visualize_dsa_module],
+    }
+
+    xpu_systems = ["b60"]
+    if system in xpu_systems:
+        op_to_chart_function["generation_attention"] = [
+            fn
+            for fn in op_to_chart_function["generation_attention"]
+            if fn != validate_database.visualize_generation_attention_b
+        ]
+
+    with open(output_md_file, "a") as f:
+        f.write(
+            "### Chart Generation Report for "
+            f"system: {system}, backend: {backend}, backend_version: {backend_version}\n"
+        )
+
+    # Create sanity check plots for each op and save them to the output directory.
+    # Append the plot image URLs to the output md file.
+    for op, funcs_to_create_charts in op_to_chart_function.items():
+        op_perf_file = f"{op}_perf.txt"
+        if op_perf_file not in perf_files and not (op == "nccl" and new_nccl_perf_collected):
+            continue
+
+        for create_chart_func in funcs_to_create_charts:
+            if isinstance(create_chart_func, functools.partial):
+                chart_op_name = create_chart_func.func.__name__
+                for val in create_chart_func.keywords.values():
+                    chart_op_name += f"_{val}"
+            else:
+                chart_op_name = create_chart_func.__name__
+            chart_op_name = chart_op_name.replace("visualize_", "")
+            img_path = f"{chart_op_name}_{system}_{backend}_{backend_version}.png"
+
+            try:
+                with SkippedSiliconPoints(database) as skipped_points:
+                    create_chart_func(database)
+                if skipped_points.calls and not skipped_points.successes:
+                    with open(output_md_file, "a") as f:
+                        f.write(
+                            f"- `{chart_op_name}` Skipped ⚠️: no available silicon data points "
+                            f"for the sanity chart grid ({skipped_points.skipped} unavailable points)\n"
+                        )
+                    continue
+            except Exception as e:
+                # Extract 1-line error summary
+                short_error_str = str(e).split("\n")[0].strip()
+                if len(short_error_str) > 100:
+                    short_error_str = short_error_str[:97] + "..."
+                with open(output_md_file, "a") as f:
+                    f.write(f"- `{chart_op_name}` Error ❌: {short_error_str}\n")
+
+                print(f"Error creating chart for {chart_op_name}: {e}")
+                continue
+
+            plt.savefig(os.path.join(output_dir, img_path))
+
+            with open(output_md_file, "a") as f:
+                if skipped_points.skipped:
+                    f.write(f"- `{chart_op_name}` ✅ ({skipped_points.skipped} unavailable points skipped)\n")
+                else:
+                    f.write(f"- `{chart_op_name}` ✅\n")
+
+    _max_output_len = 4000
+    run_smoke, skip_reason = should_run_cli_smoke_test(system, backend, backend_version)
+    with open(output_md_file, "a") as f:
+        if not run_smoke:
+            f.write(f"- CLI smoke test Skipped ⚠️: {skip_reason}\n")
+            return
+
+    # Smoke test: run aiconfigurator cli default for this system/backend/version
+    smoke_cmd, smoke_ok, smoke_stdout, smoke_stderr = run_cli_smoke_test(system, backend, backend_version)
+    with open(output_md_file, "a") as f:
+        if smoke_ok:
+            f.write("- CLI smoke test ✅\n")
+        else:
+            f.write("- CLI smoke test ❌\n")
+            out_trunc = (
+                (smoke_stdout[:_max_output_len] + "... (truncated)\n")
+                if len(smoke_stdout) > _max_output_len
+                else smoke_stdout
+            )
+            err_trunc = (
+                (smoke_stderr[:_max_output_len] + "... (truncated)\n")
+                if len(smoke_stderr) > _max_output_len
+                else smoke_stderr
+            )
+            cmd_str = " ".join(smoke_cmd)
+            f.write("\n\n<details><summary>command / stdout / stderr</summary>\n\n")
+            f.write("```text\n")
+            f.write("command:\n" + cmd_str + "\n\n")
+            if out_trunc:
+                f.write("stdout:\n" + out_trunc + "\n")
+            if err_trunc:
+                f.write("stderr:\n" + err_trunc + "\n")
+            f.write("```\n\n</details>\n\n")
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output-dir", type=str, default="./charts_output")
+    parser.add_argument("--output-md-file", type=str, default="./comment.md")
+    parser.add_argument("--base-ref", type=str, default="origin/main")
+    parser.add_argument("--head-ref", type=str, default="HEAD")
+    args = parser.parse_args()
+
+    output_dir = args.output_dir
+    os.makedirs(output_dir, exist_ok=True)
+
+    changed_files = get_changed_files(args.base_ref, args.head_ref)
+
+    # Organize changed files by (system, backend, backend_version) so that
+    # they are grouped together in the output text.
+    # map (system, backend, backend_version) -> [changed_file]
+    system_backend_version_to_changed_files = defaultdict(list)
+
+    for changed_file in changed_files:
+        # remove prefix
+        changed_file = changed_file.replace("src/aiconfigurator/systems/", "")
+        # split by /
+        parts = changed_file.split("/")
+
+        # <system>.yaml
+        if len(parts) == 1 and parts[0].endswith(".yaml"):
+            # Ignore for now
+            continue
+
+        # data/<system>/<backend>/<backend_version>/*.txt
+        elif len(parts) == 5 and parts[0] == "data":
+            system = parts[1]
+            backend = parts[2]
+            backend_version = parts[3]
+
+            # data/<system>/nccl/<nccl_version>/nccl_perf.txt
+            # data/<system>/oneccl/<oneccl_version>/oneccl_perf.txt
+            if backend in ("nccl", "oneccl"):
+                # Ignore for now
+                continue
+
+            perf_file = parts[4]
+            if perf_file == "INCOMPLETE.txt":
+                continue
+            system_backend_version_to_changed_files[(system, backend, backend_version)].append(perf_file)
+
+        else:
+            print(f"Unhandled changed file: {changed_file}")
+            continue
+
+    # Only create comment file if there are files to process
+    if not system_backend_version_to_changed_files:
+        print("No matching perf data files found to process. Skipping chart generation.")
+        return 0
+
+    with open(args.output_md_file, "w") as f:
+        f.write("## Sanity Check Chart Generation Report\n")
+        # github action will insert a link here
+        f.write("download_link_placeholder\n")
+        f.write(
+            textwrap.dedent("""
+            New perf data files were detected in this PR. Please use the link above to
+            download sanity check charts for the new perf data to compare the collected
+            perf data vs SOL (theoretical max performance).
+
+            Below is a report of whether the chart generation was successful for each op.
+            If doesn't validate whether the perf data itself is sane.
+        """)
+        )
+
+    for (system, backend, backend_version), perf_files in system_backend_version_to_changed_files.items():
+        try:
+            print(f"Creating charts for {system} {backend} {backend_version} with perf files: {perf_files}")
+            create_charts(
+                backend,
+                backend_version,
+                system,
+                perf_files,
+                output_dir,
+                args.output_md_file,
+            )
+        except Exception as e:
+            err_msg = f"Error creating charts for {system} {backend} {backend_version}: ```{e}```"
+            print(err_msg)
+            with open(args.output_md_file, "a") as f:
+                f.write(err_msg + "\n")
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,88 @@
+name: "Build and Test"
+
+on:
+  push:
+    branches:
+      - main
+      - "release/*"
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  build-and-test:
+    name: Build and Test (${{ matrix.suite.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - name: unit
+            paths: tests/unit
+            workers: "-n 2"
+          - name: e2e
+            paths: tests/e2e
+            workers: "-n 2"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+      - name: Detect generator golden changes
+        id: generator-golden-changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base_sha="${{ github.event.pull_request.base.sha }}"
+          else
+            base_sha="${{ github.event.before }}"
+          fi
+          head_sha="${{ github.sha }}"
+
+          if [ -z "${base_sha}" ] || [[ "${base_sha}" =~ ^0+$ ]]; then
+            base_sha="$(git rev-list --max-parents=0 HEAD)"
+          fi
+
+          changed_files="$(git diff --name-only "${base_sha}" "${head_sha}")"
+          echo "Changed files:"
+          printf '%s\n' "${changed_files}"
+
+          if printf '%s\n' "${changed_files}" | grep -Eq '^(src/aiconfigurator/generator/|tests/golden/generator/)'; then
+            echo "run_golden=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "run_golden=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Git LFS Pull
+        run: git lfs pull
+      - name: Print runner resources
+        run: |
+          echo "CPU cores: $(nproc)"
+          free -h
+      - name: Build wheel in container
+        run: |
+          docker build -f docker/Dockerfile -t aiconfigurator:build --target build .
+      - name: Run tests in container
+        shell: bash
+        run: |
+          test_paths=(${{ matrix.suite.paths }})
+          if [ "${{ matrix.suite.name }}" = "unit" ] && [ "${{ steps.generator-golden-changes.outputs.run_golden }}" = "true" ]; then
+            test_paths+=(tests/golden/generator)
+          fi
+          echo "Running pytest paths: ${test_paths[*]}"
+
+          docker build -f docker/Dockerfile -t aiconfigurator:test --target test .
+          docker run --name aic aiconfigurator:test \
+            pytest \
+            "${test_paths[@]}" \
+            -m "unit or build" \
+            -v --tb=short --maxfail=1 --timeout=600 \
+            ${{ matrix.suite.workers }} \
+            --md-report --md-report-verbose=1 --md-report-flavor gfm --md-report-output test_report.md
+      - name: Copy test report from test Container
+        if: always()
+        run: |
+            docker cp aic:/workspace/test_report.md ./test_report.md
