@@ -1,0 +1,8 @@
+{
+  "comparison_csv": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/wideep_module_mla/wideep_module_mla_aic_compare_flashinfer__comparison.csv",
+  "skipped_csv": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/wideep_module_mla/wideep_module_mla_aic_compare_flashinfer__skipped.csv",
+  "summary_md": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/wideep_module_mla/wideep_module_mla_aic_compare_flashinfer__summary.md",
+  "comparison_row_count": 190,
+  "skipped_row_count": 0,
+  "attention_backend": "flashinfer"
+}

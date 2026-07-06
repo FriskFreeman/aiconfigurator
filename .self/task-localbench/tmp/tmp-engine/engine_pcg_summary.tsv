@@ -1,0 +1,2 @@
+cuda_graph_mode	pcg_mode	status	run_dir
+off	on	ok	/home/ai_lab/ljc/scale-up-sim/aiconfigurator/.self/task-localbench/tmp-engine/20260609_110320_sglang_engine_deepseek_v3_dummy5_cg_off_pcg_on

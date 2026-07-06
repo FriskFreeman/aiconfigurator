@@ -1,0 +1,36 @@
+{
+  "summary_csv": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/agg_csv/formal_aic_aligned_agg_summary.csv",
+  "out_dir": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/agg_aic_aligned_compare",
+  "args": {
+    "summary_csv": "PosixPath('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/agg_csv/formal_aic_aligned_agg_summary.csv')",
+    "out_dir": "PosixPath('/home/ai_lab/ljc/scale-up-sim/aiconfigurator/bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/agg_aic_aligned_compare')",
+    "model_path": "deepseek-ai/DeepSeek-V3",
+    "system": "h100_sxm",
+    "backend": "sglang",
+    "version": "0.5.9",
+    "database_mode": "SILICON",
+    "tp_size": 1,
+    "pp_size": 1,
+    "attention_dp_size": 1,
+    "moe_tp_size": 1,
+    "moe_ep_size": 1,
+    "num_layers": 6,
+    "gemm_quant_mode": "fp8_block",
+    "moe_quant_mode": "fp8_block",
+    "kvcache_quant_mode": "fp8",
+    "fmha_quant_mode": "bfloat16",
+    "comm_quant_mode": "half",
+    "attention_backend": "fa3",
+    "moe_backend": null,
+    "enable_wideep": false,
+    "engine_step_backend": null,
+    "osl": 16,
+    "mappings": [
+      "intended_case",
+      "observed_first_batch"
+    ]
+  },
+  "real_rows": 12,
+  "aic_rows": 24,
+  "joined_rows": 24
+}

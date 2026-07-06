@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+.vscode/
+__pycache__/
+.DS_Store
+dev/
+results/
+archived/
+*.egg-info/
+.VSCodeCounter/
+build/
+dist/
+*/automation/dynamo/
+aiconf_save/
+.collector_checkpoint/
+venv/
+env/
+.venv/
+
+*.pyc
+*.pyo
+*.pyd
+
+# Local benchmark outputs and archived raw runs
+.self/task-localbench/**/output/
+.self/task-localbench/**/raw_runs/
+.self/sharegpt/
+bench_data/**/raw_runs/

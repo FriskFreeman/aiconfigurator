@@ -1,0 +1,31 @@
+{
+  "output_dir": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/kv_b_proj_prefix_token_sensitivity",
+  "source_dirs": [
+    "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/mla_aic_compare_kernel_envelope_refresh",
+    "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/mla_aic_compare_large_prefix"
+  ],
+  "real_layer_rows": 136,
+  "case_rows": 34,
+  "query_semantics": [
+    "old_fresh_only",
+    "direct_total_tokens",
+    "sglang_chunk_policy"
+  ],
+  "sglang_max_chunk_capacity": 131072,
+  "files": [
+    "README.md",
+    "artifact_manifest.json",
+    "build_kv_b_proj_prefix_token_sensitivity.py",
+    "kv_b_proj_case_comparison.csv",
+    "kv_b_proj_layer_detail.csv",
+    "kv_b_proj_summary.csv",
+    "mla_aic_compare_kernel_envelope_refresh_kv_b_proj_error_pct.png",
+    "mla_aic_compare_kernel_envelope_refresh_kv_b_proj_error_pct.svg",
+    "mla_aic_compare_kernel_envelope_refresh_kv_b_proj_values.png",
+    "mla_aic_compare_kernel_envelope_refresh_kv_b_proj_values.svg",
+    "mla_aic_compare_large_prefix_kv_b_proj_error_pct.png",
+    "mla_aic_compare_large_prefix_kv_b_proj_error_pct.svg",
+    "mla_aic_compare_large_prefix_kv_b_proj_values.png",
+    "mla_aic_compare_large_prefix_kv_b_proj_values.svg"
+  ]
+}

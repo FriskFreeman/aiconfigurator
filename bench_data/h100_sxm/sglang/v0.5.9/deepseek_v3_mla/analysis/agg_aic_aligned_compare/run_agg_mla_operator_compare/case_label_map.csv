@@ -1,0 +1,37 @@
+tag,case_id,case_label,case_full_label,alignment_class,real_stage_values,real_attention_token_count_first_layer,aic_batch_size,aic_isl,aic_prefix,aic_ctx_tokens,first_formal_prefill_req_count,first_formal_decode_req_count,first_formal_sum_prefill_fresh_tokens,first_formal_sum_decode_kv_tokens
+agg_aic_p0_small_b8_isl512_ctx2048,C01,"C01
+P4x512+0
+D4x512",P b4 ctx2048 | isl512 pre0 | D b4 kv512,strict_prefix0,decode,2052.0,4,512,0,1536,3,1,1536,512
+agg_aic_p0_decode_heavy_b12_isl512_ctx2048,C02,"C02
+P4x512+0
+D8x512",P b4 ctx2048 | isl512 pre0 | D b8 kv512,strict_prefix0,decode,2056.0,8,512,0,3584,7,1,3584,512
+agg_aic_p0_prefill_heavy_b16_isl512_ctx4096,C03,"C03
+P8x512+0
+D8x512",P b8 ctx4096 | isl512 pre0 | D b8 kv512,strict_prefix0,decode,4104.0,8,512,0,3584,7,1,3584,512
+agg_aic_p0_mid_b8_isl2048_ctx8192,C04,"C04
+P4x2048+0
+D4x2048",P b4 ctx8192 | isl2048 pre0 | D b4 kv2048,strict_prefix0,prefill,8192.0,4,2048,0,6144,3,1,6144,2048
+agg_aic_p0_decode_heavy_b17_isl2048_ctx2048,C05,"C05
+P1x2048+0
+D16x2048",P b1 ctx2048 | isl2048 pre0 | D b16 kv2048,strict_prefix0,prefill,2064.0,5,2048,0,8192,4,1,8191,2048
+agg_aic_p0_chunk_b9_isl8192_ctx8192,C06,"C06
+P1x8192+0
+D8x8192",P b1 ctx8192 | isl8192 pre0 | D b8 kv8192,strict_prefix0,prefill,8192.0,2,8192,0,8192,1,1,8191,8192
+agg_aic_p0_dense_b36_isl1024_ctx4096,C07,"C07
+P4x1024+0
+D32x1024",P b4 ctx4096 | isl1024 pre0 | D b32 kv1024,strict_prefix0,prefill,4128.0,9,1024,0,8192,8,1,8191,1024
+agg_aic_p0_dense_prefill_b40_isl512_ctx4096,C08,"C08
+P8x512+0
+D32x512",P b8 ctx4096 | isl512 pre0 | D b32 kv512,strict_prefix0,prefill,4128.0,21,512,0,8192,16,5,8187,2560
+agg_aic_p0_longctx_b8_isl4096_ctx8192,C09,"C09
+P2x4096+0
+D6x4096",P b2 ctx8192 | isl4096 pre0 | D b6 kv4096,strict_prefix0,prefill,8192.0,4,4096,0,8192,2,2,8190,8192
+agg_aic_prefix_probe_b12_isl1024_prefix512_ctx4096,C10,"C10
+P4x512+512
+D8x1024",P b4 ctx4096 | isl1024 pre512 | D b8 kv1024,prefix_probe,prefill,2056.0,8,1024,0,5120,5,3,5120,3072
+agg_aic_prefix_probe_b24_isl1280_prefix1024_ctx10240,C11,"C11
+P8x256+1024
+D16x1280",P b8 ctx10240 | isl1280 pre1024 | D b16 kv1280,prefix_probe,prefill,2064.0,8,1280,0,8960,7,1,8191,1280
+agg_aic_prefix_probe_b12_isl4096_prefix2048_ctx8192,C12,"C12
+P2x2048+2048
+D10x4096",P b2 ctx8192 | isl4096 pre2048 | D b10 kv4096,prefix_probe,prefill,4106.0,3,4096,0,8192,2,1,8191,4096

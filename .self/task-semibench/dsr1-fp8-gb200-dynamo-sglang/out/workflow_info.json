@@ -1,0 +1,69 @@
+{
+  "runs": [
+    {
+      "github_run_id": "21831958748",
+      "name": "Run Sweep - Update GB200 and GB300 SGLANG FP8 DSR1 Disaggregated inference configs (STP only) (#635)\n\n* Update GB200 and GB300 SGLANG FP8 DSR1 configs\n\n* update PR #\n\n* update typo\n\n* Update model prefix to work with frontend\n\n* update model prefix\n\n* fix if else block\n\n* -Add ultra tpt point for gb200 fp8 1k1k\n\n* Correct typo\n\n* Update GBx00 SGLANG FP8 container\n\n* add srt-slurm model prefix\n\n---------\n\nCo-authored-by: Jatin Gangani <jgangani@dc2-container-xterm-014.prd.it.nvidia.com>\nCo-authored-by: Ke...",
+      "conclusion": "success",
+      "run_attempt": 2,
+      "html_url": "https://github.com/SemiAnalysisAI/InferenceX/actions/runs/21831958748",
+      "created_at": "2026-02-09T15:50:05Z",
+      "date": "2026-02-09"
+    }
+  ],
+  "changelogs": [
+    {
+      "workflow_run_id": "21831958748",
+      "date": "2026-02-09",
+      "base_ref": "2767db504b61c1e4448e9ee337799241a1c4082c",
+      "head_ref": "37f353be258d8ca3d470c6a942a53dd5e027f82b",
+      "config_keys": [
+        "dsr1-fp8-gb200-dynamo-sglang",
+        "dsr1-fp8-gb300-dynamo-sglang"
+      ],
+      "description": "Update  GB200 and GB300 configs for DSR1 FP8 SGLANG STP mode\nImage: lmsysorg/sglang:v0.5.8-cu130\nUpdate prefill/decode worker counts, TP/EP parallelism, and dp-attn settings for 1k1k and 8k1k",
+      "pr_link": "https://github.com/InferenceMAX/InferenceMAX/pull/635"
+    }
+  ],
+  "configs": [
+    {
+      "model": "dsr1",
+      "isl": 1024,
+      "osl": 1024,
+      "precision": "fp8",
+      "hardware": "gb200",
+      "framework": "dynamo-sglang",
+      "spec_method": "none",
+      "disagg": true
+    },
+    {
+      "model": "dsr1",
+      "isl": 1024,
+      "osl": 1024,
+      "precision": "fp8",
+      "hardware": "gb300",
+      "framework": "dynamo-sglang",
+      "spec_method": "none",
+      "disagg": true
+    },
+    {
+      "model": "dsr1",
+      "isl": 8192,
+      "osl": 1024,
+      "precision": "fp8",
+      "hardware": "gb200",
+      "framework": "dynamo-sglang",
+      "spec_method": "none",
+      "disagg": true
+    },
+    {
+      "model": "dsr1",
+      "isl": 8192,
+      "osl": 1024,
+      "precision": "fp8",
+      "hardware": "gb300",
+      "framework": "dynamo-sglang",
+      "spec_method": "none",
+      "disagg": true
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+pcg_mode	skip_server_warmup	status	run_dir	failed_stage
+off	1	fail	server failed to become ready within timeout	
+off	0	fail	server failed to become ready within timeout	

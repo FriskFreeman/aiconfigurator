@@ -1,0 +1,973 @@
+# CLI User Guide
+## Basic Command
+As mentioned in root Readme, CLI supports five modes: `default`, `exp`, `generate`, `estimate`, and `support`. We'll go through these modes one by one.
+
+Quantization defaults are inferred from the Hugging Face model config (`config.json` plus optional `hf_quant_config.json`).  
+For low-precision models, use a quantized HF ID (for example, `Qwen/Qwen3-32B-FP8`) or a local model directory containing those files.
+
+## Defaults and Implicit Behavior
+
+When using `default` mode, several parameters have default values that affect
+which configurations are considered feasible. These defaults are applied when
+the corresponding flag is not specified:
+
+| Parameter | Default | Flag | Effect |
+|-----------|---------|------|--------|
+| ISL (Input Sequence Length) | 4000 | `--isl` | Assumed input prompt length |
+| OSL (Output Sequence Length) | 1000 | `--osl` | Assumed output generation length |
+| TTFT (Time to First Token) | 2000 ms | `--ttft` | Max acceptable time to first token |
+| TPOT (Time per Output Token) | 30 ms | `--tpot` | Max acceptable time per output token |
+| Strict SLA | off | `--strict-sla` | Pre-filter Pareto frontier to only SLA-compliant configs |
+| Backend | trtllm | `--backend` | Inference backend used for estimation |
+| Prefix Cache Length | 0 | `--prefix` | Prefix cache length for KV reuse |
+| Database Mode | SILICON | `--database-mode` | Source of performance data |
+
+> **Important:** The TTFT and TPOT defaults act as **SLA filters** — configurations
+> that exceed these thresholds are excluded from results. If you see fewer
+> results than expected, consider relaxing these values or setting them
+> explicitly. When defaults are used, a warning is printed at the start of the
+> run so you can verify what values are in effect. By default, only the top-N
+> picking step filters on TPOT; pass `--strict-sla` to also pre-filter the
+> Pareto frontier (see [Strict SLA filtering](#strict-sla-filtering---strict-sla)).
+
+### Generate mode (Quick Start)
+This mode generates a working configuration without running the full parameter sweep. It's useful when you want a quick deployment config without SLA optimization.
+
+```bash
+aiconfigurator cli generate --model-path Qwen/Qwen3-32B-FP8 --total-gpus 8 --system h200_sxm
+```
+
+The `generate` mode calculates the smallest tensor parallel (TP) size that fits the model in memory using the formula: `TP * VRAM_per_GPU > 1.5 * model_weight_size`. This ensures the model fits with room for KV cache and activations.
+
+**Required arguments:**
+- `--model-path` (alias `--model`): HuggingFace model path (e.g., `Qwen/Qwen3-32B-FP8`) or local path containing `config.json`
+- `--total-gpus`: Total GPUs for deployment
+- `--system`: System name (`h200_sxm`, `h100_sxm`, `h100_pcie`, `gb200`, `b200_sxm`, `a100_sxm`, `a100_pcie`, `l40s`, `l4`, `a30`, `gb300`)
+
+**Optional arguments:**
+- `--backend`: Backend name (`trtllm`, `vllm`, `sglang`). Default: `trtllm`
+- `--save-dir`: Directory to save generated artifacts
+- `--systems-paths`: Override system YAML/data search paths (comma-separated; `default` maps to the built-in systems path). First match wins for identical system/backend/version.
+
+**Example output:**
+```
+============================================================
+  Naive Configuration Generated Successfully
+============================================================
+  Model:           Qwen/Qwen3-32B-FP8
+  System:          h200_sxm
+  Backend:         trtllm (1.2.0rc5)
+  Total GPUs:      8 (using 8)
+  Parallelism:     TP=1, PP=1
+  Replicas:        8 (each using 1 GPUs)
+  Max Batch Size:  128
+  Output:          ./output/Qwen_Qwen3-32B-FP8_naive_tp1_pp1_123456
+============================================================
+```
+
+**Python API equivalent:**
+```python
+from aiconfigurator.cli import cli_generate
+
+result = cli_generate(
+    model_path="Qwen/Qwen3-32B-FP8",
+    total_gpus=8,
+    system="h200_sxm",
+    backend="trtllm",
+    save_dir="./output",
+)
+print(result["parallelism"])  # {'tp': 1, 'pp': 1, 'replicas': 8, 'gpus_used': 8}
+```
+
+> **Note:** This is a naive configuration without memory validation or performance optimization. For production deployments, use `aiconfigurator cli default` to run the full parameter sweep with SLA optimization.
+
+### Estimate mode
+This mode runs a single-point performance estimation to predict TTFT (time to first token), TPOT (time per output token), and power consumption for a given model, system, and configuration. Unlike `default` mode, no parameter sweep or SLA optimization is performed — you specify the exact configuration and get back the predicted metrics.
+
+```bash
+aiconfigurator cli estimate --model-path Qwen/Qwen3-32B --system h200_sxm --tp-size 2 --batch-size 64 --isl 2048 --osl 512
+```
+
+**Required arguments:**
+- `--model-path` (alias `--model`): HuggingFace model path (e.g., `Qwen/Qwen3-32B`) or local path containing `config.json`
+- `--system`: System name (`h200_sxm`, `h100_sxm`, `h100_pcie`, `b200_sxm`, `gb200`, `a100_sxm`, `a100_pcie`, `l40s`, `l4`, `a30`, `gb300`)
+
+**Optional arguments (shared):**
+- `--estimate-mode`: `agg` (default) or `disagg`
+- `--backend`: Backend name (`trtllm`, `vllm`, `sglang`). Default: `trtllm`
+- `--backend-version`: Backend database version. Default: latest
+- `--database-mode`: Database mode (`SILICON`, `HYBRID`, `EMPIRICAL`, `SOL`). Default: `SILICON`
+- `--isl`: Input sequence length. Default: `1024`
+- `--osl`: Output sequence length. Default: `1024`
+- `--batch-size`: Batch size (max concurrent requests, used for agg). Default: `128`
+- `--ctx-tokens`: Context tokens budget for IFB scheduling. Default: same as ISL
+- `--tp-size`: Tensor parallelism size. Default: `1`
+- `--pp-size`: Pipeline parallelism size. Default: `1`
+- `--attention-dp-size`: Attention data parallelism size. Default: `1`
+- `--moe-tp-size`: MoE tensor parallelism size (auto-inferred if omitted)
+- `--moe-ep-size`: MoE expert parallelism size (auto-inferred if omitted)
+- `--gemm-quant-mode`: GEMM quantization mode (auto-inferred from model config if omitted)
+- `--kvcache-quant-mode`: KV cache quantization mode (auto-inferred if omitted)
+- `--fmha-quant-mode`: FMHA quantization mode (auto-inferred if omitted)
+- `--moe-quant-mode`: MoE quantization mode (auto-inferred if omitted)
+- `--comm-quant-mode`: Communication quantization mode (auto-inferred if omitted)
+- `--print-per-ops-latency`: Print per-operation latency breakdown
+- `--systems-paths`: Override system YAML/data search paths (comma-separated; `default` maps to the built-in systems path)
+
+**Disagg-specific arguments** (used when `--estimate-mode disagg`):
+- `--decode-system`: System name for decode workers. Defaults to `--system`
+- `--prefill-tp-size`, `--prefill-pp-size`, `--prefill-attention-dp-size`: Prefill parallelism overrides (default to shared args)
+- `--prefill-moe-tp-size`, `--prefill-moe-ep-size`: Prefill MoE parallelism overrides
+- `--prefill-batch-size`: Prefill batch size (required for disagg)
+- `--prefill-num-workers`: Number of prefill workers (required for disagg)
+- `--decode-tp-size`, `--decode-pp-size`, `--decode-attention-dp-size`: Decode parallelism overrides (default to shared args)
+- `--decode-moe-tp-size`, `--decode-moe-ep-size`: Decode MoE parallelism overrides
+- `--decode-batch-size`: Decode batch size (required for disagg)
+- `--decode-num-workers`: Number of decode workers (required for disagg)
+
+**Example output (agg):**
+```text
+============================================================
+  Performance Estimate (agg)
+============================================================
+  Model:            Qwen/Qwen3-32B
+  System:           h200_sxm
+  Backend:          trtllm (1.2.0rc5)
+------------------------------------------------------------
+  ISL:              2048
+  OSL:              512
+  Batch Size:       64
+  Context Tokens:   2048
+  TP Size:          2
+  PP Size:          1
+------------------------------------------------------------
+  TTFT:             487.990 ms
+  TPOT:             29.118 ms
+  Request Latency:  15367.492 ms
+  Power (per GPU):  0.0 W
+------------------------------------------------------------
+  tokens/s:         2,153.38
+  tokens/s/gpu:     1,076.69
+  tokens/s/user:    34.34
+  seq/s:            4.214
+  Concurrency:      64
+  Memory (GPU):     54.55 GB
+============================================================
+```
+
+**Disagg example:**
+```bash
+aiconfigurator cli estimate \
+  --model-path Qwen/Qwen3-32B --system h200_sxm \
+  --estimate-mode disagg --isl 2048 --osl 512 --tp-size 2 \
+  --prefill-batch-size 4 --prefill-num-workers 2 \
+  --decode-batch-size 64 --decode-num-workers 2
+```
+
+**Python API equivalent:**
+```python
+from aiconfigurator.cli.api import cli_estimate
+
+# Aggregated estimation
+result = cli_estimate(
+    "Qwen/Qwen3-32B", "h100_sxm",
+    batch_size=64, isl=2048, osl=512, tp_size=2,
+)
+print(f"TTFT: {result.ttft:.2f} ms, TPOT: {result.tpot:.2f} ms")
+print(f"Power: {result.power_w:.1f} W")
+print(f"Throughput: {result.tokens_per_second_per_gpu:,.2f} tokens/s/gpu")
+
+# Disaggregated estimation
+result = cli_estimate(
+    "Qwen/Qwen3-32B", "h100_sxm", mode="disagg",
+    isl=2048, osl=512, tp_size=2,
+    prefill_batch_size=4, prefill_num_workers=2,
+    decode_batch_size=64, decode_num_workers=2,
+)
+```
+
+### Support mode (optional)
+This is an optional pre-flight check to verify if AIConfigurator supports a specific model and hardware combination for both aggregated and disaggregated serving modes. You can skip this and run `cli default` directly. Support is determined by a majority-vote of tests in the support matrix for models sharing the same architecture.
+
+```bash
+aiconfigurator cli support --model-path Qwen/Qwen3-32B-FP8 --system h200_sxm
+```
+
+**Required arguments:**
+- `--model-path` (alias `--model`): HuggingFace model path (e.g., `Qwen/Qwen3-32B-FP8`) or local path containing `config.json`
+- `--system`: System name (`h200_sxm`, `gb200`, `b200_sxm`, `h100_sxm`, `h100_pcie`, `a100_sxm`, `a100_pcie`, `l40s`, `l4`, `a30`, `gb300`)
+
+**Optional arguments:**
+- `--backend`: Filter by specific backend (`trtllm`, `vllm`, `sglang`). Defaults to `trtllm`.
+- `--backend-version`: Filter by a specific backend version. Defaults to the latest version found in the support matrix for the given model/architecture/system/backend combination.
+- `--systems-paths`: Override system YAML/data search paths (comma-separated; `default` maps to the built-in systems path). First match wins for identical system/backend/version.
+
+**Example output:**
+```text
+============================================================
+  AIC Support Check Results
+============================================================
+  Model:           Qwen/Qwen3-32B-FP8
+  System:          h200_sxm
+  Backend:         trtllm
+  Version:         0.18.0
+------------------------------------------------------------
+  Aggregated Support:    YES
+  Disaggregated Support: YES
+============================================================
+```
+
+**Python API equivalent:**
+```python
+from aiconfigurator.cli import cli_support
+
+agg_supported, disagg_supported = cli_support(
+    model_path="Qwen/Qwen3-32B-FP8",
+    system="h200_sxm",
+    backend="trtllm"
+)
+print(f"Agg: {agg_supported}, Disagg: {disagg_supported}")
+```
+
+### Default mode
+This mode is triggered by
+```bash
+aiconfigurator cli default --model-path Qwen/Qwen3-32B-FP8 --total-gpus 32 --system h200_sxm
+or
+aiconfigurator cli default --model-path Qwen/Qwen3-32B-FP8 --total-gpus 32 --system h200_sxm --ttft 1000 --tpot 10 --isl 3000 --osl 512 --prefix 0
+```
+`model_path`, `total_gpus`, `system` are three required arguments to define the problem.  
+If you want to specify your problem with more details, we allow to define `ttft`, `tpot`, `isl`, `osl` and `prefix`.
+
+#### Backend Selection
+
+You can specify which inference backend to use with the `--backend` flag:
+
+```bash
+# Use TensorRT-LLM (default)
+aiconfigurator cli default --model-path Qwen/Qwen3-32B-FP8 --total-gpus 32 --system h200_sxm --backend trtllm
+
+# Use vLLM (dense models only, currently being evaluated)
+aiconfigurator cli default --model-path Qwen/Qwen3-32B-FP8 --total-gpus 32 --system h200_sxm --backend vllm
+
+# Use SGLang (dense and MoE models, currently being evaluated)
+aiconfigurator cli default --model-path Qwen/Qwen3-32B-FP8 --total-gpus 32 --system h200_sxm --backend sglang
+```
+
+Use `--backend auto` to sweep across all supported backends and compare results side by side.
+Both agg and disagg results are merged across backends and the globally optimal configuration
+is selected. This is useful for finding the best backend without running separate commands.
+
+The command will create two experiments for the given problem, one is `agg` and another one is `disagg`. Compare them to find the better one and estimates the perf gain.
+
+#### Systems Paths
+
+You can override where system YAMLs and performance data are loaded from using `--systems-paths`.
+
+```bash
+aiconfigurator cli default \
+  --model-path Qwen/Qwen3-32B \
+  --total-gpus 32 \
+  --system h200_sxm \
+  --systems-paths "default,/opt/aic/systems,/data/aic/systems"
+```
+
+- Paths are searched in order.
+- Use `default` to include the built-in systems path.
+- If the same system/backend/version exists in multiple paths, the first match is used.
+
+The command will print out the result to your terminal with the basic info of the comparison, the pareto curve (the best point is tagged as `x`), 
+the worker setup for your reference. Let's split them into sections.
+
+Let's run `aiconfigurator cli default --model-path Qwen/Qwen3-32B-FP8 --total-gpus 32 --system h200_sxm --ttft 1000 --tpot 10 --isl 3000 --osl 512 --prefix 0`
+> Note that the result might differ based on different versions of your aiconfigurator.
+1. Basic info of the comparison
+```
+  Input Configuration & SLA Target:
+    Model: Qwen/Qwen3-32B-FP8 (is_moe: False)
+    Total GPUs: 32
+    Best Experiment Chosen: disagg at 913.82 tokens/s/gpu (1.43x better)
+  ----------------------------------------------------------------------------
+  Overall Best Configuration:
+    - Best Throughput: 29,242.24 tokens/s
+    - Per-GPU Throughput: 913.82 tokens/s/gpu
+    - Per-User Throughput: 123.92 tokens/s/user
+    - TTFT: 202.65ms
+    - TPOT: 8.07ms
+```
+This shows that for model `Qwen/Qwen3-32B-FP8` to deploy on 32 H200, if you require your TTFT to be less than 1000ms and TPOT to be less than 10ms, and your problem is isl=3000 osl=512, then disagg will be 1.43x of agg. The target result is shown as Overall Best Configuration.
+
+**Python API equivalent:**
+```python
+from aiconfigurator.cli import cli_default
+
+result = cli_default(
+    model_path="Qwen/Qwen3-32B-FP8",
+    total_gpus=32,
+    system="h200_sxm",
+    ttft=1000,
+    tpot=10,
+    isl=3000,
+    osl=512
+)
+# Access the DataFrames
+print(result.best_configs["disagg"])
+```
+
+2. Pareto frontier
+```
+  Pareto Frontier:
+              Qwen/Qwen3-32B-FP8 Pareto Frontier: tokens/s/gpu vs tokens/s/user          
+    ┌──────────────────────────────────────────────────────────────────────────┐
+2250┤ •• disagg                                                                │
+    │ ff agg                                                                   │
+    │ xx disagg best                                                           │
+    │                                                                          │
+1875┤  ff                                                                      │
+    │   fff                                                                    │
+    │     ff                                                                   │
+    │      fff••                                                               │
+1500┤         f •••                                                            │
+    │         ff   ••••••••                                                    │
+    │          ffff       •                                                    │
+    │              f       •••••••                                             │
+1125┤               ff            •                                            │
+    │                ff            ••••                                        │
+    │                  ffff            ••••x                                   │
+    │                     fff              ••••                                │
+ 750┤                        fff               •                               │
+    │                          ffffff           •                              │
+    │                                ffffff      ••                            │
+    │                                      fffffff ••••••                      │
+ 375┤                                             ff    •                      │
+    │                                               fffffff•••••••••           │
+    │                                                      ffffffffff          │
+    │                                                                          │
+   0┤                                                                          │
+    └┬─────────────────┬──────────────────┬─────────────────┬─────────────────┬┘
+     0                60                 120               180              240 
+tokens/s/gpu                        tokens/s/user                               
+```
+Pareto frontier shows the trade-off betwen generation speed `tokens/s/user` and throughput `tokens/s/gpu`. The best points is tagged as `x`. As you want the TPOT to be less than 10ms, which means the generation speed is faster than 1000/10ms = 100 tokens/s/user, then by reading the pareto froniter, you will get the point tagged as x. You can see that, if you want different TPOT, you will have different result. Sometimes, agg will be better than disagg (higher throughput at same tokens/s/user)
+
+3. Worker setup
+```
+  Deployment Details:
+    (p) stands for prefill, (d) stands for decode, bs stands for batch size, a replica stands for the smallest scalable unit xPyD of the disagg system
+    Some math: total gpus used = replicas * gpus/replica
+               gpus/replica = (p)gpus/worker * (p)workers + (d)gpus/worker * (d)workers; for Agg, gpus/replica = gpus/worker
+               gpus/worker = tp * pp * dp = etp * ep * pp for MoE models; tp * pp for dense models (underlined numbers are the actual values in math)
+
+disagg Top Configurations: (Sorted by tokens/s/gpu)
++------+--------------+---------------+--------+-------------+------------------+----------+----------------+------------+----------------+-------------+-------+------------+----------------+-------------+-------+
+| Rank | tokens/s/gpu | tokens/s/user |  TTFT  | concurrency | total_gpus(used) | replicas |  gpus/replica  | (p)workers | (p)gpus/worker | (p)parallel | (p)bs | (d)workers | (d)gpus/worker | (d)parallel | (d)bs |
++------+--------------+---------------+--------+-------------+------------------+----------+----------------+------------+----------------+-------------+-------+------------+----------------+-------------+-------+
+|  1   |    913.82    |     123.92    | 202.65 |  256(=64x4) |   32 (32=4x8)    |    4     |  8 (=4x1+1x4)  |     4      |    1 (=1x1)    |    tp1pp1   |   1   |     1      |    4 (=4x1)    |    tp4pp1   |   64  |
+|  2   |    873.07    |     126.28    | 202.65 |  240(=60x4) |   32 (32=4x8)    |    4     |  8 (=4x1+1x4)  |     4      |    1 (=1x1)    |    tp1pp1   |   1   |     1      |    4 (=4x1)    |    tp4pp1   |   60  |
+|  3   |    852.77    |     133.94    | 202.65 | 240(=240x1) |   32 (32=1x32)   |    1     | 32 (=12x1+5x4) |     12     |    1 (=1x1)    |    tp1pp1   |   1   |     5      |    4 (=4x1)    |    tp4pp1   |   48  |
+|  4   |    568.51    |     148.82    | 202.65 |  144(=72x2) |   32 (32=2x16)   |    2     | 16 (=4x1+3x4)  |     4      |    1 (=1x1)    |    tp1pp1   |   1   |     3      |    4 (=4x1)    |    tp4pp1   |   24  |
+|  5   |    434.77    |     145.12    | 123.20 | 104(=104x1) |   32 (24=1x24)   |    1     | 24 (=4x2+4x4)  |     4      |    2 (=2x1)    |    tp2pp1   |   1   |     4      |    4 (=4x1)    |    tp4pp1   |   26  |
++------+--------------+---------------+--------+-------------+------------------+----------+----------------+------------+----------------+-------------+-------+------------+----------------+-------------+-------+
+
+agg Top Configurations: (Sorted by tokens/s/gpu)
++------+--------------+---------------+--------+-------------+------------------+----------+--------------+-------------+----------+----+
+| Rank | tokens/s/gpu | tokens/s/user |  TTFT  | concurrency | total_gpus(used) | replicas | gpus/replica | gpus/worker | parallel | bs |
++------+--------------+---------------+--------+-------------+------------------+----------+--------------+-------------+----------+----+
+|  1   |    638.28    |     100.97    | 187.72 |  224(=28x8) |   32 (32=8x4)    |    8     |      4       |   4 (=4x1)  |  tp4pp1  | 28 |
+|  2   |    612.50    |     101.49    | 274.98 | 224(=14x16) |   32 (32=16x2)   |    16    |      2       |   2 (=2x1)  |  tp2pp1  | 14 |
+|  3   |    594.71    |     108.14    | 149.46 |  192(=24x8) |   32 (32=8x4)    |    8     |      4       |   4 (=4x1)  |  tp4pp1  | 24 |
+|  4   |    592.60    |     111.22    | 199.08 |  192(=24x8) |   32 (32=8x4)    |    8     |      4       |   4 (=4x1)  |  tp4pp1  | 24 |
+|  5   |    544.17    |     119.83    | 149.25 |  160(=20x8) |   32 (32=8x4)    |    8     |      4       |   4 (=4x1)  |  tp4pp1  | 20 |
++------+--------------+---------------+--------+-------------+------------------+----------+--------------+-------------+----------+----+
+```
+
+If you want to reproduce the result we esimated, you need to follow the suggestions here. Take the disagg top1 result as an example.  
+We're expecting to achieve 913.82 tokens/s/gpu and 123.92 tokens/s/user with this config.  
+We have 1 definition `replica`, it means the number of copies of your xPyD disagg system. Say, here, we have 4 replicas, each replica contains 8 GPUs.  
+Each replica has a system of 4 prefill workers and 1 decode workers. Each prefill worker is using tp1pp1 which is 1 GPU per worker; while each decoder worker is using tp4pp1 which is 4 GPU per workers. These workers compose a 4P1D replica with 8 GPUs. As you want to deploy on 32 GPUs, then you will have 4 replicas.  
+`bs` is required to be set in framework as it limits the largest batch_size of the worker which is crucial to control the TPOT of the deployment.  
+`concurrency` = `concurrency * replicas` Use it to benchmark your deployment on total GPUs. If you only want to benchmark 1 replica, divide it by `replicas`
+
+As this is still a little bit challenging to get the right configs for your deployment, we can further specify `--save-dir DIR` to output all the results here as well as **generate the configs for frameworks automatically**. Here's a stucture of the output folder,
+```text
+results/Qwen_Qwen3-32B-FP8_h200_sxm_trtllm_isl4000_osl1000_ttft1000_tpot20_904495
+├── agg
+│   ├── best_config_topn.csv
+│   ├── config.yaml
+│   ├── pareto.csv
+│   ├── top1
+│   │   ├── agg
+│   │   │   ├── agg_config.yaml
+│   │   │   ├── bench_run.sh          # aiperf benchmark sweep script (bare-metal)
+│   │   │   ├── k8s_bench.yaml        # aiperf benchmark sweep Job (Kubernetes)
+│   │   │   ├── k8s_deploy.yaml
+│   │   │   └── node_0_run.sh 
+│   │   └── generator_config.yaml
+│   ...
+├── disagg
+│   ├── best_config_topn.csv
+│   ├── config.yaml
+│   ├── pareto.csv
+│   ├── top1
+│   │   ├── disagg
+│   │   │   ├── bench_run.sh          # aiperf benchmark sweep script (bare-metal)
+│   │   │   ├── decode_config.yaml
+│   │   │   ├── k8s_bench.yaml        # aiperf benchmark sweep Job (Kubernetes)
+│   │   │   ├── k8s_deploy.yaml
+│   │   │   ├── node_0_run.sh
+│   │   │   └── prefill_config.yaml
+│   │   └── generator_config.yaml
+│   ...
+└── pareto_frontier.png
+```
+By default, we output the top 5 configs we have found. You can get the configs and scripts to deploy under each experiment's folder. The generated files depend on your `--deployment-target`:
+- **Dynamo** (default): `k8s_deploy.yaml` for Kubernetes deployment, plus engine configs (`agg_config.yaml`, `prefill_config.yaml`, `decode_config.yaml`) and run scripts (`node_0_run.sh`)
+- **llm-d**: `llm-d-values.yaml` for Helm deployment with the llm-d-modelservice chart
+
+For benchmarking, see the [Benchmark Artifacts](#benchmark-artifacts) section below. Refer to [deployment guide](dynamo_deployment_guide.md) for Dynamo deployments or the [README llm-d section](../README.md#deploying-to-llm-d-platform) for llm-d deployments.
+
+`--save-dir DIR` allows you to specify more information such as generating the config for a different version of the backend, say estimating the performance using trtllm 1.0.0rc3 but generate config for 1.0.0rc6. This is allowed and feasible. By passing `--generated-config-version 1.0.0rc6` can give you the right result.
+
+**Deployment Target Selection**
+
+Use `--deployment-target` to choose which orchestration platform to deploy to:
+- `dynamo-j2` (default): Generates Dynamo Kubernetes manifests using Jinja2 templates
+- `dynamo-python`: Generates Dynamo Kubernetes manifests using Dynamo's Python config modifiers (requires `dynamo` package)
+- `llm-d`: Generates Helm values for the llm-d-modelservice chart
+
+The backend (`--backend trtllm/vllm/sglang`) and deployment target are orthogonal choices. Note that TRT-LLM only supports Dynamo platforms, while vLLM and SGLang support all three options.
+
+**Generator Dynamo version** (applies to Dynamo deployments only)
+- Use `--generator-dynamo-version 0.7.1` to select the Dynamo release. This affects both the generated backend config version and the default K8s image tag.
+- If `--generator-dynamo-version` is not provided, the default is the first entry in `backend_version_matrix.yaml` (currently `1.2.0`).
+- If `--generated-config-version` is provided, it overrides the generated backend version, but the default K8s image tag still follows the selected Dynamo version mapping.
+
+Use `--generator-config path/to/file.yaml` to provide ServiceConfig/K8sConfig/DynConfig/WorkerConfig/Workers.<role> sections, or add inline overrides via `--generator-set KEY=VALUE`. Examples:
+
+- `--generator-set ServiceConfig.model_path=Qwen/Qwen3-32B-FP8`
+- `--generator-set K8sConfig.k8s_namespace=dynamo \`
+
+#### Rule Plugin Selection
+You can switch the generator rule set via `--generator-set rule=benchmark`. This selects a rule plugin folder under `src/aiconfigurator/generator/rule_plugin/`.
+
+- **Default (production)**: if `rule` is not provided, the generator uses the default production rules. These are tuned for deployment (e.g., adjusted max batch size and CUDA graph batch sizes).
+- **Benchmark**: `--generator-set rule=benchmark` enables rules designed to align generated configs with AIC sdk results, including:
+  - wider CUDA graph batch size coverage to match simulated results
+  - stricter max batch size that follows the simulated batch size
+
+You can also define your own rule sets by adding a new folder under `src/aiconfigurator/generator/rule_plugin/` and selecting it with `--generator-set rule=<folder_name>`.
+
+Run `aiconfigurator cli default --generator-help` to print information that is sourced directly from `src/aiconfigurator/generator/config/deployment_config.yaml` and `backend_config_mapping.yaml`. 
+
+The `--generator-help` command supports three section options:
+- `--generator-help` or `--generator-help all` (default): Shows both the full deployment schema and the backend parameter mappings
+- `--generator-help deploy`: Shows the complete content of `generator/config/deployment_config.yaml` in YAML format, including all sections such as `ServiceConfig.*`, `K8sConfig.*`, `WorkerConfig.*`, etc.
+- `--generator-help backend`: Shows only the backend parameter mappings table from `generator/config/backend_config_mapping.yaml`, which maps unified parameter keys (e.g., `kv_cache_free_gpu_memory_fraction`, `kv_cache_dtype`) to backend-specific parameter names for trtllm, vllm, and sglang
+
+You can filter the backend-mapping output to a specific backend using `--generator-help --generator-help-backend BACKEND`, where BACKEND can be `trtllm`, `vllm`, or `sglang`. For example:
+- `aiconfigurator cli default --generator-help backend --generator-help-backend sglang`: Shows only sglang-specific parameter mappings
+- `aiconfigurator cli default --generator-help backend --generator-help-backend trtllm`: Shows only trtllm-specific parameter mappings
+
+The command exits after printing the help information, so you do not need to provide the required `default` mode arguments (like `--model-path`, `--backend`, etc.) when using this flag.
+
+#### Request latency constraint
+`--request-latency <ms>` gives you a single end-to-end SLA on TTFT + TPOT × (OSL − 1). When the flag is set, `default` mode automatically enumerates TTFT/TPOT pairs that satisfy that budget (respecting any explicit `--ttft`, if provided) and only keeps configurations whose estimated request latency stays within the bound. Because the CLI derives TPOT from the request latency target, any `--tpot` argument is ignored in this mode.
+
+- The detailed tables printed for both agg and disagg add a `request_latency` column, and the global Pareto plot flips to “request latency vs tokens/s/gpu” whenever every experiment is operating under this constraint.
+- You can still set `--ttft` to reserve more headroom for prefill. Leaving it unset lets the enumerator try multiple TTFT splits automatically.
+
+Example: search for 16x H200 configs that meet a 12s end-to-end budget while capping TTFT at 4s.
+```bash
+aiconfigurator cli default \
+  --model-path Qwen/Qwen3-32B-FP8 \
+  --total-gpus 16 \
+  --system h200_sxm \
+  --backend trtllm \
+  --request-latency 12000 \
+  --isl 4000 \
+  --osl 500 \
+  --ttft 4000
+```
+The summary will highlight the fastest configuration whose estimated request latency is ≤ 12,000 ms and will show the derived TTFT/TPOT pair that satisfied the constraint. The example output,
+```
+********************************************************************************
+*                         AIConfigurator Final Results                         *
+********************************************************************************
+  ----------------------------------------------------------------------------
+  Input Configuration & SLA Target:
+    Model: Qwen/Qwen3-32B-FP8 (is_moe: False)
+    Total GPUs: 16
+    Best Experiment Chosen: disagg at 932.91 tokens/s/gpu (disagg 1.09x better)
+  ----------------------------------------------------------------------------
+  Overall Best Configuration:
+    - Best Throughput: 14,926.50 tokens/s
+    - Per-GPU Throughput: 932.91 tokens/s/gpu
+    - Per-User Throughput: 57.49 tokens/s/user
+    - TTFT: 542.58ms
+    - TPOT: 17.39ms
+    - Request Latency: 9222.18ms
+  ----------------------------------------------------------------------------
+  Pareto Frontier:
+          Qwen/Qwen3-32B-FP8 Pareto Frontier: tokens/s/gpu_cluster vs request_latency    
+      ┌────────────────────────────────────────────────────────────────────────┐
+1150.0┤ •• agg                                                                 │
+      │ ff disagg                                                              │
+      │ xx disagg best                                                         │
+      │                                                                        │
+ 958.3┤                                                                        │
+      │                                     ffffffffffffffx                    │
+      │                                    f                            •      │
+      │                                    f                         •••       │
+ 766.7┤                                    f                    •••••          │
+      │                                   f                •••••               │
+      │                                 ff            •••••                    │
+      │                               ff         •••••                         │
+ 575.0┤                             ff     ••••••                              │
+      │                           ff     •••                                   │
+      │                         ff     ••                                      │
+      │                              ••                                        │
+ 383.3┤                          ••••                                          │
+      │                        •••                                             │
+      │                   ••••••                                               │
+      │                 •••                                                    │
+ 191.7┤                                                                        │
+      │                                                                        │
+      │                                                                        │
+      │                                                                        │
+   0.0┤                                                                        │
+      └┬─────────────────┬─────────────────┬────────────────┬─────────────────┬┘
+       0               3220              6440             9660            12880 
+tokens/s/gpu_cluster                request_latency                             
+
+  ----------------------------------------------------------------------------
+  Deployment Details:
+    (p) stands for prefill, (d) stands for decode, bs stands for batch size, a replica stands for the smallest scalable unit xPyD of the disagg system
+    Some math: total gpus used = replicas * gpus/replica
+               gpus/replica = (p)gpus/worker * (p)workers + (d)gpus/worker * (d)workers; for Agg, gpus/replica = gpus/worker
+               gpus/worker = tp * pp * dp = etp * ep * pp for MoE models; tp * pp for dense models (underlined numbers are the actual values in math)
+
+agg Top Configurations: (Sorted by tokens/s/gpu)
++------+--------------+---------------+--------+-----------------+--------------+-------------------+----------+--------------+-------------+----------+----+
+| Rank | tokens/s/gpu | tokens/s/user |  TTFT  | request_latency | concurrency  | total_gpus (used) | replicas | gpus/replica | gpus/worker | parallel | bs |
++------+--------------+---------------+--------+-----------------+--------------+-------------------+----------+--------------+-------------+----------+----+
+|  1   |    852.23    |     46.35     | 937.94 |     11704.26    | 320 (=40x8)  |    16 (16=8x2)    |    8     |      2       |  2 (=2x1x1) |  tp2pp1  | 40 |
+|  2   |    748.51    |     49.46     | 711.67 |     10799.77    | 256 (=64x4)  |    16 (16=4x4)    |    4     |      4       |  4 (=4x1x1) |  tp4pp1  | 64 |
+|  3   |    742.79    |     50.12     | 735.24 |     10691.50    | 256 (=16x16) |    16 (16=16x1)   |    16    |      1       |  1 (=1x1x1) |  tp1pp1  | 16 |
+|  4   |    550.53    |     47.56     | 568.11 |     11060.92    | 192 (=96x2)  |    16 (16=2x8)    |    2     |      8       |  8 (=8x1x1) |  tp8pp1  | 96 |
++------+--------------+---------------+--------+-----------------+--------------+-------------------+----------+--------------+-------------+----------+----+
+
+disagg Top Configurations: (Sorted by tokens/s/gpu)
++------+--------------+---------------+--------+-----------------+--------------+-------------------+----------+----------------+------------+----------------+-------------+-------+------------+----------------+-------------+-------+
+| Rank | tokens/s/gpu | tokens/s/user |  TTFT  | request_latency | concurrency  | total_gpus (used) | replicas |  gpus/replica  | (p)workers | (p)gpus/worker | (p)parallel | (p)bs | (d)workers | (d)gpus/worker | (d)parallel | (d)bs |
++------+--------------+---------------+--------+-----------------+--------------+-------------------+----------+----------------+------------+----------------+-------------+-------+------------+----------------+-------------+-------+
+|  1   |    932.91    |     57.49     | 542.58 |     9222.18     | 384 (=384x1) |    16 (16=1x16)   |    1     | 16 (=10x1+3x2) |     10     |    1 (=1x1)    |    tp1pp1   |   1   |     3      |    2 (=2x1)    |    tp2pp1   |  128  |
+|  2   |    932.91    |     49.29     | 542.58 |     10666.29    | 384 (=192x2) |    16 (16=2x8)    |    2     |  8 (=5x1+3x1)  |     5      |    1 (=1x1)    |    tp1pp1   |   1   |     3      |    1 (=1x1)    |    tp1pp1   |   64  |
+|  3   |    818.83    |     43.33     | 326.26 |     11842.68    | 328 (=328x1) |    16 (16=1x16)   |    1     | 16 (=6x2+1x4)  |     6      |    2 (=2x1)    |    tp2pp1   |   1   |     1      |    4 (=4x1)    |    tp4pp1   |  328  |
+|  4   |    746.33    |     43.72     | 542.58 |     11955.71    | 496 (=496x1) |    16 (16=1x16)   |    1     | 16 (=8x1+1x8)  |     8      |    1 (=1x1)    |    tp1pp1   |   1   |     1      |    8 (=8x1)    |    tp8pp1   |  496  |
++------+--------------+---------------+--------+-----------------+--------------+-------------------+----------+----------------+------------+----------------+-------------+-------+------------+----------------+-------------+-------+
+********************************************************************************
+2025-12-01 23:36:41,892 - aiconfigurator.cli.main - INFO - All experiments completed in 1.92 seconds
+```
+
+#### Strict SLA filtering (`--strict-sla`)
+
+By default, the Pareto frontier includes all configurations regardless of whether they meet the `--tpot` (or `--request-latency`) constraint — only the final top-N picking step filters on TPOT. This means `pareto.csv` and the Pareto plot may show configurations that violate your SLA targets.
+
+Pass `--strict-sla` to pre-filter the Pareto frontier so that **only SLA-compliant configurations** are included. When this flag is active:
+
+- Configurations exceeding `--tpot` (or `--request-latency`) are removed *before* the Pareto frontier is computed.
+- The resulting `pareto.csv`, Pareto plot, and `best_config_topn` only contain configs that meet the SLA.
+- TTFT filtering is already enforced at sweep time by all backends, so `--strict-sla` only adds TPOT / request-latency pre-filtering.
+
+```bash
+aiconfigurator cli default \
+  --model-path Qwen/Qwen3-32B-FP8 \
+  --total-gpus 32 \
+  --system h200_sxm \
+  --tpot 15 \
+  --strict-sla
+```
+
+> **Note:** With `--strict-sla`, if no configuration meets the SLA targets, the Pareto frontier and best configs will be empty. Without the flag, the Pareto frontier preserves the full search space and you can still see which configs came closest to meeting the target.
+
+The Python API equivalent accepts a `strict_sla` keyword argument:
+
+```python
+from aiconfigurator.cli import cli_default
+
+result = cli_default(
+    model_path="Qwen/Qwen3-32B-FP8",
+    total_gpus=32,
+    system="h200_sxm",
+    tpot=15,
+    strict_sla=True,
+)
+```
+
+#### Database Mode
+
+The `--database-mode` argument controls how performance is estimated:
+
+| Mode | Description |
+|------|-------------|
+| `SILICON` | **(Default)** Uses actual collected silicon data. Most accurate when data is available for your configuration. |
+| `HYBRID` | Uses silicon data when available, falls back to SOL+empirical factor when data is missing. Best for exploring configurations that may not have complete silicon data. |
+| `EMPIRICAL` | Uses Speed-of-Light (SOL) + empirical correction factors for all estimations. Useful for rough estimates without relying on collected data. |
+| `SOL` | Provides theoretical Speed-of-Light time only. Useful for understanding theoretical limits. |
+
+PCIe systems such as `h100_pcie`, `a100_pcie`, `l4`, and `a30` are estimate-only unless you provide measured data with `--systems-paths`. They work with `generate` and with non-SILICON modes (`SOL`, `EMPIRICAL`, `HYBRID`); `SILICON` mode still requires a collected performance database.
+
+Example using hybrid mode:
+```bash
+aiconfigurator cli default --model-path Qwen/Qwen3-32B-FP8 --total-gpus 32 --system h200_sxm --database-mode HYBRID
+```
+
+For exp mode, you can specify `database_mode` in your YAML file:
+```yaml
+exp_hybrid:
+  serving_mode: "agg"
+  model_path: "Qwen/Qwen3-32B-FP8"
+  system_name: "h200_sxm"
+  total_gpus: 8
+  database_mode: "HYBRID"
+```
+
+Hybrid mode is a quick solution to support new models without modeling the operation and collecting the data. However, please be careful, only `SILICON` mode's result is reproducible. Other modes are for research purpose
+
+#### Speculative Decoding (`--nextn`, `--nextn-accept-rates`)
+
+These flags enable MTP (Multi-Token Prediction) speculative decoding in the
+configuration search:
+
+- `--nextn N` — Number of draft tokens. When > 0, the sweep includes
+  speculative decoding configurations. Requires the model to support MTP.
+  Default: 0 (disabled).
+- `--nextn-accept-rates RATES` — Comma-separated list of 5 floats representing
+  the acceptance probability of each draft token position. Only the first
+  `--nextn` values are used. Default: `0.85,0.3,0,0,0`.
+
+Example:
+```bash
+aiconfigurator cli default \
+  --model Qwen/Qwen3-32B-FP8 --total-gpus 8 --system h200_sxm \
+  --nextn 2 --nextn-accept-rates 0.9,0.4,0,0,0
+```
+
+
+**Python API equivalent:**
+```python
+from aiconfigurator.cli import cli_exp
+
+# Run experiments from a YAML file
+result = cli_exp(yaml_path="example.yaml")
+
+# Or run experiments from a dictionary
+config = {
+    "my_exp": {
+        "serving_mode": "agg",
+        "model_path": "Qwen/Qwen3-32B-FP8",
+        "total_gpus": 8,
+        "system_name": "h200_sxm"
+    }
+}
+result = cli_exp(config=config)
+```
+
+See `src/aiconfigurator/cli/exps/database_mode_comparison.yaml` for an example comparing different database modes.
+
+### Benchmark Artifacts
+
+When `--save-dir` is used, each `topN` directory includes two benchmark helpers alongside the deployment artifacts:
+
+- **`bench_run.sh`** -- A shell script for bare-metal benchmarking. It loops over a concurrency array and calls [`aiperf profile`](https://github.com/ai-dynamo/aiperf) for each level. Before running it, make sure the deployed service is reachable at the endpoint printed in the script, and that `aiperf` is installed (`pip install aiperf`). Usage:
+  ```bash
+  cd results/.../disagg/top1/disagg/
+  bash bench_run.sh
+  ```
+
+- **`k8s_bench.yaml`** -- A Kubernetes Job manifest that runs the same `aiperf` concurrency sweep inside the cluster. Apply it after the service is up:
+  ```bash
+  kubectl apply -f results/.../disagg/top1/disagg/k8s_bench.yaml
+  ```
+
+**Concurrency sweep.** Both artifacts iterate over a base concurrency list `[1, 2, 8, 16, 32, 64, 128]`. When an estimated concurrency is available from the AIConfigurator run, three additional points are added: the estimate itself and its +/-5% neighbors. This targets the operating point AIConfigurator found optimal.
+
+**Templated values.** The scripts are pre-filled with the model name, tokenizer, ISL/OSL, endpoint URL, and streaming mode from the run that generated them -- no manual editing is needed for the common case.
+
+### Exp mode
+If you want to customize your experiment apart from simple command which only compares disagg and agg of a same model, you can use `exp` mode. The command is,
+```bash
+aiconfigurator cli exp --yaml-path example.yaml
+```
+An example yaml file looks like this, the template is [here](../src/aiconfigurator/cli/example.yaml)  
+Let's split the yaml file into several sections.  
+1. exps
+```yaml
+exps:
+  - exp_agg_full
+  - exp_agg_simplified
+  - exp_disagg_full
+  - exp_disagg_simplified
+```
+`exps` section defines the experiments you want to run. If not specified, all exps will be run
+
+2. A certain exp definition
+```yaml
+exp_disagg_full:
+  mode: "patch" # patch or replace the config section, required
+  serving_mode: "disagg" # required
+  model_path: "deepseek-ai/DeepSeek-V3" # required
+  total_gpus: 32 # required
+  system_name: "h200_sxm" # required
+  decode_system_name: "h200_sxm" # optional, if not provided, it will use the same system name as the prefill system.
+  backend_name: "trtllm" # optional, can be "trtllm" (default), "vllm", or "sglang"
+  backend_version: "0.20.0" # optional, default to the latest version in the database
+  isl: 4000 # input sequence length, optional, default to 4000
+  osl: 1000 # output sequence length, optional, default to 1000
+  prefix: 0 # prefix cache len, default to 0
+  ttft: 1000.0  # Target TTFT in ms, optional, default to 1000.0
+  tpot: 40.0   # Target TPOT in ms, optional, default to 40.0
+  enable_wideep: false # enable wide ep for prefill/decode, optional, default to false
+  profiles: [] # some inherit presets for easier patch, optional
+  config: # all optional, used to patch default values
+    nextn: 1 # mtp 1
+    nextn_accept_rates: [0.85,0,0,0,0] # each position maps to the accept rate of the ith draft token, nextn 1 will only use the first draft token accept rate.
+    # each prefill worker config
+    prefill_worker_config:
+      gemm_quant_mode: "fp8_block" # fp8, fp8_block, bfloat16
+      moe_quant_mode: "fp8_block" # fp8, fp8_block, w4afp8, bfloat16
+      kvcache_quant_mode: "bfloat16" # fp8, int8, bfloat16
+      fmha_quant_mode: "bfloat16" # fp8, bfloat16
+      comm_quant_mode: "half" # half
+      num_gpu_per_worker: [4, 8] # num gpus per worker, please refer to enumerate_parallel_config in utils.py
+      tp_list: [1, 2, 4, 8]
+      pp_list: [1]
+      dp_list: [1] # we didn't enable attn dp here. You can enable it if you want.
+      moe_tp_list: [1]
+      moe_ep_list: [1, 2, 4, 8]
+    # each decode worker config
+    decode_worker_config:
+      gemm_quant_mode: "fp8_block" # fp8, fp8_block, bfloat16
+      moe_quant_mode: "fp8_block" # fp8, fp8_block, w4afp8, bfloat16
+      kvcache_quant_mode: "bfloat16" # fp8, int8, bfloat16
+      fmha_quant_mode: "bfloat16" # fp8, bfloat16
+      comm_quant_mode: "half" # half
+      num_gpu_per_worker: [4, 8] # num gpus per worker, please refer to enumerate_parallel_config in utils.py
+      tp_list: [1, 2, 4, 8]
+      pp_list: [1]
+      dp_list: [1, 2, 4, 8]
+      moe_tp_list: [1]
+      moe_ep_list: [1, 2, 4, 8]
+    # the whole replica config, a replica is the minimum unit of disagg deployment. It contains xPyD workers.
+    # x is the number of prefill workers, y is the number of decode workers
+    # then we scale replicas to meet your total gpus requirement.
+    replica_config:
+      num_gpu_per_replica: [8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128] # It means the searched replica will have total gpus in this list, this list will be capped by max_gpu_per_replica
+      max_gpu_per_replica: 128 # max gpus per replica, if specified as 0, it means no limit. Too many gpus per replica will make the prefill/decoder worker pair complicated. no need to be too large.
+      max_prefill_worker: 32 # It means in every replica, you will have up to 32 prefill workers, x_max = 32
+      max_decode_worker: 32 # It means in every replica, you will have up to 32 decode workers, y_max = 32
+    advanced_tuning_config:
+      # advanced tuning config
+      prefill_latency_correction_scale: 1.1
+      decode_latency_correction_scale: 1.08
+      prefill_max_batch_size: 1
+      decode_max_batch_size: 512
+```
+This section is very long, let's go through the basic setting quickly  
+    - `mode`: patch means the `config` session below will do patch to default config while replace will overwrite everything. Typically, no need to modify  
+    - `serving_mode`: defines agg or disagg of this exp  
+    - `model_path`, `total_gpus`: defines the model and GPU resources
+    - `backend_name`: specifies the inference backend - `trtllm` (default), `vllm`, or `sglang`
+    - `backend_version`, `isl`, `osl`, `ttft`, `tpot`: defines the same things as in `default` mode  
+    - `enable_wideep`: will trigger wide-ep for fined-grained moe model  
+    - `profiles`: some inherit patch, we currently have 'fp8', 'fp8_static', 'bfloat16', 'nvfp4', 'mxfp4' to force the precision of a worker.  
+    - `config`: the most important part. It defines `nextn` for MTP; It also defines the agg_/prefill_/decode_worker's quantization, and parallelism search space; It also defines more about how we search for the disagg replica and do correction for better performance alignment. We'll go through it in [Advanced Tuning](advanced_tuning.md). Typically, the only thing here for you to modify, perhaps, is the quantization of the worker.
+
+Quantization override order: explicit quantization set via `profiles` or YAML `config` takes precedence; missing values are filled from the model's HF quantization metadata.  
+If you use `mode: replace`, ensure your replacement config includes the quantization you want.
+
+If you don't want to patch the `config` details, you can just delete them. Here's a simplified one,
+```yaml
+exp_disagg_simplified:
+  mode: "patch"
+  serving_mode: "disagg"
+  model_path: "deepseek-ai/DeepSeek-V3"
+  total_gpus: 512
+  system_name: "gb200"
+  enable_wideep: true # enable wide ep for prefill/decode, default to false, optional
+  config: # patch below default values
+    nextn: 2 # mtp 1
+    nextn_accept_rates: [0.85,0.3,0,0,0] # each position maps to the accept rate of the ith draft token, nextn 1 will only use the first draft token accept rate.
+    replica_config:
+      max_gpu_per_replica: 512 # max gpus per replica, wide ep needs larger max_gpu_per_replica value
+```
+This only defines the system you want to use. Overwrite what you want.
+
+Let's go through some pre-defined experiments for reference.
+1. homegeneous vs. heterogenous  
+The example [yaml](../src/aiconfigurator/cli/exps/hetero_disagg.yaml)
+```yaml
+exps:
+  - exp_h200_h200
+  - exp_b200_h200
+
+exp_h200_h200:
+  mode: "patch"
+  serving_mode: "disagg" # required
+  model_path: "Qwen/Qwen3-32B-FP8" # required
+  total_gpus: 16 # required
+  system_name: "h200_sxm" # required, for prefill
+  decode_system_name: "h200_sxm" # optional, if not provided, it will use the same system name as the prefill system.
+  backend_name: "trtllm" # can also be "vllm" or "sglang"
+  profiles: []
+  isl: 4000 # input sequence length
+  osl: 500 # output sequence length
+  ttft: 300.0  # Target TTFT in ms
+  tpot: 50.0   # Target TPOT in ms
+
+exp_b200_h200:
+  mode: "patch"
+  serving_mode: "disagg" # required
+  model_path: "Qwen/Qwen3-32B-FP8" # required
+  total_gpus: 16 # required
+  system_name: "b200_sxm" # required, for prefill
+  decode_system_name: "h200_sxm" # optional, if not provided, it will use the same system name as the prefill system.
+  backend_name: "trtllm" # can also be "vllm" or "sglang"
+  profiles: []
+  isl: 4000 # input sequence length
+  osl: 500 # output sequence length
+  ttft: 300.0  # Target TTFT in ms
+  tpot: 50.0   # Target TPOT in ms
+```
+We defined two experiments. `exp_h200_h200` uses h200 for both prefill and decode. `exp_b200_h200` uses b200 for prefill and h200 for decode.
+
+**Note**: You can also compare different backends by setting different `backend_name` values (trtllm, vllm, sglang) in your experiments.
+
+2. use a specific quantization  
+The example [yaml](../src/aiconfigurator/cli/exps/qwen3_32b_pertensor.yaml)
+```yaml
+exps:
+  - exp_agg
+  - exp_disagg
+
+exp_agg:
+  mode: "patch"
+  serving_mode: "agg" # required
+  model_path: "Qwen/Qwen3-32B-FP8" # required
+  total_gpus: 16 # required
+  system_name: "h200_sxm" # required, for prefill
+  backend_name: "trtllm" # can also be "vllm" or "sglang"
+  profiles: ["fp8"]
+  isl: 4000 # input sequence length
+  osl: 500 # output sequence length
+  ttft: 600.0  # Target TTFT in ms
+  tpot: 16   # Target TPOT in ms
+
+exp_disagg:
+  mode: "patch"
+  serving_mode: "disagg" # required
+  model_path: "Qwen/Qwen3-32B-FP8" # required
+  total_gpus: 16 # required
+  system_name: "h200_sxm" # required, for prefill
+  decode_system_name: "h200_sxm" # optional, if not provided, it will use the same system name as the prefill system.
+  backend_name: "trtllm" # can also be "vllm" or "sglang"
+  profiles: ["fp8"]
+  isl: 4000 # input sequence length
+  osl: 500 # output sequence length
+  ttft: 600.0  # Target TTFT in ms
+  tpot: 16   # Target TPOT in ms
+```
+In this example, we use a pre-defined profile to overwrite quantization of Qwen/Qwen3-32B-FP8. Default is blockwise FP8 for GEMM and here we use per-tensor FP8.
+
+You can refer to [src/aiconfigurator/cli/exps](../src/aiconfigurator/cli/exps) to find more reference yaml files.
+
+Use `exp` mode for flexible experiments, `default` mode for convenient agg vs disagg comparison with SLA optimization, and `generate` mode for quick config generation without sweeping. All modes support generating configs for frameworks automatically by `--save-dir DIR`.
+
+---
+
+
+## End-to-End Workflow
+
+This section walks through the typical workflow from checking hardware/model support all the way to benchmarking a deployed service. Each step feeds into the next.
+
+**Scenario:** Deploy Qwen3-32B-FP8 on 8x H200 GPUs with SLA targets of TTFT <= 600 ms and TPOT <= 50 ms.
+
+### Step 1: Check support (optional)
+
+You can optionally verify that your model/system combination is supported before running a sweep. This step is not required — you can skip it and run `cli default` directly.
+
+```bash
+aiconfigurator cli support --model Qwen/Qwen3-32B-FP8 --system h200_sxm
+```
+
+If the output shows `Aggregated Support: YES` and/or `Disaggregated Support: YES`, proceed. Otherwise, try a different backend (`--backend vllm` or `--backend sglang`) or system.
+
+### Step 2: Find the optimal configuration
+
+Run the parameter sweep to compare aggregated vs. disaggregated serving and find the best config under your SLA:
+
+```bash
+aiconfigurator cli default \
+  --model Qwen/Qwen3-32B-FP8 \
+  --total-gpus 8 \
+  --system h200_sxm \
+  --ttft 600 --tpot 50 \
+  --isl 4000 --osl 500 \
+  --save-dir results \
+  --generator-set ServiceConfig.head_node_ip=0.0.0.0 \
+  --generator-set ServiceConfig.model_path=/workspace/models/Qwen3-32B-FP8
+```
+
+`--save-dir` generates deployment-ready artifacts (engine configs, run scripts, K8s manifests, and benchmark helpers) under `results/`.
+
+### Step 3: Quick fallback (optional)
+
+If `cli support` shows your model/system combo is unsupported, or `cli default` fails to find a valid configuration, `generate` gives you the smallest TP that fits the model in memory. Otherwise, you can use the `cli default` results directly and skip this step.
+
+```bash
+aiconfigurator cli generate \
+  --model Qwen/Qwen3-32B-FP8 \
+  --total-gpus 8 \
+  --system h200_sxm \
+  --save-dir results_naive
+```
+
+### Step 4: Deploy
+
+Use the generated artifacts to launch the service. For bare-metal (single-node):
+
+```bash
+mkdir -p /workspace/engine_configs
+cp results/.../disagg/top1/*_config.yaml /workspace/engine_configs/
+cd results/.../disagg/top1/
+bash run_0.sh
+```
+
+For Kubernetes (Dynamo):
+
+```bash
+kubectl apply -f results/.../disagg/top1/k8s_deploy.yaml
+```
+
+For llm-d (Helm):
+
+```bash
+helm install my-model llm-d/llm-d-modelservice \
+  --values results/.../disagg/top1/llm-d-values.yaml
+```
+
+See the [Deployment Guide](dynamo_deployment_guide.md) for multi-node and K8s details.
+
+### Step 5: Benchmark
+
+After the service is healthy, run the generated benchmark sweep to validate performance at the predicted concurrency:
+
+```bash
+# Bare-metal
+bash results/.../disagg/top1/bench_run.sh
+
+# Or Kubernetes
+kubectl apply -f results/.../disagg/top1/k8s_bench.yaml
+```
+
+Compare the measured TTFT, TPOT, and tokens/s/gpu against the AIConfigurator estimates printed in Step 2. See [Benchmark Artifacts](#benchmark-artifacts) for details on the generated scripts.

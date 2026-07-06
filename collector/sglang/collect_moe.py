@@ -1,0 +1,1193 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+import inspect
+import itertools
+import os
+from typing import TypedDict
+from unittest.mock import MagicMock
+
+import pkg_resources
+
+# Mock global server args before importing MOE modules (required by SGLang 0.5.5+)
+# The fused_moe_triton_config module now requires get_global_server_args() to be set
+import sglang.srt.server_args as _server_args_module
+import torch
+
+if _server_args_module._global_server_args is None:
+    _mock_server_args = MagicMock()
+    _mock_server_args.enable_deterministic_inference = False
+    _mock_server_args.enable_fused_moe_sum_all_reduce = (
+        False  # sglang >=0.5.10; prevents fused all-reduce in single-GPU benchmarks
+    )
+    _server_args_module._global_server_args = _mock_server_args
+
+from sglang.srt.layers.moe.fused_moe_triton.fused_moe import fused_moe
+from sglang.srt.layers.moe.fused_moe_triton.fused_moe_triton_config import (
+    get_config_dtype_str,
+    get_default_config,
+    get_moe_configs,
+)
+from sglang.srt.layers.moe.moe_runner.base import MoeRunnerConfig
+from sglang.srt.layers.moe.topk import StandardTopKOutput, TopKConfig, select_experts
+from sglang.srt.utils import is_hip
+
+# sglang >=0.5.10: fused_experts_impl uses @torch.compile on moe_sum_reduce_torch_compile
+# for tokens_in_chunk <= 32 and topk > 2.  torch.compile's JIT compilation can hang
+# during CUDA graph capture or in headless benchmark contexts.  Replace the compiled
+# function with an eager equivalent so benchmarks don't stall.
+try:
+    import sglang.srt.layers.moe.fused_moe_triton.fused_moe as _fmoe_mod
+
+    def _eager_moe_sum_reduce(x, out, routed_scaling_factor):
+        torch.sum(x, dim=1, out=out)
+        out.mul_(routed_scaling_factor)
+
+    if hasattr(_fmoe_mod, "moe_sum_reduce_torch_compile"):
+        _fmoe_mod.moe_sum_reduce_torch_compile = _eager_moe_sum_reduce
+except Exception:
+    pass
+
+try:
+    from sglang.srt.layers.moe.flashinfer_cutedsl_moe import (
+        flashinfer_cutedsl_moe_masked,
+    )
+
+    HAS_FLASHINFER_CUTE = True
+except ImportError:
+    HAS_FLASHINFER_CUTE = False
+
+try:
+    from sglang.jit_kernel.nvfp4 import scaled_fp4_quant as _scaled_fp4_quant
+
+    _HAS_SCALED_FP4_QUANT = True
+except ImportError:
+    _HAS_SCALED_FP4_QUANT = False
+
+# Marlin int4 MoE kernel (W4A16) — much faster than the Triton GPTQ/AWQ path.
+_HAS_MARLIN_MOE = False
+try:
+    from sglang.srt.layers.moe.fused_moe_triton.fused_marlin_moe import fused_marlin_moe
+    from sglang.srt.layers.quantization.gptq import gptq_marlin_moe_repack
+    from sglang.srt.layers.quantization.marlin_utils import marlin_moe_permute_scales
+
+    _HAS_MARLIN_MOE = True
+except ImportError:
+    pass
+
+try:
+    from common_test_cases import get_common_moe_test_cases
+
+    from helper import (
+        balanced_logits,
+        benchmark_with_power,
+        build_rank0_local_workload,
+        get_sm_version,
+        log_perf,
+        power_law_logits_v3,
+    )
+except ModuleNotFoundError:
+    import os
+    import sys
+
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from common_test_cases import get_common_moe_test_cases
+
+    from helper import (
+        balanced_logits,
+        benchmark_with_power,
+        build_rank0_local_workload,
+        get_sm_version,
+        log_perf,
+        power_law_logits_v3,
+    )
+
+
+_is_hip = is_hip()
+_MOE_RUNNER_CONFIG_PARAMS = set(inspect.signature(MoeRunnerConfig).parameters)
+
+
+def _make_moe_runner_config(swiglu_limit: float | None = None) -> MoeRunnerConfig:
+    kwargs = {}
+    if "swiglu_limit" in _MOE_RUNNER_CONFIG_PARAMS:
+        kwargs["swiglu_limit"] = swiglu_limit
+    elif "gemm1_clamp_limit" in _MOE_RUNNER_CONFIG_PARAMS:
+        kwargs["gemm1_clamp_limit"] = swiglu_limit
+    return MoeRunnerConfig(**kwargs)
+
+
+def get_moe_test_cases():
+    # fp8_block MOE requires SM90+ due to shared memory requirements
+    # L40S (SM89) has 100KB shared memory, fp8_block kernel needs ~144KB
+    sm_version = get_sm_version()
+    if sm_version < 90:
+        moe_list = ["bfloat16", "int4_wo"]
+    elif sm_version < 100:
+        moe_list = ["bfloat16", "fp8_block", "int4_wo"]
+    elif sm_version in (100, 103):
+        moe_list = ["bfloat16", "fp8_block", "nvfp4", "int4_wo"]
+    else:
+        # SGLang 0.5.10 routes nvfp4 MoE through FlashInfer CuteDSL, whose
+        # runtime check only accepts sm_100/sm_103 and fails all sm_120 cases.
+        moe_list = ["bfloat16", "fp8_block", "int4_wo"]
+
+    test_cases = []
+
+    for common_moe_testcase in get_common_moe_test_cases():
+        model_name = common_moe_testcase.model_name
+        if model_name in ["openai/gpt-oss-20b", "openai/gpt-oss-120b"]:
+            continue
+
+        num_tokens_list = [num_tokens for num_tokens in common_moe_testcase.num_tokens_list if num_tokens <= 20480]
+
+        for moe_type, num_tokens in itertools.product(moe_list, num_tokens_list):
+            # fp8_block requires hidden_size divisible by block group_size (128)
+            if moe_type == "fp8_block" and (
+                common_moe_testcase.hidden_size % 128 != 0 or common_moe_testcase.inter_size % 128 != 0
+            ):
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 4096
+                and common_moe_testcase.inter_size == 14336
+                and common_moe_testcase.topk == 2
+                and common_moe_testcase.num_experts == 8
+                and common_moe_testcase.tp == 32
+                and (
+                    num_tokens >= 16
+                    or (common_moe_testcase.ep == 2 and num_tokens >= 8)
+                    or (common_moe_testcase.ep == 4 and num_tokens >= 4)
+                    or (common_moe_testcase.ep == 8 and num_tokens >= 2)
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # Mixtral on SM120 at this TP slice. These token counts require
+                # 144 KiB shared memory, above the 99 KiB runtime limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 4096
+                and common_moe_testcase.inter_size == 2688
+                and common_moe_testcase.topk == 22
+                and common_moe_testcase.num_experts == 512
+                and (
+                    (common_moe_testcase.tp == 2 and num_tokens >= 768)
+                    or (common_moe_testcase.tp == 2 and common_moe_testcase.ep == 2 and num_tokens >= 320)
+                    or (common_moe_testcase.tp == 2 and common_moe_testcase.ep == 4 and num_tokens >= 160)
+                    or (common_moe_testcase.tp == 4 and common_moe_testcase.ep == 2 and num_tokens >= 320)
+                    or (common_moe_testcase.tp == 4 and common_moe_testcase.ep == 4 and num_tokens >= 160)
+                    or (common_moe_testcase.tp == 4 and common_moe_testcase.ep == 8 and num_tokens >= 80)
+                    or (common_moe_testcase.tp == 4 and common_moe_testcase.ep == 16 and num_tokens >= 48)
+                    or (common_moe_testcase.tp == 4 and common_moe_testcase.ep == 32 and num_tokens >= 32)
+                    or (common_moe_testcase.tp == 4 and common_moe_testcase.ep == 64 and num_tokens >= 16)
+                    or (common_moe_testcase.tp == 4 and num_tokens >= 768)
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 2 and num_tokens >= 320)
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 4 and num_tokens >= 160)
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 8 and num_tokens >= 80)
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 16 and num_tokens >= 48)
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 32 and num_tokens >= 32)
+                    or (common_moe_testcase.tp == 8 and num_tokens >= 768)
+                    or (common_moe_testcase.tp == 2 and common_moe_testcase.ep == 8 and num_tokens >= 80)
+                    or (common_moe_testcase.tp == 2 and common_moe_testcase.ep == 16 and num_tokens >= 48)
+                    or (common_moe_testcase.tp == 2 and common_moe_testcase.ep == 32 and num_tokens >= 32)
+                    or (common_moe_testcase.tp == 2 and common_moe_testcase.ep == 64)
+                    or (common_moe_testcase.tp == 2 and common_moe_testcase.ep == 128)
+                    or (common_moe_testcase.tp == 16 and num_tokens >= 768)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 2 and num_tokens >= 320)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 4 and num_tokens >= 160)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 8 and num_tokens >= 80)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 16 and num_tokens >= 48)
+                    or (common_moe_testcase.tp == 32 and num_tokens >= 768)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 2 and num_tokens >= 320)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 4 and num_tokens >= 160)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 8 and num_tokens >= 80)
+                )
+            ):
+                # SGLang 0.5.10 falls back to the default Triton fp8 block MoE
+                # config for Nemotron-3 Super on SM120 for these TP/EP slices.
+                # That config requires 144 KiB shared memory, above the 99 KiB
+                # runtime limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 2048
+                and common_moe_testcase.inter_size == 768
+                and common_moe_testcase.topk == 8
+                and common_moe_testcase.num_experts == 128
+                and common_moe_testcase.tp == 4
+                and (
+                    num_tokens >= 160
+                    or (common_moe_testcase.ep == 2 and num_tokens >= 80)
+                    or (common_moe_testcase.ep == 4 and num_tokens >= 48)
+                    or (common_moe_testcase.ep == 8 and num_tokens >= 32)
+                    or (common_moe_testcase.ep == 16 and num_tokens >= 16)
+                    or (common_moe_testcase.ep == 32 and num_tokens >= 8)
+                    or (common_moe_testcase.ep == 64 and num_tokens >= 8)
+                )
+            ):
+                # SGLang 0.5.10 also uses the default Triton fp8 block MoE config
+                # for Qwen3-30B-A3B on SM120. For these larger token counts that
+                # config requires 144 KiB shared memory, above the 99 KiB limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 4096
+                and common_moe_testcase.inter_size == 1536
+                and common_moe_testcase.topk == 8
+                and common_moe_testcase.num_experts == 128
+                and (
+                    (
+                        common_moe_testcase.tp == 8
+                        and (
+                            num_tokens >= 160
+                            or (common_moe_testcase.ep == 2 and num_tokens >= 80)
+                            or (common_moe_testcase.ep == 4 and num_tokens >= 48)
+                            or (common_moe_testcase.ep == 8 and num_tokens >= 32)
+                            or (common_moe_testcase.ep == 16 and num_tokens >= 16)
+                            or (common_moe_testcase.ep == 32 and num_tokens >= 8)
+                        )
+                    )
+                    or (
+                        common_moe_testcase.tp == 16
+                        and (
+                            num_tokens >= 160
+                            or (common_moe_testcase.ep == 2 and num_tokens >= 80)
+                            or (common_moe_testcase.ep == 4 and num_tokens >= 48)
+                            or (common_moe_testcase.ep == 8 and num_tokens >= 32)
+                            or (common_moe_testcase.ep == 16 and num_tokens >= 16)
+                        )
+                    )
+                    or (
+                        common_moe_testcase.tp == 32
+                        and (
+                            num_tokens >= 160
+                            or (common_moe_testcase.ep == 2 and num_tokens >= 80)
+                            or (common_moe_testcase.ep == 4 and num_tokens >= 48)
+                            or (common_moe_testcase.ep == 8 and num_tokens >= 32)
+                        )
+                    )
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # Qwen3-235B-A22B on SM120. For these token counts that config
+                # requires 144 KiB shared memory, above the 99 KiB limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 6144
+                and common_moe_testcase.inter_size == 2560
+                and common_moe_testcase.topk == 8
+                and common_moe_testcase.num_experts == 160
+                and (
+                    (
+                        common_moe_testcase.tp == 8
+                        and (
+                            num_tokens >= 192
+                            or (common_moe_testcase.ep == 2 and num_tokens >= 96)
+                            or (common_moe_testcase.ep == 4 and num_tokens >= 48)
+                            or (common_moe_testcase.ep == 8 and num_tokens >= 32)
+                            or (common_moe_testcase.ep == 16 and num_tokens >= 16)
+                            or (common_moe_testcase.ep == 32 and num_tokens >= 8)
+                        )
+                    )
+                    or (
+                        common_moe_testcase.tp == 16
+                        and (
+                            num_tokens >= 192
+                            or (common_moe_testcase.ep == 2 and num_tokens >= 96)
+                            or (common_moe_testcase.ep == 4 and num_tokens >= 48)
+                            or (common_moe_testcase.ep == 8 and num_tokens >= 32)
+                            or (common_moe_testcase.ep == 16 and num_tokens >= 16)
+                        )
+                    )
+                    or (
+                        common_moe_testcase.tp == 32
+                        and (
+                            num_tokens >= 192
+                            or (common_moe_testcase.ep == 2 and num_tokens >= 96)
+                            or (common_moe_testcase.ep == 4 and num_tokens >= 48)
+                            or (common_moe_testcase.ep == 8 and num_tokens >= 32)
+                        )
+                    )
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # Qwen3-Coder-480B-A35B on SM120. For these token counts that
+                # config requires 144 KiB shared memory, above the 99 KiB limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 4096
+                and common_moe_testcase.inter_size == 1024
+                and common_moe_testcase.topk == 10
+                and common_moe_testcase.num_experts == 512
+                and (
+                    (common_moe_testcase.tp == 16 and num_tokens >= 768)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 2 and num_tokens >= 320)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 4 and num_tokens >= 160)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 8 and num_tokens >= 80)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 16 and num_tokens >= 48)
+                    or (common_moe_testcase.tp == 32 and num_tokens >= 768)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 2 and num_tokens >= 320)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 4 and num_tokens >= 160)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 8 and num_tokens >= 80)
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # Qwen3.5-397B-A17B on SM120. For these token counts that config
+                # requires 144 KiB shared memory, above the 99 KiB limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 6144
+                and common_moe_testcase.inter_size == 2048
+                and common_moe_testcase.topk == 8
+                and common_moe_testcase.num_experts == 256
+                and common_moe_testcase.tp == 32
+                and (
+                    num_tokens >= 320
+                    or (common_moe_testcase.ep == 2 and num_tokens >= 160)
+                    or (common_moe_testcase.ep == 4 and num_tokens >= 80)
+                    or (common_moe_testcase.ep == 8 and num_tokens >= 48)
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # GLM-5 on SM120 at this TP slice. For these token counts that
+                # config requires 144 KiB shared memory, above the 99 KiB limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 7168
+                and common_moe_testcase.inter_size == 2048
+                and common_moe_testcase.topk == 8
+                and common_moe_testcase.num_experts == 256
+                and common_moe_testcase.tp == 32
+                and (
+                    num_tokens >= 320
+                    or (common_moe_testcase.ep == 2 and num_tokens >= 160)
+                    or (common_moe_testcase.ep == 4 and num_tokens >= 80)
+                    or (common_moe_testcase.ep == 8 and num_tokens >= 48)
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # DeepSeek-V3 on SM120 at this TP slice. For these token counts
+                # that config requires 144 KiB shared memory, above the 99 KiB
+                # limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 4096
+                and common_moe_testcase.inter_size == 2048
+                and common_moe_testcase.topk == 6
+                and common_moe_testcase.num_experts == 256
+                and common_moe_testcase.tp == 32
+                and (
+                    num_tokens >= 320
+                    or (common_moe_testcase.ep == 2 and num_tokens >= 160)
+                    or (common_moe_testcase.ep == 4 and num_tokens >= 80)
+                    or (common_moe_testcase.ep == 8 and num_tokens >= 48)
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # DeepSeek-V4-Flash on SM120 at this TP slice. For these token
+                # counts that config requires 144 KiB shared memory, above the
+                # 99 KiB limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 7168
+                and common_moe_testcase.inter_size == 3072
+                and common_moe_testcase.topk == 6
+                and common_moe_testcase.num_experts == 384
+                and (
+                    (common_moe_testcase.tp == 16 and num_tokens >= 512)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 2 and num_tokens >= 256)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 4 and num_tokens >= 128)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep == 8 and num_tokens >= 64)
+                    or (common_moe_testcase.tp == 16 and common_moe_testcase.ep >= 16 and num_tokens >= 48)
+                    or (common_moe_testcase.tp == 32 and num_tokens >= 512)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 2 and num_tokens >= 256)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 4 and num_tokens >= 128)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 8 and num_tokens >= 64)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep >= 16 and num_tokens >= 48)
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # DeepSeek-V4-Pro on SM120 for these TP/EP slices. For these
+                # token counts that config requires 144 KiB shared memory,
+                # above the 99 KiB limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 7168
+                and common_moe_testcase.inter_size == 2048
+                and common_moe_testcase.topk == 8
+                and common_moe_testcase.num_experts == 384
+                and common_moe_testcase.tp == 32
+                and (
+                    num_tokens >= 512
+                    or (common_moe_testcase.ep == 2 and num_tokens >= 256)
+                    or (common_moe_testcase.ep == 4 and num_tokens >= 128)
+                    or (common_moe_testcase.ep == 8 and num_tokens >= 64)
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # Kimi-K2 on SM120 at this TP slice. For these token counts that
+                # config requires 144 KiB shared memory, above the 99 KiB limit.
+                continue
+            if (
+                moe_type == "fp8_block"
+                and sm_version >= 120
+                and common_moe_testcase.hidden_size == 3072
+                and common_moe_testcase.inter_size == 1536
+                and common_moe_testcase.topk == 8
+                and common_moe_testcase.num_experts == 256
+                and (
+                    common_moe_testcase.tp == 16
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 2 and num_tokens >= 160)
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 4 and num_tokens >= 80)
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 8 and num_tokens >= 48)
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 16 and num_tokens >= 32)
+                    or (common_moe_testcase.tp == 8 and common_moe_testcase.ep == 32 and num_tokens >= 16)
+                    or (common_moe_testcase.tp == 8 and num_tokens >= 320)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 2 and num_tokens >= 160)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 4 and num_tokens >= 80)
+                    or (common_moe_testcase.tp == 32 and common_moe_testcase.ep == 8 and num_tokens >= 48)
+                    or (common_moe_testcase.tp == 32 and num_tokens >= 320)
+                )
+            ):
+                # SGLang 0.5.10 uses the default Triton fp8 block MoE config for
+                # MiniMax-M2.5 on SM120. For these token counts that config
+                # requires 144 KiB shared memory, above the 99 KiB limit.
+                continue
+
+            if moe_type == "nvfp4":
+                shard_k = common_moe_testcase.inter_size // common_moe_testcase.tp
+                # fp4_quantize requires weight dims divisible by 16 after TP sharding.
+                # CuteDSL grouped GEMM additionally requires 16-byte contiguous alignment:
+                # for fp4 (4-bit), that's 32 elements (16 * 8 // 4 = 32).
+                # See: flashinfer/cute_dsl/blockscaled_gemm.py
+                #   Sm100BlockScaledPersistentDenseGemmKernel.is_valid_tensor_alignment()
+                if shard_k % 32 != 0:
+                    continue
+
+            # int4_wo (W4A16): packed K dims must be divisible by group_size (128).
+            # w1 packed K = hidden_size // 2  → need hidden_size % 256 == 0
+            # w2 packed K = shard_inter // 4 = inter_size // (2*tp) → need (inter_size // tp) % 256 == 0
+            if moe_type == "int4_wo" and (
+                common_moe_testcase.hidden_size % 256 != 0
+                or (common_moe_testcase.inter_size // common_moe_testcase.tp) % 256 != 0
+            ):
+                continue
+            if moe_type == "int4_wo" and common_moe_testcase.topk > (
+                common_moe_testcase.num_experts // common_moe_testcase.ep
+            ):
+                # The SGLang int4 MoE path benchmarks the rank-0 local expert
+                # slice. Cases where global top-k exceeds local experts fail
+                # routing before kernel timing and are not valid single-rank
+                # collector inputs.
+                continue
+
+            swiglu_limit = None
+            # DeepSeek-V4 uses swiglu_limit=10
+            if "DeepSeek-V4" in common_moe_testcase.model_name:
+                swiglu_limit = 10
+
+            test_cases.append(
+                [
+                    moe_type,
+                    num_tokens,
+                    common_moe_testcase.hidden_size,
+                    common_moe_testcase.inter_size,
+                    common_moe_testcase.topk,
+                    common_moe_testcase.num_experts,
+                    common_moe_testcase.tp,
+                    common_moe_testcase.ep,
+                    common_moe_testcase.model_name,
+                    common_moe_testcase.token_expert_distribution,
+                    common_moe_testcase.power_law_alpha,
+                    swiglu_limit,
+                ]
+            )
+
+    return test_cases
+
+
+class BenchmarkConfig(TypedDict):
+    BLOCK_SIZE_M: int
+    BLOCK_SIZE_N: int
+    BLOCK_SIZE_K: int
+    GROUP_SIZE_M: int
+    num_warps: int
+    num_stages: int
+
+
+def benchmark_config(
+    config: BenchmarkConfig,
+    num_tokens: int,
+    num_experts: int,
+    shard_intermediate_size: int,
+    hidden_size: int,
+    topk: int,
+    dtype: torch.dtype,
+    use_fp8_w8a8: bool,
+    use_int8_w8a8: bool,
+    use_int8_w8a16: bool,
+    use_nvfp4: bool = False,
+    use_int4_w4a16: bool = False,
+    block_shape: list[int] | None = None,
+    num_iters: int = 10,
+    distributed: str = "power_law",
+    power_law_alpha: float = 0,
+    workloads: list["Rank0Workload"] | None = None,
+    swiglu_limit: float | None = None,
+) -> float:
+    device = torch.device("cuda")
+    if workloads is not None:
+        num_iters = len(workloads)
+        num_tokens = max(workload["hidden_states"].shape[0] for workload in workloads)
+
+    # 1. Gating Output Generation (not needed for Marlin int4 path which builds its own)
+    if not (use_int4_w4a16 and _HAS_MARLIN_MOE):
+        if workloads is not None:
+            gating_output = None
+        elif distributed == "uniform":
+            gating_output = torch.randn(num_iters, num_tokens, num_experts, dtype=torch.float32, device=device)
+        elif distributed == "balanced":
+            gating_output = [balanced_logits(num_tokens, num_experts, topk).to(device) for _ in range(num_iters)]
+        elif distributed == "power_law":
+            gating_output = [
+                power_law_logits_v3(num_tokens, num_experts, topk, 1, power_law_alpha).to(device)
+                for _ in range(num_iters)
+            ]
+        else:
+            raise ValueError(f"Unsupported distributed mode: {distributed}")
+
+    # 2. Setup based on Path
+    if use_int4_w4a16 and _HAS_MARLIN_MOE:
+        # Marlin int4 MoE path: repack GPTQ weights into Marlin tile layout
+        # and call fused_marlin_moe which uses optimized CUDA kernels.
+        num_bits = 4
+        pack_factor = 8  # 32-bit int packs 8 x int4
+        group_size = block_shape[1] if block_shape else 128
+
+        # GPTQ-packed weights: (E, K // pack_factor, N) as int32
+        w1_packed = torch.randint(
+            -(2**31),
+            2**31 - 1,
+            (num_experts, hidden_size // pack_factor, shard_intermediate_size),
+            dtype=torch.int32,
+            device=device,
+        )
+        w2_packed = torch.randint(
+            -(2**31),
+            2**31 - 1,
+            (num_experts, (shard_intermediate_size // 2) // pack_factor, hidden_size),
+            dtype=torch.int32,
+            device=device,
+        )
+        empty_perm = torch.empty((num_experts, 0), dtype=torch.int32, device=device)
+
+        # Repack to Marlin layout: (E, K // 16, N * (num_bits // 2))
+        w1_marlin = gptq_marlin_moe_repack(
+            w1_packed,
+            empty_perm,
+            hidden_size,
+            shard_intermediate_size,
+            num_bits,
+        )
+        w2_marlin = gptq_marlin_moe_repack(
+            w2_packed,
+            empty_perm,
+            shard_intermediate_size // 2,
+            hidden_size,
+            num_bits,
+        )
+        del w1_packed, w2_packed
+
+        # Per-group scales: (E, K // group_size, N) — then permute for Marlin
+        w1_scale = torch.randn(
+            (num_experts, hidden_size // group_size, shard_intermediate_size),
+            dtype=dtype,
+            device=device,
+        )
+        w2_scale = torch.randn(
+            (num_experts, (shard_intermediate_size // 2) // group_size, hidden_size),
+            dtype=dtype,
+            device=device,
+        )
+        w1_scale = marlin_moe_permute_scales(w1_scale, hidden_size, shard_intermediate_size, group_size)
+        w2_scale = marlin_moe_permute_scales(w2_scale, shard_intermediate_size // 2, hidden_size, group_size)
+
+        x = None if workloads is not None else torch.randn(num_tokens, hidden_size, dtype=dtype, device=device)
+
+        if workloads is None:
+            if distributed == "power_law":
+                gating_list = [
+                    power_law_logits_v3(num_tokens, num_experts, topk, 1, power_law_alpha).to(device)
+                    for _ in range(num_iters)
+                ]
+            elif distributed == "balanced":
+                gating_list = [balanced_logits(num_tokens, num_experts, topk).to(device) for _ in range(num_iters)]
+            else:
+                gating_list = [
+                    torch.randn(num_tokens, num_experts, dtype=torch.float32, device=device) for _ in range(num_iters)
+                ]
+
+        def run_op(i):
+            if workloads is not None:
+                current_hidden_states = workloads[i % num_iters]["hidden_states"]
+                current_topk = workloads[i % num_iters]["topk_output"]
+                # fused_marlin_moe asserts gating_output.shape[0] == hidden_states.shape[0],
+                # but only uses topk_weights/topk_ids for routing. Provide a dummy.
+                dummy_gating = torch.zeros(
+                    current_hidden_states.shape[0],
+                    num_experts,
+                    device=current_hidden_states.device,
+                    dtype=torch.float32,
+                )
+                # build_rank0_local_workload sets remote expert IDs to -1
+                # and their weights to 0.  The Marlin CUDA kernel
+                # (moe_wna16_marlin_gemm) indexes weight tensors by expert
+                # ID without masking, so -1 causes illegal memory access.
+                # Clamp to 0; the zero weight ensures no contribution.
+                safe_topk_ids = current_topk.topk_ids.clamp(min=0)
+                fused_marlin_moe(
+                    current_hidden_states,
+                    w1_marlin,
+                    w2_marlin,
+                    w1_scale,
+                    w2_scale,
+                    dummy_gating,
+                    current_topk.topk_weights,
+                    safe_topk_ids,
+                    num_bits=num_bits,
+                    is_k_full=True,
+                )
+            else:
+                gating = gating_list[i % num_iters]
+                new_topk = select_experts(x, gating, TopKConfig(top_k=topk))
+                fused_marlin_moe(
+                    x,
+                    w1_marlin,
+                    w2_marlin,
+                    w1_scale,
+                    w2_scale,
+                    gating,
+                    new_topk.topk_weights,
+                    new_topk.topk_ids,
+                    num_bits=num_bits,
+                    is_k_full=True,
+                )
+
+    elif use_nvfp4:
+        if not HAS_FLASHINFER_CUTE:
+            raise ImportError("FlashInfer CuteDSL not available")
+        if not _HAS_SCALED_FP4_QUANT:
+            raise ImportError(
+                "scaled_fp4_quant not available (sglang.jit_kernel.nvfp4); "
+                "NVFP4 MoE benchmarking requires this for correct weight layout"
+            )
+
+        # Global scales and Alpha
+        input_gs = torch.ones(num_experts, device=device, dtype=torch.float32)
+        w1_gs = torch.ones(num_experts, device=device, dtype=torch.float32)
+        a2_gs = torch.ones(num_experts, device=device, dtype=torch.float32)
+        w2_gs = torch.ones(num_experts, device=device, dtype=torch.float32)
+        w1_alpha = torch.ones(num_experts, device=device, dtype=torch.float32)
+        w2_alpha = torch.ones(num_experts, device=device, dtype=torch.float32)
+
+        # Weight quantization
+        w1_bf16 = torch.randn(num_experts, shard_intermediate_size, hidden_size, device=device, dtype=dtype)
+        w2_bf16 = torch.randn(num_experts, hidden_size, shard_intermediate_size // 2, device=device, dtype=dtype)
+
+        # Quantize weights per-expert using scaled_fp4_quant which produces
+        # swizzled blockscales and maintains (num_experts, N, K//2) layout.
+        w1_list_q, w1_list_bs = [], []
+        for e in range(num_experts):
+            q, bs = _scaled_fp4_quant(w1_bf16[e], w1_gs[e])
+            w1_list_q.append(q)
+            w1_list_bs.append(bs)
+        w1 = torch.stack(w1_list_q)
+        w1_bs = torch.stack(w1_list_bs)
+
+        w2_list_q, w2_list_bs = [], []
+        for e in range(num_experts):
+            q, bs = _scaled_fp4_quant(w2_bf16[e], w2_gs[e])
+            w2_list_q.append(q)
+            w2_list_bs.append(bs)
+        w2 = torch.stack(w2_list_q)
+        w2_bs = torch.stack(w2_list_bs)
+
+        def get_masked_m(logits):
+            _, topk_idx = torch.topk(torch.softmax(logits, dim=1), topk, dim=-1)
+            counts = [(topk_idx.view(-1) == i).sum() for i in range(num_experts)]
+            return torch.tensor(counts, dtype=torch.int32, device=device)
+
+        masked_m_list = (
+            [workload["masked_m"] for workload in workloads]
+            if workloads is not None
+            else [get_masked_m(logits) for logits in gating_output]
+        )
+
+        # Calculate the maximum tokens any single expert will handle across all iterations
+        max_m = 0
+        for counts in masked_m_list:
+            max_m = max(max_m, counts.max().item())
+        # Align to 128 for kernel efficiency and safety
+        max_m = (max_m + 127) // 128 * 128
+
+        x_dispatched = torch.randn(num_experts, max_m, hidden_size, device=device, dtype=dtype)
+
+        def run_op(i):
+            flashinfer_cutedsl_moe_masked(
+                hidden_states=(x_dispatched, None),
+                input_global_scale=input_gs,
+                w1=w1,
+                w1_blockscale=w1_bs,
+                w1_alpha=w1_alpha,
+                w2=w2,
+                a2_global_scale=a2_gs,
+                w2_blockscale=w2_bs,
+                w2_alpha=w2_alpha,
+                masked_m=masked_m_list[i % num_iters],
+            )
+    else:
+        init_dtype = torch.bfloat16 if use_fp8_w8a8 else dtype
+        x = None if workloads is not None else torch.randn(num_tokens, hidden_size, dtype=dtype, device=device)
+        if use_int8_w8a16 or use_int8_w8a8:
+            w1 = torch.randint(
+                -127, 127, (num_experts, shard_intermediate_size, hidden_size), dtype=torch.int8, device=device
+            )
+            w2 = torch.randint(
+                -127, 127, (num_experts, hidden_size, shard_intermediate_size // 2), dtype=torch.int8, device=device
+            )
+        elif use_int4_w4a16:
+            # W4A16: 2 int4 values packed per int8 byte — K dimension halved.
+            # w1 shape: (E, N=shard_inter, K_packed=hidden//2)
+            # w2 shape: (E, N=hidden, K_packed=shard_inter//4)
+            w1 = torch.randint(
+                0, 127, (num_experts, shard_intermediate_size, hidden_size // 2), dtype=torch.int8, device=device
+            )
+            w2 = torch.randint(
+                0, 127, (num_experts, hidden_size, shard_intermediate_size // 4), dtype=torch.int8, device=device
+            )
+        else:
+            w1 = torch.randn(num_experts, shard_intermediate_size, hidden_size, dtype=init_dtype, device=device)
+            w2 = torch.randn(num_experts, hidden_size, shard_intermediate_size // 2, dtype=init_dtype, device=device)
+
+        w1_scale = w2_scale = a1_scale = a2_scale = None
+        if use_int8_w8a16:
+            w1_scale = torch.randn((num_experts, 2 * shard_intermediate_size), dtype=torch.float32, device=device)
+            w2_scale = torch.randn((hidden_size, num_experts), dtype=torch.float32, device=device)
+        elif use_int4_w4a16:
+            # Per-group scales along K. The GPTQ kernel receives K = A.shape[1]
+            # (unpacked hidden size), so scale groups are hidden_size // group_size,
+            # NOT (hidden_size // 2) // group_size (the packed size).
+            # w2's K is shard_intermediate_size // 2 (post silu_and_mul, unpacked).
+            group_size = block_shape[1] if block_shape else 128
+            w1_scale = torch.randn(
+                (num_experts, shard_intermediate_size, hidden_size // group_size),
+                dtype=torch.float32,
+                device=device,
+            )
+            w2_scale = torch.randn(
+                (num_experts, hidden_size, (shard_intermediate_size // 2) // group_size),
+                dtype=torch.float32,
+                device=device,
+            )
+        elif use_fp8_w8a8 or use_int8_w8a8:
+            if use_int8_w8a8 and block_shape is None:
+                w1_scale = torch.randn(num_experts, shard_intermediate_size, dtype=torch.float32, device=device)
+                w2_scale = torch.randn(num_experts, hidden_size, dtype=torch.float32, device=device)
+            elif block_shape is None:
+                w1_scale = torch.randn(num_experts, dtype=torch.float32, device=device)
+                w2_scale = torch.randn(num_experts, dtype=torch.float32, device=device)
+                a1_scale = torch.randn(1, dtype=torch.float32, device=device)
+                a2_scale = torch.randn(1, dtype=torch.float32, device=device)
+            else:
+                bn, bk = block_shape
+                w1_scale = torch.rand(
+                    (num_experts, (shard_intermediate_size + bn - 1) // bn, (hidden_size + bk - 1) // bk),
+                    dtype=torch.float32,
+                    device=device,
+                )
+                w2_scale = torch.rand(
+                    (num_experts, (hidden_size + bn - 1) // bn, (shard_intermediate_size // 2 + bk - 1) // bk),
+                    dtype=torch.float32,
+                    device=device,
+                )
+
+        if use_fp8_w8a8:
+            f8_type = torch.float8_e4m3fnuz if _is_hip else torch.float8_e4m3fn
+            w1, w2 = w1.to(f8_type), w2.to(f8_type)
+
+        topk_output = (
+            None
+            if workloads is not None
+            else select_experts(x, torch.randn(num_tokens, num_experts, device=device), TopKConfig(top_k=topk))
+        )
+
+        def run_op(i):
+            from sglang.srt.layers.moe.fused_moe_triton import override_config
+
+            if workloads is None:
+                input_gating = gating_output[i % num_iters]
+                new_topk = select_experts(x, input_gating, TopKConfig(top_k=topk))
+                topk_output.topk_weights.copy_(new_topk.topk_weights)
+                topk_output.topk_ids.copy_(new_topk.topk_ids)
+                topk_output.router_logits.copy_(new_topk.router_logits)
+                current_hidden_states = x
+                current_topk_output = topk_output
+            else:
+                current_hidden_states = workloads[i % num_iters]["hidden_states"]
+                current_topk_output = workloads[i % num_iters]["topk_output"]
+                # build_rank0_local_workload sets remote expert IDs to -1
+                # and their weights to 0.  The Triton fused_moe kernel
+                # indexes weight tensors by expert ID without masking,
+                # so -1 causes illegal memory access.
+                # Clamp to 0; the zero weight ensures no contribution.
+                current_topk_output = StandardTopKOutput(
+                    topk_weights=current_topk_output.topk_weights,
+                    topk_ids=current_topk_output.topk_ids.clamp(min=0),
+                    router_logits=current_topk_output.router_logits,
+                )
+
+            with override_config(config):
+                moe_runner_config = _make_moe_runner_config(swiglu_limit=swiglu_limit)
+                fused_moe(
+                    current_hidden_states,
+                    w1,
+                    w2,
+                    current_topk_output,
+                    moe_runner_config=moe_runner_config,
+                    use_fp8_w8a8=use_fp8_w8a8,
+                    use_int8_w8a8=use_int8_w8a8,
+                    use_int8_w8a16=use_int8_w8a16,
+                    use_int4_w4a16=use_int4_w4a16,
+                    w1_scale=w1_scale,
+                    w2_scale=w2_scale,
+                    a1_scale=a1_scale,
+                    a2_scale=a2_scale,
+                    block_shape=block_shape,
+                )
+
+    # 3. Unified Execution Loop
+    outside_loop_count = 5  # Repeat ops within kernel_func to increase accuracy for fast kernels
+
+    def kernel_func():
+        for i in range(outside_loop_count):
+            run_op(i)
+
+    with benchmark_with_power(
+        device=device,
+        kernel_func=kernel_func,
+        num_warmups=5,
+        num_runs=num_iters,
+        repeat_n=1,
+        # sglang >=0.5.10 adds @torch.compile paths inside fused_experts_impl
+        # (moe_sum_reduce_torch_compile) that can hang during CUDA graph capture.
+        # allow_graph_fail gracefully falls back to eager execution.
+        allow_graph_fail=True,
+    ) as results:
+        pass
+
+    return results["latency_ms"] / outside_loop_count, results["power_stats"]
+
+
+def benchmark(
+    num_tokens: int,
+    num_experts: int,
+    shard_intermediate_size: int,
+    hidden_size: int,
+    topk: int,
+    dtype: torch.dtype,
+    use_fp8_w8a8: bool,
+    use_int8_w8a8: bool,
+    use_int8_w8a16: bool,
+    use_nvfp4: bool = False,
+    use_int4_w4a16: bool = False,
+    block_shape: list[int] | None = None,
+    distributed: str = "power_law",
+    power_law_alpha: float = 0,
+    workloads: list["Rank0Workload"] | None = None,
+    swiglu_limit: float | None = None,
+) -> tuple[dict[str, int], float]:
+    torch.cuda.manual_seed_all(0)
+    benchmark_num_tokens = (
+        max(workload["hidden_states"].shape[0] for workload in workloads) if workloads is not None else num_tokens
+    )
+
+    if use_nvfp4 or (use_int4_w4a16 and _HAS_MARLIN_MOE):
+        # nvfp4 uses flashinfer cutedsl backend; int4_w4a16 uses Marlin CUDA
+        # kernels — neither needs Triton tuning configs.
+        kernel_time, power_stats = benchmark_config(
+            None,
+            benchmark_num_tokens,
+            num_experts,
+            shard_intermediate_size,
+            hidden_size,
+            topk,
+            dtype,
+            use_fp8_w8a8,
+            use_int8_w8a8,
+            use_int8_w8a16,
+            use_nvfp4,
+            use_int4_w4a16,
+            block_shape,
+            distributed=distributed,
+            power_law_alpha=power_law_alpha,
+            workloads=workloads,
+            swiglu_limit=swiglu_limit,
+        )
+        return kernel_time, power_stats
+
+    dtype_str = get_config_dtype_str(
+        dtype,
+        use_int8_w8a16=use_int8_w8a16,
+        use_int4_w4a16=use_int4_w4a16,
+        use_fp8_w8a8=use_fp8_w8a8,
+    )
+    # NOTE(woosuk): The current naming convention uses w2.shape[2], which
+    # is the intermediate size after silu_and_mul.
+    block_n = block_shape[0] if block_shape else 0
+    block_k = block_shape[1] if block_shape else 0
+    op_config = get_moe_configs(num_experts, shard_intermediate_size // 2, dtype_str, block_n, block_k)
+    if op_config is None:
+        config = get_default_config(
+            benchmark_num_tokens,
+            num_experts,
+            shard_intermediate_size,
+            hidden_size,
+            topk,
+            dtype_str,
+            False,
+            block_shape,
+        )
+    else:
+        config = op_config[min(op_config.keys(), key=lambda x: abs(x - benchmark_num_tokens))]
+    kernel_time, power_stats = benchmark_config(
+        config,
+        benchmark_num_tokens,
+        num_experts,
+        shard_intermediate_size,
+        hidden_size,
+        topk,
+        dtype,
+        use_fp8_w8a8,
+        use_int8_w8a8,
+        use_int8_w8a16,
+        use_nvfp4,
+        use_int4_w4a16,
+        block_shape,
+        distributed=distributed,
+        power_law_alpha=power_law_alpha,
+        workloads=workloads,
+        swiglu_limit=swiglu_limit,
+    )
+    return kernel_time, power_stats
+
+
+class Rank0Workload(TypedDict):
+    hidden_states: torch.Tensor
+    topk_output: StandardTopKOutput
+    masked_m: torch.Tensor
+
+
+def build_rank0_workloads(
+    num_workloads: int,
+    num_tokens: int,
+    hidden_size: int,
+    topk: int,
+    num_experts: int,
+    moe_ep_size: int,
+    distributed: str,
+    power_law_alpha: float | None,
+    dtype: torch.dtype,
+    device: torch.device,
+) -> list[Rank0Workload]:
+    workloads: list[Rank0Workload] = []
+    experts_per_rank = num_experts // moe_ep_size
+
+    for _ in range(num_workloads):
+        if distributed == "power_law":
+            if power_law_alpha is None:
+                raise ValueError("power_law_alpha is required for power_law distribution")
+            _, rank0_info = power_law_logits_v3(
+                num_tokens,
+                num_experts,
+                topk,
+                moe_ep_size,
+                power_law_alpha,
+                return_rank0_info=True,
+            )
+        elif distributed == "balanced":
+            router_logits = balanced_logits(num_tokens, num_experts, topk).to(device=device, dtype=torch.float32)
+            rank0_selected_slots = torch.topk(router_logits, topk, dim=-1).indices.to(torch.int64)
+            rank0_token_mask = (rank0_selected_slots < experts_per_rank).any(dim=1)
+            rank0_info = {
+                "rank0_selected_slots": rank0_selected_slots[rank0_token_mask],
+                "rank0_logits": router_logits[rank0_token_mask],
+                "rank0_num_tokens": int(rank0_token_mask.sum().item()),
+                "slots_per_rank": experts_per_rank,
+            }
+        else:
+            raise ValueError(f"Unsupported distribution for rank0 workloads: {distributed}")
+
+        rank0_local = build_rank0_local_workload(rank0_info)
+        rank0_num_tokens = int(rank0_local["num_tokens"])
+        workloads.append(
+            {
+                "hidden_states": torch.randn(rank0_num_tokens, hidden_size, dtype=dtype, device=device),
+                "topk_output": StandardTopKOutput(
+                    topk_weights=rank0_local["topk_weights"].to(device=device, dtype=torch.float32),
+                    topk_ids=rank0_local["topk_ids"].to(device=device, dtype=torch.int32),
+                    router_logits=torch.empty((rank0_num_tokens, 0), dtype=torch.float32, device=device),
+                ),
+                "masked_m": rank0_local["masked_m"].to(device=device, dtype=torch.int32),
+            }
+        )
+
+    return workloads
+
+
+def run_moe_torch(
+    moe_type,
+    num_tokens,
+    hidden_size,
+    inter_size,
+    topk,
+    num_experts,
+    moe_tp_size,
+    moe_ep_size,
+    model_name,
+    distributed="power_law",
+    power_law_alpha=0,
+    swiglu_limit=None,
+    *,
+    perf_filename,
+    device="cuda:0",
+):
+    torch.cuda.set_device(device)
+    torch.set_default_device(device)
+
+    assert moe_type in [
+        "fp8_block",
+        "bfloat16",
+        "nvfp4",
+        "int4_wo",
+    ], "only support moe type = fp8_block, bfloat16, nvfp4, or int4_wo"
+    assert inter_size % moe_tp_size == 0, "inter_size % moe_tp_size must be 0"
+    assert num_experts % moe_ep_size == 0, "num_experts must be divisible by moe_ep_size"
+
+    num_local_experts = num_experts // moe_ep_size
+    use_int4_w4a16 = moe_type == "int4_wo"
+    # int4_wo uses block_shape=[0, group_size] for grouped scales (group_size=128)
+    if use_int4_w4a16:
+        block_shape = [0, 128]
+    elif moe_type == "fp8_block" and (inter_size // moe_tp_size) % 128 == 0 and hidden_size % 128 == 0:
+        block_shape = [128, 128]
+    else:
+        block_shape = None
+
+    rank0_workloads: list[Rank0Workload] | None = None
+    if moe_ep_size > 1 and distributed in ("power_law", "balanced"):
+        rank0_workloads = build_rank0_workloads(
+            num_workloads=5,
+            num_tokens=num_tokens,
+            hidden_size=hidden_size,
+            topk=topk,
+            num_experts=num_experts,
+            moe_ep_size=moe_ep_size,
+            distributed=distributed,
+            power_law_alpha=power_law_alpha if distributed == "power_law" else None,
+            dtype=torch.bfloat16,
+            device=torch.device(device),
+        )
+
+    if rank0_workloads is not None:
+        latency, power_stats = benchmark(
+            num_tokens,
+            num_local_experts,
+            2 * inter_size // moe_tp_size,
+            hidden_size,
+            topk,
+            torch.bfloat16,
+            moe_type == "fp8_block",
+            False,
+            False,
+            use_nvfp4=moe_type == "nvfp4",
+            use_int4_w4a16=use_int4_w4a16,
+            block_shape=block_shape,
+            distributed=distributed,
+            power_law_alpha=power_law_alpha,
+            workloads=rank0_workloads,
+            swiglu_limit=swiglu_limit,
+        )
+    else:
+        latency, power_stats = benchmark(
+            num_tokens,
+            num_local_experts,
+            2 * inter_size // moe_tp_size,
+            hidden_size,
+            topk,
+            torch.bfloat16,
+            moe_type == "fp8_block",
+            False,
+            False,
+            use_nvfp4=moe_type == "nvfp4",
+            use_int4_w4a16=use_int4_w4a16,
+            block_shape=block_shape,
+            distributed=distributed,
+            power_law_alpha=power_law_alpha,
+            swiglu_limit=swiglu_limit,
+        )
+
+    log_perf(
+        item_list=[
+            {
+                "moe_dtype": moe_type,
+                "num_tokens": num_tokens,
+                "hidden_size": hidden_size,
+                "inter_size": inter_size,
+                "topk": topk,
+                "num_experts": num_experts,
+                "moe_tp_size": moe_tp_size,
+                "moe_ep_size": moe_ep_size,
+                "distribution": "power_law_" + str(power_law_alpha) if distributed == "power_law" else distributed,
+                "latency": latency,
+            }
+        ],
+        framework="SGLang",
+        version=pkg_resources.get_distribution("sglang").version,
+        device_name=torch.cuda.get_device_name(device),
+        op_name="moe",
+        kernel_source=(
+            "sglang_flashinfer_cutedsl_moe"
+            if moe_type == "nvfp4"
+            else "sglang_marlin_moe"
+            if moe_type == "int4_wo" and _HAS_MARLIN_MOE
+            else "sglang_fused_moe_triton"
+        ),
+        perf_filename=perf_filename,
+        power_stats=power_stats,
+    )
+
+
+if __name__ == "__main__":
+    from collector.registry_types import PerfFile
+
+    test_cases = get_moe_test_cases()
+    for test_case in test_cases:
+        print(test_case)
+        run_moe_torch(*test_case, perf_filename=PerfFile.MOE)

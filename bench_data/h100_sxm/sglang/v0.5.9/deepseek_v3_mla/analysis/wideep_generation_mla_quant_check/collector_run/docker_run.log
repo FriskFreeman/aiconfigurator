@@ -1,0 +1,66 @@
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.9.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+<frozen importlib._bootstrap_external>:1297: FutureWarning: The cuda.cudart module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.runtime module instead.
+<frozen importlib._bootstrap_external>:1297: FutureWarning: The cuda.nvrtc module is deprecated and will be removed in a future release, please switch to use the cuda.bindings.nvrtc module instead.
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+WARNING:sglang.srt.models.registry:Ignore import error when loading sglang.srt.models.glm_ocr: No module named 'transformers.models.glm_ocr'
+WARNING:sglang.srt.models.registry:Ignore import error when loading sglang.srt.models.glm_ocr_nextn: No module named 'transformers.models.glm_ocr'
+WARNING:sglang.srt.models.registry:Ignore import error when loading sglang.srt.models.glmasr: cannot import name 'GlmAsrConfig' from 'transformers' (/usr/local/lib/python3.12/dist-packages/transformers/__init__.py)
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+
+============================================================
+MLA Module Generation: model=deepseek-ai/DeepSeek-V3, backend=fa3, head_num=128, kv=bfloat16, compute=bfloat16, gemm=bfloat16, GPU=0
+Test cases: 3
+============================================================
+Using attention backend: fa3, kv_cache_dtype: bfloat16, gpu_id: 0
+
+Decode: batch_size=1, kv_cache_length=512
+  Decode: 0.111 ms
+
+Decode: batch_size=4, kv_cache_length=2048
+  Decode: 0.122 ms
+
+Decode: batch_size=8, kv_cache_length=4096
+  Decode: 0.136 ms
+
+============================================================
+MLA Module Generation: model=deepseek-ai/DeepSeek-V3, backend=fa3, head_num=128, kv=fp8, compute=bfloat16, gemm=fp8_block, GPU=0
+Test cases: 3
+============================================================
+Using attention backend: fa3, kv_cache_dtype: fp8_e4m3, gpu_id: 0
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/workspace/bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/wideep_generation_mla_quant_check/run_quant_collect_experiment.py", line 116, in <module>
+[rank0]:     main()
+[rank0]:   File "/workspace/bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/wideep_generation_mla_quant_check/run_quant_collect_experiment.py", line 88, in main
+[rank0]:     cmm.run_mla_module(
+[rank0]:   File "/workspace/collector/sglang/collect_mla_module.py", line 1253, in run_mla_module
+[rank0]:     model_runner = load_model_runner(
+[rank0]:                    ^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/workspace/collector/sglang/collect_mla_module.py", line 642, in load_model_runner
+[rank0]:     model_runner = ModelRunner(
+[rank0]:                    ^^^^^^^^^^^^
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/model_runner.py", line 392, in __init__
+[rank0]:     min_per_gpu_memory = self.init_torch_distributed()
+[rank0]:                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/model_runner.py", line 812, in init_torch_distributed
+[rank0]:     initialize_model_parallel(
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/distributed/parallel_state.py", line 1712, in initialize_model_parallel
+[rank0]:     _ATTN_CP is None
+[rank0]: AssertionError: attention context model parallel group is already initialized
+[rank0]:[W630 09:50:50.688229659 ProcessGroupNCCL.cpp:1524] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())

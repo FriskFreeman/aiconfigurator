@@ -1,0 +1,145 @@
+{
+  "case": {
+    "model_path": "deepseek-ai/DeepSeek-V3",
+    "system": "h100_sxm",
+    "backend": "sglang",
+    "version": "0.5.9",
+    "database_mode": "SOL",
+    "num_layers": 6,
+    "batch_size": 1,
+    "isl": 512,
+    "osl": 16,
+    "prefix": 0,
+    "ctx_tokens": 512,
+    "attention_backend": "fa3",
+    "gemm_quant_mode": "fp8_block",
+    "moe_quant_mode": "fp8_block",
+    "kvcache_quant_mode": "fp8",
+    "fmha_quant_mode": "fp8_block",
+    "comm_quant_mode": "half",
+    "tp_size": 1,
+    "attention_dp_size": 16,
+    "moe_tp_size": 1,
+    "moe_ep_size": 16,
+    "name": "wideep_deepep_moe_tp1_grid_b1_s512_sol_fp8block",
+    "moe_backend": "deepep_moe",
+    "enable_wideep": false
+  },
+  "model_class": "WideEPDeepSeekModel",
+  "context_ops_before": [
+    {
+      "name": "context_qkv_a_proj_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_embedding",
+      "class": "Embedding",
+      "scale_factor": 1
+    },
+    {
+      "name": "context_add_norm_1",
+      "class": "ElementWise",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_downscale_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_attention",
+      "class": "WideEPContextMLA",
+      "scale_factor": 6,
+      "tp_size": 1,
+      "kvcache_quant_mode": "fp8",
+      "fmha_quant_mode": "fp8_block",
+      "attn_backend": "fa3"
+    },
+    {
+      "name": "context_gate_ffn1_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_act_gate",
+      "class": "ElementWise",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_ffn2_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_moe_pre_dispatch",
+      "class": "MoEDispatch",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_moe",
+      "class": "MoE",
+      "scale_factor": 6
+    }
+  ],
+  "generation_ops_before": [
+    {
+      "name": "generation_qkv_a_proj_gemm",
+      "class": "GEMM",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_embedding",
+      "class": "Embedding",
+      "scale_factor": 1.0
+    },
+    {
+      "name": "generation_add_norm_1",
+      "class": "ElementWise",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_downscale_gemm",
+      "class": "GEMM",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_attention",
+      "class": "WideEPGenerationMLA",
+      "scale_factor": 6.0,
+      "tp_size": 1,
+      "kvcache_quant_mode": "fp8",
+      "fmha_quant_mode": "fp8_block",
+      "attn_backend": "fa3"
+    },
+    {
+      "name": "generation_gate_ffn1_gemm",
+      "class": "GEMM",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_act_gate",
+      "class": "ElementWise",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_ffn2_gemm",
+      "class": "GEMM",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_moe_pre_dispatch",
+      "class": "MoEDispatch",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_moe",
+      "class": "MoE",
+      "scale_factor": 6.0
+    }
+  ],
+  "fallback_state_before": {},
+  "status": "error",
+  "error": "NotImplementedError: WideEP deepep normal operation's sol is not implemented yet",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/backends/sglang_backend.py\", line 54, in run_agg\n    summary = cache_by_ctx_tokens[ctx_tokens][engine_step_backend_key]\n              ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\nKeyError: 512\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/agg_aic_aligned_compare/probe_run_agg_static_paths.py\", line 130, in run_case\n    summary = backend.run_agg(model, database, runtime, ctx_tokens=case[\"ctx_tokens\"])\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/backends/sglang_backend.py\", line 277, in run_agg\n    mix_step_latency_ms, mix_step_energy_wms = _get_mix_step_latency(\n                                               ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/backends/sglang_backend.py\", line 126, in _get_mix_step_latency\n    summary = self.run_static(\n              ^^^^^^^^^^^^^^^^\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/backends/base_backend.py\", line 284, in run_static\n    ) = self._run_static_breakdown(model, database, runtime_config, mode, stride, latency_correction_scale)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/backends/base_backend.py\", line 186, in _run_static_breakdown\n    context_latency_dict, context_energy_wms_dict, context_source_dict = self._run_context_phase(\n                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/backends/base_backend.py\", line 62, in _run_context_phase\n    result = op.query(\n             ^^^^^^^^^\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/operations.py\", line 760, in query\n    comm_latency = database.query_wideep_deepep_normal(\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/perf_database.py\", line 6407, in query_wideep_deepep_normal\n    return PerformanceResult(get_sol(num_tokens, num_experts, topk, hidden_size)[0], energy=0.0)\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/perf_database.py\", line 6397, in get_sol\n    raise NotImplementedError(\"WideEP deepep normal operation's sol is not implemented yet\")\nNotImplementedError: WideEP deepep normal operation's sol is not implemented yet\n"
+}

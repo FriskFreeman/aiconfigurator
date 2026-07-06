@@ -1,0 +1,29 @@
+{
+  "output_dir": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/mla_aic_compare_kernel_envelope_refresh_kvfix",
+  "real_layer_rows": 104,
+  "case_count": 26,
+  "skipped_rows": 26,
+  "real_baseline": "module_gpu_makespan_ms",
+  "aic_series": [
+    "DeepSeekModel fallback stack",
+    "WideEP qkv_a + WideEPContextMLA"
+  ],
+  "kv_b_proj_policy": "context_kv_b_proj_gemm uses ContextKVBProjGEMM, querying GEMM m=fresh_tokens+prefix_tokens",
+  "concat_k_policy": "DeepSeek fallback stack includes MLAConcatK(context_mla_concat_k) between context_kv_b_proj_gemm and context_attention",
+  "files": [
+    "README.md",
+    "artifact_manifest.json",
+    "prefill_aic_deepseek_fallback_stack.csv",
+    "prefill_aic_deepseek_primary_validation.csv",
+    "prefill_aic_wideep_stack.csv",
+    "prefill_compare_summary.csv",
+    "prefill_kernel_envelope_aic_rule_compare.png",
+    "prefill_kernel_envelope_aic_rule_compare.svg",
+    "prefill_kernel_envelope_aic_stacked_compare.png",
+    "prefill_kernel_envelope_aic_stacked_compare.svg",
+    "prefill_real_kernel_envelope_boxplot.png",
+    "prefill_real_kernel_envelope_boxplot.svg",
+    "prefill_real_layer_detail.csv",
+    "prefill_skipped_rows.csv"
+  ]
+}

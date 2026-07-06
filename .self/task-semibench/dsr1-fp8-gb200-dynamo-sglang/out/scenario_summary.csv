@@ -1,0 +1,3 @@
+scenario_index,isl,osl,recipe_group_count,point_count
+1,1024,1024,4,10
+2,8192,1024,3,10

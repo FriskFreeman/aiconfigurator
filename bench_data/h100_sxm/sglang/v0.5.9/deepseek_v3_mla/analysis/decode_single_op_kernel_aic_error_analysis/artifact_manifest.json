@@ -1,0 +1,17 @@
+{
+  "source_dir": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/decode_mla_kernel_envelope_aic_compare",
+  "case_count": 9,
+  "op_row_count": 54,
+  "files": [
+    "README.md",
+    "artifact_manifest.json",
+    "build_decode_single_op_kernel_aic_error_analysis.py",
+    "decode_real_vs_aic_per_single_op.png",
+    "decode_real_vs_aic_per_single_op.svg",
+    "decode_single_op_case_error_summary.csv",
+    "decode_single_op_error_contribution.png",
+    "decode_single_op_error_contribution.svg",
+    "decode_single_op_kernel_vs_aic.csv",
+    "decode_single_op_query_trace.csv"
+  ]
+}

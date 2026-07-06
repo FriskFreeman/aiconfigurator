@@ -1,0 +1,10 @@
+{
+  "image": "lmsysorg/sglang:v0.5.8.post1-cu130",
+  "model": "deepseek-ai/DeepSeek-R1-0528",
+  "model_prefix": "dsr1",
+  "runner": "gb200",
+  "precision": "fp8",
+  "framework": "dynamo-sglang",
+  "multinode": true,
+  "disagg": true
+}

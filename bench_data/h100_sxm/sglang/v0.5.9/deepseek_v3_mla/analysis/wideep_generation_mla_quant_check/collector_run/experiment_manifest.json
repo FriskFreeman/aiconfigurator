@@ -1,0 +1,36 @@
+{
+  "sglang_version": "0.5.9 docker",
+  "cases": [
+    {
+      "batch_size": 1,
+      "seq_len": 512
+    },
+    {
+      "batch_size": 4,
+      "seq_len": 2048
+    },
+    {
+      "batch_size": 8,
+      "seq_len": 4096
+    }
+  ],
+  "backend": "fa3",
+  "num_heads": 128,
+  "model": "deepseek-ai/DeepSeek-V3",
+  "modes": [
+    {
+      "mode_name": "bf16_actual_legacy_logged_fp8",
+      "kv_cache_dtype_arg": "bfloat16",
+      "compute_dtype_arg": "bfloat16",
+      "gemm_type_arg": "bfloat16",
+      "output_file": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/wideep_generation_mla_quant_check/collector_run/bf16_actual_legacy_logged_fp8/wideep_generation_mla_perf.txt"
+    },
+    {
+      "mode_name": "fp8_actual",
+      "kv_cache_dtype_arg": "fp8",
+      "compute_dtype_arg": "bfloat16",
+      "gemm_type_arg": "fp8_block",
+      "output_file": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/wideep_generation_mla_quant_check/collector_run/fp8_actual/wideep_generation_mla_perf.txt"
+    }
+  ]
+}

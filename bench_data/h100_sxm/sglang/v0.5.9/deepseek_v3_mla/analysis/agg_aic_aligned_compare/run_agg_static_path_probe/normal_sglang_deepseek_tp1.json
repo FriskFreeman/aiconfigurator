@@ -1,0 +1,677 @@
+{
+  "case": {
+    "model_path": "deepseek-ai/DeepSeek-V3",
+    "system": "h100_sxm",
+    "backend": "sglang",
+    "version": "0.5.9",
+    "database_mode": "SILICON",
+    "num_layers": 6,
+    "batch_size": 8,
+    "isl": 512,
+    "osl": 16,
+    "prefix": 0,
+    "ctx_tokens": 2048,
+    "attention_backend": "fa3",
+    "gemm_quant_mode": "fp8_block",
+    "moe_quant_mode": "fp8_block",
+    "kvcache_quant_mode": "fp8",
+    "fmha_quant_mode": "bfloat16",
+    "comm_quant_mode": "half",
+    "tp_size": 1,
+    "attention_dp_size": 1,
+    "moe_tp_size": 1,
+    "moe_ep_size": 1,
+    "name": "normal_sglang_deepseek_tp1",
+    "moe_backend": null,
+    "enable_wideep": false
+  },
+  "model_class": "DeepSeekModel",
+  "context_ops_before": [
+    {
+      "name": "context_embedding",
+      "class": "Embedding",
+      "scale_factor": 1
+    },
+    {
+      "name": "context_add_norm_1",
+      "class": "ElementWise",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_mla_block",
+      "class": "FallbackOp",
+      "scale_factor": 1.0,
+      "primary": {
+        "name": "context_mla_module",
+        "class": "MLAModule"
+      },
+      "fallback": [
+        {
+          "name": "context_downscale_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "context_q_b_proj_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "context_kv_b_proj_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "context_mla_concat_k",
+          "class": "MLAConcatK"
+        },
+        {
+          "name": "context_attention",
+          "class": "ContextMLA"
+        },
+        {
+          "name": "context_proj_gemm",
+          "class": "GEMM"
+        }
+      ],
+      "primary_unavailable": false
+    },
+    {
+      "name": "context_add_norm_2",
+      "class": "ElementWise",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_shared_gate_up_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_shared_act_gate",
+      "class": "ElementWise",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_shared_ffn2_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_router_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_moe_pre_dispatch",
+      "class": "MoEDispatch",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_moe",
+      "class": "MoE",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_moe_post_dispatch",
+      "class": "MoEDispatch",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_logits_gemm",
+      "class": "GEMM",
+      "scale_factor": 1
+    },
+    {
+      "name": "context_p2p",
+      "class": "P2P",
+      "scale_factor": 0
+    }
+  ],
+  "generation_ops_before": [
+    {
+      "name": "generation_embedding",
+      "class": "Embedding",
+      "scale_factor": 1.0
+    },
+    {
+      "name": "generation_add_norm_1",
+      "class": "ElementWise",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_mla_block",
+      "class": "FallbackOp",
+      "scale_factor": 1.0,
+      "primary": {
+        "name": "generation_mla_module",
+        "class": "MLAModule"
+      },
+      "fallback": [
+        {
+          "name": "generation_downscale_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "generation_q_b_proj_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "generation_bmm_pre",
+          "class": "MLABmm"
+        },
+        {
+          "name": "generation_attention",
+          "class": "GenerationMLA"
+        },
+        {
+          "name": "generation_bmm_post",
+          "class": "MLABmm"
+        },
+        {
+          "name": "generation_proj_gemm",
+          "class": "GEMM"
+        }
+      ],
+      "primary_unavailable": false
+    },
+    {
+      "name": "generation_add_norm_2",
+      "class": "ElementWise",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_moe_overlap",
+      "class": "OverlapOp",
+      "scale_factor": 1.0
+    },
+    {
+      "name": "generation_logits_gemm",
+      "class": "GEMM",
+      "scale_factor": 1.0
+    },
+    {
+      "name": "generation_p2p",
+      "class": "P2P",
+      "scale_factor": 0.0
+    }
+  ],
+  "fallback_state_before": {
+    "context.context_mla_block": {
+      "primary": "MLAModule:context_mla_module",
+      "fallback": [
+        "GEMM:context_downscale_gemm",
+        "GEMM:context_q_b_proj_gemm",
+        "GEMM:context_kv_b_proj_gemm",
+        "MLAConcatK:context_mla_concat_k",
+        "ContextMLA:context_attention",
+        "GEMM:context_proj_gemm"
+      ],
+      "primary_unavailable": false
+    },
+    "generation.generation_mla_block": {
+      "primary": "MLAModule:generation_mla_module",
+      "fallback": [
+        "GEMM:generation_downscale_gemm",
+        "GEMM:generation_q_b_proj_gemm",
+        "MLABmm:generation_bmm_pre",
+        "GenerationMLA:generation_attention",
+        "MLABmm:generation_bmm_post",
+        "GEMM:generation_proj_gemm"
+      ],
+      "primary_unavailable": false
+    }
+  },
+  "status": "ok",
+  "run_agg_result": {
+    "model": "deepseek-ai/DeepSeek-V3",
+    "isl": 512,
+    "osl": 16,
+    "prefix": 0,
+    "concurrency": 8,
+    "request_rate": 44.724822635308776,
+    "bs": 8,
+    "global_bs": 8,
+    "ttft": 71.22661202017792,
+    "tpot": 9.489674615245052,
+    "seq/s": 44.724822635308776,
+    "seq/s/gpu": 44.724822635308776,
+    "tokens/s": 670.8723395296316,
+    "tokens/s/gpu": 670.8723395296316,
+    "tokens/s/user": 105.37769107420307,
+    "request_latency": 213.5717312488537,
+    "num_total_gpus": 1,
+    "tp": 1,
+    "pp": 1,
+    "dp": 1,
+    "moe_tp": 1,
+    "moe_ep": 1,
+    "parallel": "tp1pp1dp1etp1ep1",
+    "gemm": "fp8_block",
+    "kvcache": "fp8",
+    "fmha": "bfloat16",
+    "moe": "fp8_block",
+    "comm": "half",
+    "memory": 73.86828155517578,
+    "balance_score": 0.125,
+    "num_ctx_reqs": 4.0,
+    "num_gen_reqs": 4.0,
+    "num_tokens": 2052.0,
+    "ctx_tokens": 2048,
+    "gen_tokens": 4.0,
+    "backend": "sglang",
+    "version": "0.5.9",
+    "system": "h100_sxm",
+    "power_w": 0.0
+  },
+  "per_ops_data": {
+    "mix_step": {
+      "context_embedding": 0.013976668656716418,
+      "context_add_norm_1": 0.281440047761194,
+      "context_mla_block": 6.7002321339735715,
+      "context_add_norm_2": 0.281440047761194,
+      "context_shared_gate_up_gemm": 0.7665836960661645,
+      "context_shared_act_gate": 0.07445143880597015,
+      "context_shared_ffn2_gemm": 0.3537217995699714,
+      "context_router_gemm": 0.12976796486798456,
+      "context_moe_pre_dispatch": 0.0,
+      "context_moe": 27.28848916769028,
+      "context_moe_post_dispatch": 0.0,
+      "context_logits_gemm": 0.6363647375022955,
+      "context_p2p": 0.0,
+      "context_attention (scaled)": 0.0,
+      "generation_attention": 0.0
+    },
+    "genonly_step": {
+      "generation_embedding": 0.0030427940298507466,
+      "generation_add_norm_1": 0.019027056716417908,
+      "generation_mla_block": 0.681078587833909,
+      "generation_add_norm_2": 0.019027056716417908,
+      "generation_moe_overlap": 6.1946446955204015,
+      "generation_logits_gemm": 0.6416549181844626,
+      "generation_p2p": 0.0
+    },
+    "scheduling": {
+      "num_mix_steps": 2.0,
+      "num_genonly_steps": 14.0,
+      "mix_step_latency_ms": 36.526467702655346,
+      "genonly_step_latency_ms": 7.55847510900146
+    }
+  },
+  "per_ops_source": {
+    "mix_step": {
+      "context_embedding": "silicon",
+      "context_add_norm_1": "silicon",
+      "context_mla_block": "silicon",
+      "context_add_norm_2": "silicon",
+      "context_shared_gate_up_gemm": "silicon",
+      "context_shared_act_gate": "silicon",
+      "context_shared_ffn2_gemm": "silicon",
+      "context_router_gemm": "silicon",
+      "context_moe_pre_dispatch": "silicon",
+      "context_moe": "silicon",
+      "context_moe_post_dispatch": "silicon",
+      "context_logits_gemm": "silicon",
+      "context_p2p": "silicon",
+      "context_attention (scaled)": "silicon",
+      "generation_attention": "silicon"
+    },
+    "genonly_step": {
+      "generation_embedding": "silicon",
+      "generation_add_norm_1": "silicon",
+      "generation_mla_block": "silicon",
+      "generation_add_norm_2": "silicon",
+      "generation_moe_overlap": "silicon",
+      "generation_logits_gemm": "silicon",
+      "generation_p2p": "silicon"
+    }
+  },
+  "fallback_state_after_run_agg": {
+    "context.context_mla_block": {
+      "primary": "MLAModule:context_mla_module",
+      "fallback": [
+        "GEMM:context_downscale_gemm",
+        "GEMM:context_q_b_proj_gemm",
+        "GEMM:context_kv_b_proj_gemm",
+        "MLAConcatK:context_mla_concat_k",
+        "ContextMLA:context_attention",
+        "GEMM:context_proj_gemm"
+      ],
+      "primary_unavailable": true
+    },
+    "generation.generation_mla_block": {
+      "primary": "MLAModule:generation_mla_module",
+      "fallback": [
+        "GEMM:generation_downscale_gemm",
+        "GEMM:generation_q_b_proj_gemm",
+        "MLABmm:generation_bmm_pre",
+        "GenerationMLA:generation_attention",
+        "MLABmm:generation_bmm_post",
+        "GEMM:generation_proj_gemm"
+      ],
+      "primary_unavailable": true
+    }
+  },
+  "context_ops_after": [
+    {
+      "name": "context_embedding",
+      "class": "Embedding",
+      "scale_factor": 1
+    },
+    {
+      "name": "context_add_norm_1",
+      "class": "ElementWise",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_mla_block",
+      "class": "FallbackOp",
+      "scale_factor": 1.0,
+      "primary": {
+        "name": "context_mla_module",
+        "class": "MLAModule"
+      },
+      "fallback": [
+        {
+          "name": "context_downscale_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "context_q_b_proj_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "context_kv_b_proj_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "context_mla_concat_k",
+          "class": "MLAConcatK"
+        },
+        {
+          "name": "context_attention",
+          "class": "ContextMLA"
+        },
+        {
+          "name": "context_proj_gemm",
+          "class": "GEMM"
+        }
+      ],
+      "primary_unavailable": true
+    },
+    {
+      "name": "context_add_norm_2",
+      "class": "ElementWise",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_shared_gate_up_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_shared_act_gate",
+      "class": "ElementWise",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_shared_ffn2_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_router_gemm",
+      "class": "GEMM",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_moe_pre_dispatch",
+      "class": "MoEDispatch",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_moe",
+      "class": "MoE",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_moe_post_dispatch",
+      "class": "MoEDispatch",
+      "scale_factor": 6
+    },
+    {
+      "name": "context_logits_gemm",
+      "class": "GEMM",
+      "scale_factor": 1
+    },
+    {
+      "name": "context_p2p",
+      "class": "P2P",
+      "scale_factor": 0
+    }
+  ],
+  "generation_ops_after": [
+    {
+      "name": "generation_embedding",
+      "class": "Embedding",
+      "scale_factor": 1.0
+    },
+    {
+      "name": "generation_add_norm_1",
+      "class": "ElementWise",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_mla_block",
+      "class": "FallbackOp",
+      "scale_factor": 1.0,
+      "primary": {
+        "name": "generation_mla_module",
+        "class": "MLAModule"
+      },
+      "fallback": [
+        {
+          "name": "generation_downscale_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "generation_q_b_proj_gemm",
+          "class": "GEMM"
+        },
+        {
+          "name": "generation_bmm_pre",
+          "class": "MLABmm"
+        },
+        {
+          "name": "generation_attention",
+          "class": "GenerationMLA"
+        },
+        {
+          "name": "generation_bmm_post",
+          "class": "MLABmm"
+        },
+        {
+          "name": "generation_proj_gemm",
+          "class": "GEMM"
+        }
+      ],
+      "primary_unavailable": true
+    },
+    {
+      "name": "generation_add_norm_2",
+      "class": "ElementWise",
+      "scale_factor": 6.0
+    },
+    {
+      "name": "generation_moe_overlap",
+      "class": "OverlapOp",
+      "scale_factor": 1.0
+    },
+    {
+      "name": "generation_logits_gemm",
+      "class": "GEMM",
+      "scale_factor": 1.0
+    },
+    {
+      "name": "generation_p2p",
+      "class": "P2P",
+      "scale_factor": 0.0
+    }
+  ],
+  "derived_run_agg_shape": {
+    "steps_to_finish_ctx": 2,
+    "mix_ctx_tokens": 2048,
+    "mix_gen_tokens": 4,
+    "genonly_tokens": 8
+  },
+  "reproduced_run_static_summaries": {
+    "mix_non_attention_static_ctx": {
+      "runtime": {
+        "batch_size": 1,
+        "isl": 2052,
+        "osl": 1,
+        "prefix": 0
+      },
+      "context_latency_dict": {
+        "context_embedding": 0.013976668656716418,
+        "context_add_norm_1": 0.281440047761194,
+        "context_mla_block": 6.7002321339735715,
+        "context_add_norm_2": 0.281440047761194,
+        "context_shared_gate_up_gemm": 0.7665836960661645,
+        "context_shared_act_gate": 0.07445143880597015,
+        "context_shared_ffn2_gemm": 0.3537217995699714,
+        "context_router_gemm": 0.12976796486798456,
+        "context_moe_pre_dispatch": 0.0,
+        "context_moe": 27.28848916769028,
+        "context_moe_post_dispatch": 0.0,
+        "context_logits_gemm": 0.6363647375022955,
+        "context_p2p": 0.0
+      },
+      "context_source_dict": {
+        "context_embedding": "silicon",
+        "context_add_norm_1": "silicon",
+        "context_mla_block": "silicon",
+        "context_add_norm_2": "silicon",
+        "context_shared_gate_up_gemm": "silicon",
+        "context_shared_act_gate": "silicon",
+        "context_shared_ffn2_gemm": "silicon",
+        "context_router_gemm": "silicon",
+        "context_moe_pre_dispatch": "silicon",
+        "context_moe": "silicon",
+        "context_moe_post_dispatch": "silicon",
+        "context_logits_gemm": "silicon",
+        "context_p2p": "silicon"
+      }
+    },
+    "context_attention_static_ctx": {
+      "runtime": {
+        "batch_size": 4,
+        "isl": 512,
+        "osl": 1,
+        "prefix": 0
+      },
+      "context_latency_dict": {
+        "context_embedding": 0.013955271641791044,
+        "context_add_norm_1": 0.2809265194029851,
+        "context_mla_block": 5.722636053141791,
+        "context_add_norm_2": 0.2809265194029851,
+        "context_shared_gate_up_gemm": 0.6047893365224203,
+        "context_shared_act_gate": 0.07434139701492537,
+        "context_shared_ffn2_gemm": 0.35968534151713055,
+        "context_router_gemm": 0.12060266733169556,
+        "context_moe_pre_dispatch": 0.0,
+        "context_moe": 27.281044921875,
+        "context_moe_post_dispatch": 0.0,
+        "context_logits_gemm": 0.6415428867649413,
+        "context_p2p": 0.0
+      },
+      "context_source_dict": {
+        "context_embedding": "silicon",
+        "context_add_norm_1": "silicon",
+        "context_mla_block": "silicon",
+        "context_add_norm_2": "silicon",
+        "context_shared_gate_up_gemm": "silicon",
+        "context_shared_act_gate": "silicon",
+        "context_shared_ffn2_gemm": "silicon",
+        "context_router_gemm": "silicon",
+        "context_moe_pre_dispatch": "silicon",
+        "context_moe": "silicon",
+        "context_moe_post_dispatch": "silicon",
+        "context_logits_gemm": "silicon",
+        "context_p2p": "silicon"
+      }
+    },
+    "mix_generation_attention_static_gen": {
+      "runtime": {
+        "batch_size": 4,
+        "isl": 520,
+        "osl": 2
+      },
+      "generation_latency_dict": {
+        "generation_embedding": 0.0030213970149253733,
+        "generation_add_norm_1": 0.018513528358208957,
+        "generation_mla_block": 0.6563460537730991,
+        "generation_add_norm_2": 0.018513528358208957,
+        "generation_moe_overlap": 3.623041048447291,
+        "generation_logits_gemm": 0.6415428867649413,
+        "generation_p2p": 0.0
+      },
+      "generation_source_dict": {
+        "generation_embedding": "silicon",
+        "generation_add_norm_1": "silicon",
+        "generation_mla_block": "silicon",
+        "generation_add_norm_2": "silicon",
+        "generation_moe_overlap": "silicon",
+        "generation_logits_gemm": "silicon",
+        "generation_p2p": "silicon"
+      }
+    },
+    "genonly_static_gen": {
+      "runtime": {
+        "batch_size": 8,
+        "isl": 520,
+        "osl": 2
+      },
+      "generation_latency_dict": {
+        "generation_embedding": 0.0030427940298507466,
+        "generation_add_norm_1": 0.019027056716417908,
+        "generation_mla_block": 0.681078587833909,
+        "generation_add_norm_2": 0.019027056716417908,
+        "generation_moe_overlap": 6.1946446955204015,
+        "generation_logits_gemm": 0.6416549181844626,
+        "generation_p2p": 0.0
+      },
+      "generation_source_dict": {
+        "generation_embedding": "silicon",
+        "generation_add_norm_1": "silicon",
+        "generation_mla_block": "silicon",
+        "generation_add_norm_2": "silicon",
+        "generation_moe_overlap": "silicon",
+        "generation_logits_gemm": "silicon",
+        "generation_p2p": "silicon"
+      }
+    }
+  },
+  "fallback_state_after_reproduced_static": {
+    "context.context_mla_block": {
+      "primary": "MLAModule:context_mla_module",
+      "fallback": [
+        "GEMM:context_downscale_gemm",
+        "GEMM:context_q_b_proj_gemm",
+        "GEMM:context_kv_b_proj_gemm",
+        "MLAConcatK:context_mla_concat_k",
+        "ContextMLA:context_attention",
+        "GEMM:context_proj_gemm"
+      ],
+      "primary_unavailable": true
+    },
+    "generation.generation_mla_block": {
+      "primary": "MLAModule:generation_mla_module",
+      "fallback": [
+        "GEMM:generation_downscale_gemm",
+        "GEMM:generation_q_b_proj_gemm",
+        "MLABmm:generation_bmm_pre",
+        "GenerationMLA:generation_attention",
+        "MLABmm:generation_bmm_post",
+        "GEMM:generation_proj_gemm"
+      ],
+      "primary_unavailable": true
+    }
+  }
+}

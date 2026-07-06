@@ -1,0 +1,28 @@
+{
+  "output_dir": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/mla_aic_compare_kernel_envelope_refresh",
+  "real_layer_rows": 104,
+  "case_count": 26,
+  "skipped_rows": 26,
+  "real_baseline": "module_gpu_makespan_ms",
+  "aic_series": [
+    "DeepSeekModel fallback stack",
+    "WideEP qkv_a + WideEPContextMLA"
+  ],
+  "files": [
+    "README.md",
+    "artifact_manifest.json",
+    "build_kernel_envelope_compare_artifacts.py",
+    "prefill_aic_deepseek_fallback_stack.csv",
+    "prefill_aic_deepseek_primary_validation.csv",
+    "prefill_aic_wideep_stack.csv",
+    "prefill_compare_summary.csv",
+    "prefill_kernel_envelope_aic_rule_compare.png",
+    "prefill_kernel_envelope_aic_rule_compare.svg",
+    "prefill_kernel_envelope_aic_stacked_compare.png",
+    "prefill_kernel_envelope_aic_stacked_compare.svg",
+    "prefill_real_kernel_envelope_boxplot.png",
+    "prefill_real_kernel_envelope_boxplot.svg",
+    "prefill_real_layer_detail.csv",
+    "prefill_skipped_rows.csv"
+  ]
+}

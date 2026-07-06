@@ -1,0 +1,24 @@
+[
+  {
+    "model": "dsr1",
+    "hardware": "gb200",
+    "framework": "dynamo-sglang",
+    "precision": "fp8",
+    "spec_method": "none",
+    "isl": 1024,
+    "osl": 1024,
+    "image": "lmsysorg/sglang:v0.5.8.post1-cu130",
+    "date": "2026-02-09"
+  },
+  {
+    "model": "dsr1",
+    "hardware": "gb200",
+    "framework": "dynamo-sglang",
+    "precision": "fp8",
+    "spec_method": "none",
+    "isl": 8192,
+    "osl": 1024,
+    "image": "lmsysorg/sglang:v0.5.8.post1-cu130",
+    "date": "2026-02-09"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "case_count": 9,
+  "perf_grid_extract_rows": 32,
+  "source_single_op_dir": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/decode_single_op_kernel_aic_error_analysis",
+  "source_module_dir": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/decode_mla_kernel_envelope_aic_compare",
+  "source_generation_mla_perf": "src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/generation_mla_perf.txt",
+  "files": [
+    "README.md",
+    "attention_case_compare.csv",
+    "build_decode_attention_root_cause.py",
+    "generation_mla_perf_grid_extract.csv"
+  ]
+}

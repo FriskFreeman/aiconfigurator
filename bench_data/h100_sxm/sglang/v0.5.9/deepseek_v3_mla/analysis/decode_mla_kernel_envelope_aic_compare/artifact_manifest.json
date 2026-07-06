@@ -1,0 +1,23 @@
+{
+  "output_dir": "bench_data/h100_sxm/sglang/v0.5.9/deepseek_v3_mla/analysis/decode_mla_kernel_envelope_aic_compare",
+  "case_count": 9,
+  "real_layer_segment_count": 45,
+  "files": [
+    "README.md",
+    "artifact_manifest.json",
+    "build_decode_mla_kernel_envelope_compare.py",
+    "decode_aic_deepseek_fallback_stack.csv",
+    "decode_aic_generation_mla_module_validation.csv",
+    "decode_aic_wideep_stack.csv",
+    "decode_compare_summary.csv",
+    "decode_mla_kernel_envelope_aic_compare.png",
+    "decode_mla_kernel_envelope_aic_compare.svg",
+    "decode_mla_real_kernel_components.png",
+    "decode_mla_real_kernel_components.svg",
+    "decode_mla_real_kernel_semantic_components.png",
+    "decode_mla_real_kernel_semantic_components.svg",
+    "decode_real_mla_layer_segments.csv",
+    "decode_skipped_or_warnings.csv"
+  ],
+  "boundary": "quant_before_deepgemm_2112x7168_to_deepgemm_7168x16384_end"
+}

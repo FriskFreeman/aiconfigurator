@@ -1,0 +1,25 @@
+{
+  "model_class": "WideEPDeepSeekModel",
+  "context_attention_ops": [
+    {
+      "name": "context_attention",
+      "class": "WideEPContextMLA",
+      "tp_size": 1,
+      "attn_backend": "fa3",
+      "status": "ok",
+      "latency_ms": 3.8118,
+      "source": "silicon"
+    }
+  ],
+  "generation_attention_ops": [
+    {
+      "name": "generation_attention",
+      "class": "WideEPGenerationMLA",
+      "tp_size": 1,
+      "attn_backend": "fa3",
+      "status": "ok",
+      "latency_ms": 0.67693125,
+      "source": "silicon"
+    }
+  ]
+}

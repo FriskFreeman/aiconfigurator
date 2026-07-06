@@ -1,0 +1,3638 @@
+[
+  {
+    "event_order_index": 1,
+    "layer_id": 0,
+    "stage": "decode",
+    "stage_instance_index": 1,
+    "collector_aligned_boundary": "{'Module': 'model.model.layers.0.self_attn'}",
+    "start_ns": 16681010,
+    "end_ns": 18177768,
+    "duration_ns": 1496758,
+    "duration_ms": 1.496758,
+    "shape_info": {
+      "module": "attn_mqa",
+      "inputs": [
+        [
+          256,
+          128,
+          512
+        ],
+        [
+          256,
+          1,
+          512
+        ],
+        [
+          256,
+          1,
+          512
+        ]
+      ],
+      "token_count": 256,
+      "total_tokens": 256,
+      "chunked_req_prefix_len": 0,
+      "current_chunked_req_prefix_len": 0,
+      "current_chunked_req_prefix_len_source": "attention_inputs",
+      "scheduler_chunked_req_prefix_len": null
+    },
+    "timing_breakdown": {
+      "host_start_ns": 16681010,
+      "host_end_ns": 18177768,
+      "host_duration_ns": 1496758,
+      "host_duration_ms": 1.496758,
+      "first_kernel_start_ns": 16861645,
+      "last_kernel_end_ns": 18204172,
+      "module_total_to_last_kernel_ns": 1523162,
+      "module_total_to_last_kernel_ms": 1.523162,
+      "host_to_first_kernel_gap_ns": 180635,
+      "host_to_first_kernel_gap_ms": 0.180635,
+      "host_end_to_last_kernel_tail_ns": 26404,
+      "host_end_to_last_kernel_tail_ms": 0.026404,
+      "host_end_to_last_kernel_tail_ns_signed": 26404,
+      "host_end_to_last_kernel_tail_ms_signed": 0.026404,
+      "gpu_makespan_ns": 1342527,
+      "gpu_makespan_ms": 1.342527,
+      "gpu_kernel_time_sum_ns": 167744,
+      "gpu_kernel_time_sum_ms": 0.167744,
+      "gpu_kernel_count": 12,
+      "first_kernel_name": "per_token_group_quant_8bit_kernel",
+      "last_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+      "children": [
+        {
+          "canonical_name": "fused_qkv_a_proj_with_mqa",
+          "order_index": 1,
+          "host_start_ns": 16758438,
+          "host_end_ns": 17071750,
+          "host_duration_ns": 313312,
+          "host_duration_ms": 0.313312,
+          "first_kernel_start_ns": 16861645,
+          "last_kernel_end_ns": 17062413,
+          "module_total_to_last_kernel_ns": 313312,
+          "module_total_to_last_kernel_ms": 0.313312,
+          "host_to_first_kernel_gap_ns": 103207,
+          "host_to_first_kernel_gap_ms": 0.103207,
+          "host_end_to_last_kernel_tail_ns": 0,
+          "host_end_to_last_kernel_tail_ms": 0.0,
+          "host_end_to_last_kernel_tail_ns_signed": -9337,
+          "host_end_to_last_kernel_tail_ms_signed": -0.009337,
+          "gpu_makespan_ns": 200768,
+          "gpu_makespan_ms": 0.200768,
+          "gpu_kernel_time_sum_ns": 15488,
+          "gpu_kernel_time_sum_ms": 0.015488,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        {
+          "canonical_name": "q_a_layernorm",
+          "order_index": 2,
+          "host_start_ns": 17121277,
+          "host_end_ns": 17151180,
+          "host_duration_ns": 29903,
+          "host_duration_ms": 0.029903,
+          "first_kernel_start_ns": 17148845,
+          "last_kernel_end_ns": 17150989,
+          "module_total_to_last_kernel_ns": 29903,
+          "module_total_to_last_kernel_ms": 0.029903,
+          "host_to_first_kernel_gap_ns": 27568,
+          "host_to_first_kernel_gap_ms": 0.027568,
+          "host_end_to_last_kernel_tail_ns": 0,
+          "host_end_to_last_kernel_tail_ms": 0.0,
+          "host_end_to_last_kernel_tail_ns_signed": -191,
+          "host_end_to_last_kernel_tail_ms_signed": -0.000191,
+          "gpu_makespan_ns": 2144,
+          "gpu_makespan_ms": 0.002144,
+          "gpu_kernel_time_sum_ns": 2144,
+          "gpu_kernel_time_sum_ms": 0.002144,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        {
+          "canonical_name": "kv_a_layernorm",
+          "order_index": 3,
+          "host_start_ns": 17166411,
+          "host_end_ns": 17185362,
+          "host_duration_ns": 18951,
+          "host_duration_ms": 0.018951,
+          "first_kernel_start_ns": 17184173,
+          "last_kernel_end_ns": 17186285,
+          "module_total_to_last_kernel_ns": 19874,
+          "module_total_to_last_kernel_ms": 0.019874,
+          "host_to_first_kernel_gap_ns": 17762,
+          "host_to_first_kernel_gap_ms": 0.017762,
+          "host_end_to_last_kernel_tail_ns": 923,
+          "host_end_to_last_kernel_tail_ms": 0.000923,
+          "host_end_to_last_kernel_tail_ns_signed": 923,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000923,
+          "gpu_makespan_ns": 2112,
+          "gpu_makespan_ms": 0.002112,
+          "gpu_kernel_time_sum_ns": 2112,
+          "gpu_kernel_time_sum_ms": 0.002112,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        {
+          "canonical_name": "q_b_proj",
+          "order_index": 4,
+          "host_start_ns": 17212221,
+          "host_end_ns": 17363858,
+          "host_duration_ns": 151637,
+          "host_duration_ms": 0.151637,
+          "first_kernel_start_ns": 17269005,
+          "last_kernel_end_ns": 17370989,
+          "module_total_to_last_kernel_ns": 158768,
+          "module_total_to_last_kernel_ms": 0.158768,
+          "host_to_first_kernel_gap_ns": 56784,
+          "host_to_first_kernel_gap_ms": 0.056784,
+          "host_end_to_last_kernel_tail_ns": 7131,
+          "host_end_to_last_kernel_tail_ms": 0.007131,
+          "host_end_to_last_kernel_tail_ns_signed": 7131,
+          "host_end_to_last_kernel_tail_ms_signed": 0.007131,
+          "gpu_makespan_ns": 101984,
+          "gpu_makespan_ms": 0.101984,
+          "gpu_kernel_time_sum_ns": 25056,
+          "gpu_kernel_time_sum_ms": 0.025056,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        {
+          "canonical_name": "rotary_emb",
+          "order_index": 5,
+          "host_start_ns": 17546310,
+          "host_end_ns": 17631260,
+          "host_duration_ns": 84950,
+          "host_duration_ms": 0.08495,
+          "first_kernel_start_ns": 17620460,
+          "last_kernel_end_ns": 17625932,
+          "module_total_to_last_kernel_ns": 84950,
+          "module_total_to_last_kernel_ms": 0.08495,
+          "host_to_first_kernel_gap_ns": 74150,
+          "host_to_first_kernel_gap_ms": 0.07415,
+          "host_end_to_last_kernel_tail_ns": 0,
+          "host_end_to_last_kernel_tail_ms": 0.0,
+          "host_end_to_last_kernel_tail_ns_signed": -5328,
+          "host_end_to_last_kernel_tail_ms_signed": -0.005328,
+          "gpu_makespan_ns": 5472,
+          "gpu_makespan_ms": 0.005472,
+          "gpu_kernel_time_sum_ns": 5472,
+          "gpu_kernel_time_sum_ms": 0.005472,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "last_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel"
+        },
+        {
+          "canonical_name": "attn_mqa",
+          "order_index": 6,
+          "host_start_ns": 17663662,
+          "host_end_ns": 17900552,
+          "host_duration_ns": 236890,
+          "host_duration_ms": 0.23689,
+          "first_kernel_start_ns": 17751884,
+          "last_kernel_end_ns": 17936204,
+          "module_total_to_last_kernel_ns": 272542,
+          "module_total_to_last_kernel_ms": 0.272542,
+          "host_to_first_kernel_gap_ns": 88222,
+          "host_to_first_kernel_gap_ms": 0.088222,
+          "host_end_to_last_kernel_tail_ns": 35652,
+          "host_end_to_last_kernel_tail_ms": 0.035652,
+          "host_end_to_last_kernel_tail_ns_signed": 35652,
+          "host_end_to_last_kernel_tail_ms_signed": 0.035652,
+          "gpu_makespan_ns": 184320,
+          "gpu_makespan_ms": 0.18432,
+          "gpu_kernel_time_sum_ns": 59136,
+          "gpu_kernel_time_sum_ms": 0.059136,
+          "gpu_kernel_count": 3,
+          "first_kernel_name": "set_mla_kv_buffer_kernel",
+          "last_kernel_name": "device_kernel"
+        },
+        {
+          "canonical_name": "o_proj",
+          "order_index": 7,
+          "host_start_ns": 17990643,
+          "host_end_ns": 18166276,
+          "host_duration_ns": 175633,
+          "host_duration_ms": 0.175633,
+          "first_kernel_start_ns": 18053324,
+          "last_kernel_end_ns": 18204172,
+          "module_total_to_last_kernel_ns": 213529,
+          "module_total_to_last_kernel_ms": 0.213529,
+          "host_to_first_kernel_gap_ns": 62681,
+          "host_to_first_kernel_gap_ms": 0.062681,
+          "host_end_to_last_kernel_tail_ns": 37896,
+          "host_end_to_last_kernel_tail_ms": 0.037896,
+          "host_end_to_last_kernel_tail_ns_signed": 37896,
+          "host_end_to_last_kernel_tail_ms_signed": 0.037896,
+          "gpu_makespan_ns": 150848,
+          "gpu_makespan_ms": 0.150848,
+          "gpu_kernel_time_sum_ns": 58336,
+          "gpu_kernel_time_sum_ms": 0.058336,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        }
+      ]
+    },
+    "prefill_chunk_info": null,
+    "children": [
+      {
+        "order_index": 1,
+        "text": "{'Module': 'model.model.layers.0.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[256, 7168]]}",
+        "canonical_name": "fused_qkv_a_proj_with_mqa",
+        "operator_info": {
+          "module_name": "model.model.layers.0.self_attn.fused_qkv_a_proj_with_mqa",
+          "canonical_name": "fused_qkv_a_proj_with_mqa",
+          "inputs": [
+            [
+              256,
+              7168
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              2112,
+              7168
+            ],
+            "weight_scale_inv": [
+              17,
+              56
+            ]
+          },
+          "operator_category": "linear_or_gemm",
+          "implementation": "sm90_fp8_gemm_1d2d_impl",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 2,
+          "gpu_kernel_time_ns_total": 15488,
+          "gpu_kernel_time_ms_total": 0.015488,
+          "runtime_call_count": 6,
+          "dominant_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+          "dominant_kernel_time_ns": 11616,
+          "top_gpu_kernels": [
+            {
+              "short_name": "sm90_fp8_gemm_1d2d_impl",
+              "gpu_time_ns": 11616,
+              "gpu_time_ms": 0.011616
+            },
+            {
+              "short_name": "per_token_group_quant_8bit_kernel",
+              "gpu_time_ns": 3872,
+              "gpu_time_ms": 0.003872
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 16853029,
+                "end_ns": 16860557,
+                "duration_ns": 7528,
+                "global_tid": 281484942377554,
+                "correlation_id": 335,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 17010784,
+                "end_ns": 17011605,
+                "duration_ns": 821,
+                "global_tid": 281484942377554,
+                "correlation_id": 343,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17012059,
+                "end_ns": 17012187,
+                "duration_ns": 128,
+                "global_tid": 281484942377554,
+                "correlation_id": 344,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17012449,
+                "end_ns": 17012645,
+                "duration_ns": 196,
+                "global_tid": 281484942377554,
+                "correlation_id": 345,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17013128,
+                "end_ns": 17013313,
+                "duration_ns": 185,
+                "global_tid": 281484942377554,
+                "correlation_id": 346,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17043008,
+                "end_ns": 17049408,
+                "duration_ns": 6400,
+                "global_tid": 281484942377554,
+                "correlation_id": 349,
+                "launch_api": "cuLaunchKernelEx"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 16861645,
+                "end_ns": 16865517,
+                "duration_ns": 3872,
+                "stream_id": 13,
+                "correlation_id": 335,
+                "short_name": "per_token_group_quant_8bit_kernel",
+                "demangled_name": "void per_token_group_quant_8bit_kernel<__nv_bfloat16, __nv_fp8_e4m3, (bool)1, (bool)0, float>(const T1 *, void *, T5 *, int, int, int, float, float, float, int, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 16853029,
+                "launch_runtime_end_ns": 16860557
+              },
+              {
+                "start_ns": 17050797,
+                "end_ns": 17062413,
+                "duration_ns": 11616,
+                "stream_id": 13,
+                "correlation_id": 349,
+                "short_name": "sm90_fp8_gemm_1d2d_impl",
+                "demangled_name": "void deep_gemm::sm90_fp8_gemm_1d2d_impl<(cute::UMMA::Major)0, (unsigned int)0, (unsigned int)2112, (unsigned int)7168, (unsigned int)1, (unsigned int)64, (unsigned int)64, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)13, (unsigned int)4, (unsigned int)128, (unsigned int)128, (unsigned int)1, (bool)0, (unsigned int)132, (deep_gemm::GemmType)0, deep_gemm::EpilogueIdentity, (bool)0>(float *, int *, int *, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 17043008,
+                "launch_runtime_end_ns": 17049408
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 16758438,
+          "host_end_ns": 17071750,
+          "host_duration_ns": 313312,
+          "host_duration_ms": 0.313312,
+          "first_kernel_start_ns": 16861645,
+          "last_kernel_end_ns": 17062413,
+          "module_total_to_last_kernel_ns": 313312,
+          "module_total_to_last_kernel_ms": 0.313312,
+          "host_to_first_kernel_gap_ns": 103207,
+          "host_to_first_kernel_gap_ms": 0.103207,
+          "host_end_to_last_kernel_tail_ns": 0,
+          "host_end_to_last_kernel_tail_ms": 0.0,
+          "host_end_to_last_kernel_tail_ns_signed": -9337,
+          "host_end_to_last_kernel_tail_ms_signed": -0.009337,
+          "gpu_makespan_ns": 200768,
+          "gpu_makespan_ms": 0.200768,
+          "gpu_kernel_time_sum_ns": 15488,
+          "gpu_kernel_time_sum_ms": 0.015488,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        "start_ns": 16758438,
+        "end_ns": 17071750,
+        "duration_ns": 313312,
+        "duration_ms": 0.313312
+      },
+      {
+        "order_index": 2,
+        "text": "{'Module': 'model.model.layers.0.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[256, 1536]]}",
+        "canonical_name": "q_a_layernorm",
+        "operator_info": {
+          "module_name": "model.model.layers.0.self_attn.q_a_layernorm",
+          "canonical_name": "q_a_layernorm",
+          "inputs": [
+            [
+              256,
+              1536
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              1536
+            ]
+          },
+          "operator_category": "normalization",
+          "implementation": "RMSNormKernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 1,
+          "gpu_kernel_time_ns_total": 2144,
+          "gpu_kernel_time_ms_total": 0.002144,
+          "runtime_call_count": 1,
+          "dominant_kernel_name": "RMSNormKernel",
+          "dominant_kernel_time_ns": 2144,
+          "top_gpu_kernels": [
+            {
+              "short_name": "RMSNormKernel",
+              "gpu_time_ns": 2144,
+              "gpu_time_ms": 0.002144
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 17141814,
+                "end_ns": 17147270,
+                "duration_ns": 5456,
+                "global_tid": 281484942377554,
+                "correlation_id": 363,
+                "launch_api": "cudaLaunchKernelExC_v11060"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 17148845,
+                "end_ns": 17150989,
+                "duration_ns": 2144,
+                "stream_id": 13,
+                "correlation_id": 363,
+                "short_name": "RMSNormKernel",
+                "demangled_name": "void flashinfer::norm::RMSNormKernel<(unsigned int)8, __nv_bfloat16>(T2 *, T2 *, T2 *, unsigned int, unsigned int, unsigned int, float, float)",
+                "launch_api": "cudaLaunchKernelExC_v11060",
+                "launch_runtime_start_ns": 17141814,
+                "launch_runtime_end_ns": 17147270
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 17121277,
+          "host_end_ns": 17151180,
+          "host_duration_ns": 29903,
+          "host_duration_ms": 0.029903,
+          "first_kernel_start_ns": 17148845,
+          "last_kernel_end_ns": 17150989,
+          "module_total_to_last_kernel_ns": 29903,
+          "module_total_to_last_kernel_ms": 0.029903,
+          "host_to_first_kernel_gap_ns": 27568,
+          "host_to_first_kernel_gap_ms": 0.027568,
+          "host_end_to_last_kernel_tail_ns": 0,
+          "host_end_to_last_kernel_tail_ms": 0.0,
+          "host_end_to_last_kernel_tail_ns_signed": -191,
+          "host_end_to_last_kernel_tail_ms_signed": -0.000191,
+          "gpu_makespan_ns": 2144,
+          "gpu_makespan_ms": 0.002144,
+          "gpu_kernel_time_sum_ns": 2144,
+          "gpu_kernel_time_sum_ms": 0.002144,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        "start_ns": 17121277,
+        "end_ns": 17151180,
+        "duration_ns": 29903,
+        "duration_ms": 0.029903
+      },
+      {
+        "order_index": 3,
+        "text": "{'Module': 'model.model.layers.0.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[256, 512]]}",
+        "canonical_name": "kv_a_layernorm",
+        "operator_info": {
+          "module_name": "model.model.layers.0.self_attn.kv_a_layernorm",
+          "canonical_name": "kv_a_layernorm",
+          "inputs": [
+            [
+              256,
+              512
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              512
+            ]
+          },
+          "operator_category": "normalization",
+          "implementation": "RMSNormKernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 1,
+          "gpu_kernel_time_ns_total": 2112,
+          "gpu_kernel_time_ms_total": 0.002112,
+          "runtime_call_count": 1,
+          "dominant_kernel_name": "RMSNormKernel",
+          "dominant_kernel_time_ns": 2112,
+          "top_gpu_kernels": [
+            {
+              "short_name": "RMSNormKernel",
+              "gpu_time_ns": 2112,
+              "gpu_time_ms": 0.002112
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 17178230,
+                "end_ns": 17182124,
+                "duration_ns": 3894,
+                "global_tid": 281484942377554,
+                "correlation_id": 376,
+                "launch_api": "cudaLaunchKernelExC_v11060"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 17184173,
+                "end_ns": 17186285,
+                "duration_ns": 2112,
+                "stream_id": 13,
+                "correlation_id": 376,
+                "short_name": "RMSNormKernel",
+                "demangled_name": "void flashinfer::norm::RMSNormKernel<(unsigned int)8, __nv_bfloat16>(T2 *, T2 *, T2 *, unsigned int, unsigned int, unsigned int, float, float)",
+                "launch_api": "cudaLaunchKernelExC_v11060",
+                "launch_runtime_start_ns": 17178230,
+                "launch_runtime_end_ns": 17182124
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 17166411,
+          "host_end_ns": 17185362,
+          "host_duration_ns": 18951,
+          "host_duration_ms": 0.018951,
+          "first_kernel_start_ns": 17184173,
+          "last_kernel_end_ns": 17186285,
+          "module_total_to_last_kernel_ns": 19874,
+          "module_total_to_last_kernel_ms": 0.019874,
+          "host_to_first_kernel_gap_ns": 17762,
+          "host_to_first_kernel_gap_ms": 0.017762,
+          "host_end_to_last_kernel_tail_ns": 923,
+          "host_end_to_last_kernel_tail_ms": 0.000923,
+          "host_end_to_last_kernel_tail_ns_signed": 923,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000923,
+          "gpu_makespan_ns": 2112,
+          "gpu_makespan_ms": 0.002112,
+          "gpu_kernel_time_sum_ns": 2112,
+          "gpu_kernel_time_sum_ms": 0.002112,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        "start_ns": 17166411,
+        "end_ns": 17185362,
+        "duration_ns": 18951,
+        "duration_ms": 0.018951
+      },
+      {
+        "order_index": 4,
+        "text": "{'Module': 'model.model.layers.0.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[256, 1536]]}",
+        "canonical_name": "q_b_proj",
+        "operator_info": {
+          "module_name": "model.model.layers.0.self_attn.q_b_proj",
+          "canonical_name": "q_b_proj",
+          "inputs": [
+            [
+              256,
+              1536
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              24576,
+              1536
+            ],
+            "weight_scale_inv": [
+              192,
+              12
+            ]
+          },
+          "operator_category": "linear_or_gemm",
+          "implementation": "sm90_fp8_gemm_1d2d_impl",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 2,
+          "gpu_kernel_time_ns_total": 25056,
+          "gpu_kernel_time_ms_total": 0.025056,
+          "runtime_call_count": 6,
+          "dominant_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+          "dominant_kernel_time_ns": 23040,
+          "top_gpu_kernels": [
+            {
+              "short_name": "sm90_fp8_gemm_1d2d_impl",
+              "gpu_time_ns": 23040,
+              "gpu_time_ms": 0.02304
+            },
+            {
+              "short_name": "per_token_group_quant_8bit_kernel",
+              "gpu_time_ns": 2016,
+              "gpu_time_ms": 0.002016
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 17262646,
+                "end_ns": 17267205,
+                "duration_ns": 4559,
+                "global_tid": 281484942377554,
+                "correlation_id": 397,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 17328552,
+                "end_ns": 17329051,
+                "duration_ns": 499,
+                "global_tid": 281484942377554,
+                "correlation_id": 405,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17329428,
+                "end_ns": 17329528,
+                "duration_ns": 100,
+                "global_tid": 281484942377554,
+                "correlation_id": 406,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17329783,
+                "end_ns": 17329943,
+                "duration_ns": 160,
+                "global_tid": 281484942377554,
+                "correlation_id": 407,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17330478,
+                "end_ns": 17330644,
+                "duration_ns": 166,
+                "global_tid": 281484942377554,
+                "correlation_id": 408,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17340518,
+                "end_ns": 17347847,
+                "duration_ns": 7329,
+                "global_tid": 281484942377554,
+                "correlation_id": 411,
+                "launch_api": "cuLaunchKernelEx"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 17269005,
+                "end_ns": 17271021,
+                "duration_ns": 2016,
+                "stream_id": 13,
+                "correlation_id": 397,
+                "short_name": "per_token_group_quant_8bit_kernel",
+                "demangled_name": "void per_token_group_quant_8bit_kernel<__nv_bfloat16, __nv_fp8_e4m3, (bool)1, (bool)0, float>(const T1 *, void *, T5 *, int, int, int, float, float, float, int, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 17262646,
+                "launch_runtime_end_ns": 17267205
+              },
+              {
+                "start_ns": 17347949,
+                "end_ns": 17370989,
+                "duration_ns": 23040,
+                "stream_id": 13,
+                "correlation_id": 411,
+                "short_name": "sm90_fp8_gemm_1d2d_impl",
+                "demangled_name": "void deep_gemm::sm90_fp8_gemm_1d2d_impl<(cute::UMMA::Major)0, (unsigned int)0, (unsigned int)24576, (unsigned int)1536, (unsigned int)1, (unsigned int)128, (unsigned int)192, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)4, (unsigned int)0, (unsigned int)128, (unsigned int)256, (unsigned int)1, (bool)0, (unsigned int)128, (deep_gemm::GemmType)0, deep_gemm::EpilogueIdentity, (bool)0>(float *, int *, int *, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 17340518,
+                "launch_runtime_end_ns": 17347847
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 17212221,
+          "host_end_ns": 17363858,
+          "host_duration_ns": 151637,
+          "host_duration_ms": 0.151637,
+          "first_kernel_start_ns": 17269005,
+          "last_kernel_end_ns": 17370989,
+          "module_total_to_last_kernel_ns": 158768,
+          "module_total_to_last_kernel_ms": 0.158768,
+          "host_to_first_kernel_gap_ns": 56784,
+          "host_to_first_kernel_gap_ms": 0.056784,
+          "host_end_to_last_kernel_tail_ns": 7131,
+          "host_end_to_last_kernel_tail_ms": 0.007131,
+          "host_end_to_last_kernel_tail_ns_signed": 7131,
+          "host_end_to_last_kernel_tail_ms_signed": 0.007131,
+          "gpu_makespan_ns": 101984,
+          "gpu_makespan_ms": 0.101984,
+          "gpu_kernel_time_sum_ns": 25056,
+          "gpu_kernel_time_sum_ms": 0.025056,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        "start_ns": 17212221,
+        "end_ns": 17363858,
+        "duration_ns": 151637,
+        "duration_ms": 0.151637
+      },
+      {
+        "order_index": 5,
+        "text": "{'Module': 'model.model.layers.0.self_attn.rotary_emb', 'Inputs': [[256], [256, 128, 64], [256, 1, 64]]}",
+        "canonical_name": "rotary_emb",
+        "operator_info": {
+          "module_name": "model.model.layers.0.self_attn.rotary_emb",
+          "canonical_name": "rotary_emb",
+          "inputs": [
+            [
+              256
+            ],
+            [
+              256,
+              128,
+              64
+            ],
+            [
+              256,
+              1,
+              64
+            ]
+          ],
+          "trainable_params": null,
+          "operator_category": "position_embedding",
+          "implementation": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 1,
+          "gpu_kernel_time_ns_total": 5472,
+          "gpu_kernel_time_ms_total": 0.005472,
+          "runtime_call_count": 1,
+          "dominant_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "dominant_kernel_time_ns": 5472,
+          "top_gpu_kernels": [
+            {
+              "short_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+              "gpu_time_ns": 5472,
+              "gpu_time_ms": 0.005472
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 17612848,
+                "end_ns": 17619766,
+                "duration_ns": 6918,
+                "global_tid": 281484942377554,
+                "correlation_id": 435,
+                "launch_api": "cudaLaunchKernel_v7000"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 17620460,
+                "end_ns": 17625932,
+                "duration_ns": 5472,
+                "stream_id": 13,
+                "correlation_id": 435,
+                "short_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+                "demangled_name": "void flashinfer::BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel<(bool)1, (unsigned int)64, (unsigned int)8, (unsigned int)8, __nv_bfloat16, long>(T5 *, T5 *, T5 *, T5 *, float *, T6 *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 17612848,
+                "launch_runtime_end_ns": 17619766
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 17546310,
+          "host_end_ns": 17631260,
+          "host_duration_ns": 84950,
+          "host_duration_ms": 0.08495,
+          "first_kernel_start_ns": 17620460,
+          "last_kernel_end_ns": 17625932,
+          "module_total_to_last_kernel_ns": 84950,
+          "module_total_to_last_kernel_ms": 0.08495,
+          "host_to_first_kernel_gap_ns": 74150,
+          "host_to_first_kernel_gap_ms": 0.07415,
+          "host_end_to_last_kernel_tail_ns": 0,
+          "host_end_to_last_kernel_tail_ms": 0.0,
+          "host_end_to_last_kernel_tail_ns_signed": -5328,
+          "host_end_to_last_kernel_tail_ms_signed": -0.005328,
+          "gpu_makespan_ns": 5472,
+          "gpu_makespan_ms": 0.005472,
+          "gpu_kernel_time_sum_ns": 5472,
+          "gpu_kernel_time_sum_ms": 0.005472,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "last_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel"
+        },
+        "start_ns": 17546310,
+        "end_ns": 17631260,
+        "duration_ns": 84950,
+        "duration_ms": 0.08495
+      },
+      {
+        "order_index": 6,
+        "text": "{'Module': 'model.model.layers.0.self_attn.attn_mqa', 'TrainableParams': {'k_scale': [], 'v_scale': []}, 'Inputs': [[256, 128, 512], [256, 1, 512], [256, 1, 512]]}",
+        "canonical_name": "attn_mqa",
+        "operator_info": {
+          "module_name": "model.model.layers.0.self_attn.attn_mqa",
+          "canonical_name": "attn_mqa",
+          "inputs": [
+            [
+              256,
+              128,
+              512
+            ],
+            [
+              256,
+              1,
+              512
+            ],
+            [
+              256,
+              1,
+              512
+            ]
+          ],
+          "trainable_params": {
+            "k_scale": [],
+            "v_scale": []
+          },
+          "operator_category": "attention_or_fused_attention",
+          "implementation": "device_kernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 3,
+          "gpu_kernel_time_ns_total": 59136,
+          "gpu_kernel_time_ms_total": 0.059136,
+          "runtime_call_count": 15,
+          "dominant_kernel_name": "device_kernel",
+          "dominant_kernel_time_ns": 53888,
+          "top_gpu_kernels": [
+            {
+              "short_name": "device_kernel",
+              "gpu_time_ns": 53888,
+              "gpu_time_ms": 0.053888
+            },
+            {
+              "short_name": "prepare_varlen_num_blocks_kernel",
+              "gpu_time_ns": 3264,
+              "gpu_time_ms": 0.003264
+            },
+            {
+              "short_name": "set_mla_kv_buffer_kernel",
+              "gpu_time_ns": 1984,
+              "gpu_time_ms": 0.001984
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 17744949,
+                "end_ns": 17750007,
+                "duration_ns": 5058,
+                "global_tid": 281484942377554,
+                "correlation_id": 443,
+                "launch_api": "cuLaunchKernelEx"
+              },
+              {
+                "start_ns": 17855650,
+                "end_ns": 17862878,
+                "duration_ns": 7228,
+                "global_tid": 281484942377554,
+                "correlation_id": 477,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 17866076,
+                "end_ns": 17867249,
+                "duration_ns": 1173,
+                "global_tid": 281484942377554,
+                "correlation_id": 480,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 17867484,
+                "end_ns": 17868171,
+                "duration_ns": 687,
+                "global_tid": 281484942377554,
+                "correlation_id": 481,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17868405,
+                "end_ns": 17868600,
+                "duration_ns": 195,
+                "global_tid": 281484942377554,
+                "correlation_id": 482,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 17868675,
+                "end_ns": 17868799,
+                "duration_ns": 124,
+                "global_tid": 281484942377554,
+                "correlation_id": 483,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17869063,
+                "end_ns": 17869252,
+                "duration_ns": 189,
+                "global_tid": 281484942377554,
+                "correlation_id": 484,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 17869444,
+                "end_ns": 17869557,
+                "duration_ns": 113,
+                "global_tid": 281484942377554,
+                "correlation_id": 485,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17869710,
+                "end_ns": 17869894,
+                "duration_ns": 184,
+                "global_tid": 281484942377554,
+                "correlation_id": 486,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 17870087,
+                "end_ns": 17870195,
+                "duration_ns": 108,
+                "global_tid": 281484942377554,
+                "correlation_id": 487,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17870331,
+                "end_ns": 17870506,
+                "duration_ns": 175,
+                "global_tid": 281484942377554,
+                "correlation_id": 488,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 17870572,
+                "end_ns": 17870685,
+                "duration_ns": 113,
+                "global_tid": 281484942377554,
+                "correlation_id": 489,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17871146,
+                "end_ns": 17871324,
+                "duration_ns": 178,
+                "global_tid": 281484942377554,
+                "correlation_id": 490,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 17871432,
+                "end_ns": 17871538,
+                "duration_ns": 106,
+                "global_tid": 281484942377554,
+                "correlation_id": 491,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 17874758,
+                "end_ns": 17881280,
+                "duration_ns": 6522,
+                "global_tid": 281484942377554,
+                "correlation_id": 493,
+                "launch_api": "cudaLaunchKernelExC_v11060"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 17751884,
+                "end_ns": 17753868,
+                "duration_ns": 1984,
+                "stream_id": 13,
+                "correlation_id": 443,
+                "short_name": "set_mla_kv_buffer_kernel",
+                "demangled_name": "set_mla_kv_buffer_kernel",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 17744949,
+                "launch_runtime_end_ns": 17750007
+              },
+              {
+                "start_ns": 17863468,
+                "end_ns": 17866732,
+                "duration_ns": 3264,
+                "stream_id": 13,
+                "correlation_id": 477,
+                "short_name": "prepare_varlen_num_blocks_kernel",
+                "demangled_name": "void flash::prepare_varlen_num_blocks_kernel<(int)1, (bool)1>(int, int, int, const int *, const int *, const int *, const int *, const int *, const int *, int, int, int, int, int, cutlass::FastDivmod, cutlass::FastDivmod, int *, int *, int *, int *, int *, bool, bool, bool, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 17855650,
+                "launch_runtime_end_ns": 17862878
+              },
+              {
+                "start_ns": 17882316,
+                "end_ns": 17936204,
+                "duration_ns": 53888,
+                "stream_id": 13,
+                "correlation_id": 493,
+                "short_name": "device_kernel",
+                "demangled_name": "void cutlass::device_kernel<flash::enable_sm90_or_later<flash::FlashAttnFwdSm90<flash::CollectiveMainloopFwdSm90<(int)2, cute::tuple<cute::C<(int)1>, cute::C<(int)1>, cute::C<(int)1>>, cute::tuple<cute::C<(int)64>, cute::C<(int)64>, cute::C<(int)64>>, (int)512, cutlass::bfloat16_t, float, cutlass::arch::Sm90, (bool)1, (bool)0, (bool)0, (bool)1, (bool)1, (bool)0, (bool)1, (bool)0, (bool)0, (bool)1, (bool)0, (bool)0, cutlass::bfloat16_t>, flash::CollectiveEpilogueFwd<cute::tuple<cute::C<(int)64>, cute::C<(int)512>, cute::C<(int)64>>, cute::tuple<cute::C<(int)1>, cute::C<(int)1>, cute::C<(int)1>>, cutlass::bfloat16_t, cutlass::arch::Sm90, (int)256, (bool)1, (bool)1, (bool)0, (bool)0>, flash::VarlenDynamicPersistentTileScheduler<(int)64, (int)64, (int)256, (int)128, (bool)0, (bool)1, (bool)1, (bool)1, (bool)1, (bool)1>>>>(T1::Params)",
+                "launch_api": "cudaLaunchKernelExC_v11060",
+                "launch_runtime_start_ns": 17874758,
+                "launch_runtime_end_ns": 17881280
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 17663662,
+          "host_end_ns": 17900552,
+          "host_duration_ns": 236890,
+          "host_duration_ms": 0.23689,
+          "first_kernel_start_ns": 17751884,
+          "last_kernel_end_ns": 17936204,
+          "module_total_to_last_kernel_ns": 272542,
+          "module_total_to_last_kernel_ms": 0.272542,
+          "host_to_first_kernel_gap_ns": 88222,
+          "host_to_first_kernel_gap_ms": 0.088222,
+          "host_end_to_last_kernel_tail_ns": 35652,
+          "host_end_to_last_kernel_tail_ms": 0.035652,
+          "host_end_to_last_kernel_tail_ns_signed": 35652,
+          "host_end_to_last_kernel_tail_ms_signed": 0.035652,
+          "gpu_makespan_ns": 184320,
+          "gpu_makespan_ms": 0.18432,
+          "gpu_kernel_time_sum_ns": 59136,
+          "gpu_kernel_time_sum_ms": 0.059136,
+          "gpu_kernel_count": 3,
+          "first_kernel_name": "set_mla_kv_buffer_kernel",
+          "last_kernel_name": "device_kernel"
+        },
+        "start_ns": 17663662,
+        "end_ns": 17900552,
+        "duration_ns": 236890,
+        "duration_ms": 0.23689
+      },
+      {
+        "order_index": 7,
+        "text": "{'Module': 'model.model.layers.0.self_attn.o_proj', 'TrainableParams': {'weight': [7168, 16384], 'weight_scale_inv': [56, 128]}, 'Inputs': [[256, 16384]]}",
+        "canonical_name": "o_proj",
+        "operator_info": {
+          "module_name": "model.model.layers.0.self_attn.o_proj",
+          "canonical_name": "o_proj",
+          "inputs": [
+            [
+              256,
+              16384
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              7168,
+              16384
+            ],
+            "weight_scale_inv": [
+              56,
+              128
+            ]
+          },
+          "operator_category": "linear_or_gemm",
+          "implementation": "sm90_fp8_gemm_1d2d_impl",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 2,
+          "gpu_kernel_time_ns_total": 58336,
+          "gpu_kernel_time_ms_total": 0.058336,
+          "runtime_call_count": 6,
+          "dominant_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+          "dominant_kernel_time_ns": 52736,
+          "top_gpu_kernels": [
+            {
+              "short_name": "sm90_fp8_gemm_1d2d_impl",
+              "gpu_time_ns": 52736,
+              "gpu_time_ms": 0.052736
+            },
+            {
+              "short_name": "per_token_group_quant_8bit_kernel",
+              "gpu_time_ns": 5600,
+              "gpu_time_ms": 0.0056
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 18046491,
+                "end_ns": 18054728,
+                "duration_ns": 8237,
+                "global_tid": 281484942377554,
+                "correlation_id": 535,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 18129305,
+                "end_ns": 18129721,
+                "duration_ns": 416,
+                "global_tid": 281484942377554,
+                "correlation_id": 543,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 18130005,
+                "end_ns": 18130108,
+                "duration_ns": 103,
+                "global_tid": 281484942377554,
+                "correlation_id": 544,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 18130485,
+                "end_ns": 18130707,
+                "duration_ns": 222,
+                "global_tid": 281484942377554,
+                "correlation_id": 545,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 18130962,
+                "end_ns": 18131109,
+                "duration_ns": 147,
+                "global_tid": 281484942377554,
+                "correlation_id": 546,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 18144358,
+                "end_ns": 18150242,
+                "duration_ns": 5884,
+                "global_tid": 281484942377554,
+                "correlation_id": 549,
+                "launch_api": "cuLaunchKernelEx"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 18053324,
+                "end_ns": 18058924,
+                "duration_ns": 5600,
+                "stream_id": 13,
+                "correlation_id": 535,
+                "short_name": "per_token_group_quant_8bit_kernel",
+                "demangled_name": "void per_token_group_quant_8bit_kernel<__nv_bfloat16, __nv_fp8_e4m3, (bool)1, (bool)0, float>(const T1 *, void *, T5 *, int, int, int, float, float, float, int, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 18046491,
+                "launch_runtime_end_ns": 18054728
+              },
+              {
+                "start_ns": 18151436,
+                "end_ns": 18204172,
+                "duration_ns": 52736,
+                "stream_id": 13,
+                "correlation_id": 549,
+                "short_name": "sm90_fp8_gemm_1d2d_impl",
+                "demangled_name": "void deep_gemm::sm90_fp8_gemm_1d2d_impl<(cute::UMMA::Major)0, (unsigned int)0, (unsigned int)7168, (unsigned int)16384, (unsigned int)1, (unsigned int)128, (unsigned int)112, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)32, (unsigned int)6, (unsigned int)2, (unsigned int)128, (unsigned int)256, (unsigned int)1, (bool)0, (unsigned int)128, (deep_gemm::GemmType)0, deep_gemm::EpilogueIdentity, (bool)0>(float *, int *, int *, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 18144358,
+                "launch_runtime_end_ns": 18150242
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 17990643,
+          "host_end_ns": 18166276,
+          "host_duration_ns": 175633,
+          "host_duration_ms": 0.175633,
+          "first_kernel_start_ns": 18053324,
+          "last_kernel_end_ns": 18204172,
+          "module_total_to_last_kernel_ns": 213529,
+          "module_total_to_last_kernel_ms": 0.213529,
+          "host_to_first_kernel_gap_ns": 62681,
+          "host_to_first_kernel_gap_ms": 0.062681,
+          "host_end_to_last_kernel_tail_ns": 37896,
+          "host_end_to_last_kernel_tail_ms": 0.037896,
+          "host_end_to_last_kernel_tail_ns_signed": 37896,
+          "host_end_to_last_kernel_tail_ms_signed": 0.037896,
+          "gpu_makespan_ns": 150848,
+          "gpu_makespan_ms": 0.150848,
+          "gpu_kernel_time_sum_ns": 58336,
+          "gpu_kernel_time_sum_ms": 0.058336,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        "start_ns": 17990643,
+        "end_ns": 18166276,
+        "duration_ns": 175633,
+        "duration_ms": 0.175633
+      }
+    ],
+    "stage_instance_count": 1,
+    "collector_prefill_aligned": false
+  },
+  {
+    "event_order_index": 2,
+    "layer_id": 1,
+    "stage": "decode",
+    "stage_instance_index": 1,
+    "collector_aligned_boundary": "{'Module': 'model.model.layers.1.self_attn'}",
+    "start_ns": 18706305,
+    "end_ns": 19686121,
+    "duration_ns": 979816,
+    "duration_ms": 0.979816,
+    "shape_info": {
+      "module": "attn_mqa",
+      "inputs": [
+        [
+          256,
+          128,
+          512
+        ],
+        [
+          256,
+          1,
+          512
+        ],
+        [
+          256,
+          1,
+          512
+        ]
+      ],
+      "token_count": 256,
+      "total_tokens": 256,
+      "chunked_req_prefix_len": 0,
+      "current_chunked_req_prefix_len": 0,
+      "current_chunked_req_prefix_len_source": "attention_inputs",
+      "scheduler_chunked_req_prefix_len": null
+    },
+    "timing_breakdown": {
+      "host_start_ns": 18706305,
+      "host_end_ns": 19686121,
+      "host_duration_ns": 979816,
+      "host_duration_ms": 0.979816,
+      "first_kernel_start_ns": 18804075,
+      "last_kernel_end_ns": 19714474,
+      "module_total_to_last_kernel_ns": 1008169,
+      "module_total_to_last_kernel_ms": 1.008169,
+      "host_to_first_kernel_gap_ns": 97770,
+      "host_to_first_kernel_gap_ms": 0.09777,
+      "host_end_to_last_kernel_tail_ns": 28353,
+      "host_end_to_last_kernel_tail_ms": 0.028353,
+      "host_end_to_last_kernel_tail_ns_signed": 28353,
+      "host_end_to_last_kernel_tail_ms_signed": 0.028353,
+      "gpu_makespan_ns": 910399,
+      "gpu_makespan_ms": 0.910399,
+      "gpu_kernel_time_sum_ns": 167104,
+      "gpu_kernel_time_sum_ms": 0.167104,
+      "gpu_kernel_count": 12,
+      "first_kernel_name": "per_token_group_quant_8bit_kernel",
+      "last_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+      "children": [
+        {
+          "canonical_name": "fused_qkv_a_proj_with_mqa",
+          "order_index": 1,
+          "host_start_ns": 18757328,
+          "host_end_ns": 18877967,
+          "host_duration_ns": 120639,
+          "host_duration_ms": 0.120639,
+          "first_kernel_start_ns": 18804075,
+          "last_kernel_end_ns": 18879147,
+          "module_total_to_last_kernel_ns": 121819,
+          "module_total_to_last_kernel_ms": 0.121819,
+          "host_to_first_kernel_gap_ns": 46747,
+          "host_to_first_kernel_gap_ms": 0.046747,
+          "host_end_to_last_kernel_tail_ns": 1180,
+          "host_end_to_last_kernel_tail_ms": 0.00118,
+          "host_end_to_last_kernel_tail_ns_signed": 1180,
+          "host_end_to_last_kernel_tail_ms_signed": 0.00118,
+          "gpu_makespan_ns": 75072,
+          "gpu_makespan_ms": 0.075072,
+          "gpu_kernel_time_sum_ns": 15360,
+          "gpu_kernel_time_sum_ms": 0.01536,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        {
+          "canonical_name": "q_a_layernorm",
+          "order_index": 2,
+          "host_start_ns": 18913460,
+          "host_end_ns": 18940703,
+          "host_duration_ns": 27243,
+          "host_duration_ms": 0.027243,
+          "first_kernel_start_ns": 18938827,
+          "last_kernel_end_ns": 18941099,
+          "module_total_to_last_kernel_ns": 27639,
+          "module_total_to_last_kernel_ms": 0.027639,
+          "host_to_first_kernel_gap_ns": 25367,
+          "host_to_first_kernel_gap_ms": 0.025367,
+          "host_end_to_last_kernel_tail_ns": 396,
+          "host_end_to_last_kernel_tail_ms": 0.000396,
+          "host_end_to_last_kernel_tail_ns_signed": 396,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000396,
+          "gpu_makespan_ns": 2272,
+          "gpu_makespan_ms": 0.002272,
+          "gpu_kernel_time_sum_ns": 2272,
+          "gpu_kernel_time_sum_ms": 0.002272,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        {
+          "canonical_name": "kv_a_layernorm",
+          "order_index": 3,
+          "host_start_ns": 18954772,
+          "host_end_ns": 18973240,
+          "host_duration_ns": 18468,
+          "host_duration_ms": 0.018468,
+          "first_kernel_start_ns": 18971979,
+          "last_kernel_end_ns": 18974123,
+          "module_total_to_last_kernel_ns": 19351,
+          "module_total_to_last_kernel_ms": 0.019351,
+          "host_to_first_kernel_gap_ns": 17207,
+          "host_to_first_kernel_gap_ms": 0.017207,
+          "host_end_to_last_kernel_tail_ns": 883,
+          "host_end_to_last_kernel_tail_ms": 0.000883,
+          "host_end_to_last_kernel_tail_ns_signed": 883,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000883,
+          "gpu_makespan_ns": 2144,
+          "gpu_makespan_ms": 0.002144,
+          "gpu_kernel_time_sum_ns": 2144,
+          "gpu_kernel_time_sum_ms": 0.002144,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        {
+          "canonical_name": "q_b_proj",
+          "order_index": 4,
+          "host_start_ns": 18993944,
+          "host_end_ns": 19111017,
+          "host_duration_ns": 117073,
+          "host_duration_ms": 0.117073,
+          "first_kernel_start_ns": 19036107,
+          "last_kernel_end_ns": 19122923,
+          "module_total_to_last_kernel_ns": 128979,
+          "module_total_to_last_kernel_ms": 0.128979,
+          "host_to_first_kernel_gap_ns": 42163,
+          "host_to_first_kernel_gap_ms": 0.042163,
+          "host_end_to_last_kernel_tail_ns": 11906,
+          "host_end_to_last_kernel_tail_ms": 0.011906,
+          "host_end_to_last_kernel_tail_ns_signed": 11906,
+          "host_end_to_last_kernel_tail_ms_signed": 0.011906,
+          "gpu_makespan_ns": 86816,
+          "gpu_makespan_ms": 0.086816,
+          "gpu_kernel_time_sum_ns": 24288,
+          "gpu_kernel_time_sum_ms": 0.024288,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        {
+          "canonical_name": "rotary_emb",
+          "order_index": 5,
+          "host_start_ns": 19207367,
+          "host_end_ns": 19256357,
+          "host_duration_ns": 48990,
+          "host_duration_ms": 0.04899,
+          "first_kernel_start_ns": 19251243,
+          "last_kernel_end_ns": 19256715,
+          "module_total_to_last_kernel_ns": 49348,
+          "module_total_to_last_kernel_ms": 0.049348,
+          "host_to_first_kernel_gap_ns": 43876,
+          "host_to_first_kernel_gap_ms": 0.043876,
+          "host_end_to_last_kernel_tail_ns": 358,
+          "host_end_to_last_kernel_tail_ms": 0.000358,
+          "host_end_to_last_kernel_tail_ns_signed": 358,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000358,
+          "gpu_makespan_ns": 5472,
+          "gpu_makespan_ms": 0.005472,
+          "gpu_kernel_time_sum_ns": 5472,
+          "gpu_kernel_time_sum_ms": 0.005472,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "last_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel"
+        },
+        {
+          "canonical_name": "attn_mqa",
+          "order_index": 6,
+          "host_start_ns": 19281861,
+          "host_end_ns": 19442276,
+          "host_duration_ns": 160415,
+          "host_duration_ms": 0.160415,
+          "first_kernel_start_ns": 19341131,
+          "last_kernel_end_ns": 19484139,
+          "module_total_to_last_kernel_ns": 202278,
+          "module_total_to_last_kernel_ms": 0.202278,
+          "host_to_first_kernel_gap_ns": 59270,
+          "host_to_first_kernel_gap_ms": 0.05927,
+          "host_end_to_last_kernel_tail_ns": 41863,
+          "host_end_to_last_kernel_tail_ms": 0.041863,
+          "host_end_to_last_kernel_tail_ns_signed": 41863,
+          "host_end_to_last_kernel_tail_ms_signed": 0.041863,
+          "gpu_makespan_ns": 143008,
+          "gpu_makespan_ms": 0.143008,
+          "gpu_kernel_time_sum_ns": 59904,
+          "gpu_kernel_time_sum_ms": 0.059904,
+          "gpu_kernel_count": 3,
+          "first_kernel_name": "set_mla_kv_buffer_kernel",
+          "last_kernel_name": "device_kernel"
+        },
+        {
+          "canonical_name": "o_proj",
+          "order_index": 7,
+          "host_start_ns": 19518360,
+          "host_end_ns": 19676094,
+          "host_duration_ns": 157734,
+          "host_duration_ms": 0.157734,
+          "first_kernel_start_ns": 19575978,
+          "last_kernel_end_ns": 19714474,
+          "module_total_to_last_kernel_ns": 196114,
+          "module_total_to_last_kernel_ms": 0.196114,
+          "host_to_first_kernel_gap_ns": 57618,
+          "host_to_first_kernel_gap_ms": 0.057618,
+          "host_end_to_last_kernel_tail_ns": 38380,
+          "host_end_to_last_kernel_tail_ms": 0.03838,
+          "host_end_to_last_kernel_tail_ns_signed": 38380,
+          "host_end_to_last_kernel_tail_ms_signed": 0.03838,
+          "gpu_makespan_ns": 138496,
+          "gpu_makespan_ms": 0.138496,
+          "gpu_kernel_time_sum_ns": 57664,
+          "gpu_kernel_time_sum_ms": 0.057664,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        }
+      ]
+    },
+    "prefill_chunk_info": null,
+    "children": [
+      {
+        "order_index": 1,
+        "text": "{'Module': 'model.model.layers.1.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[256, 7168]]}",
+        "canonical_name": "fused_qkv_a_proj_with_mqa",
+        "operator_info": {
+          "module_name": "model.model.layers.1.self_attn.fused_qkv_a_proj_with_mqa",
+          "canonical_name": "fused_qkv_a_proj_with_mqa",
+          "inputs": [
+            [
+              256,
+              7168
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              2112,
+              7168
+            ],
+            "weight_scale_inv": [
+              17,
+              56
+            ]
+          },
+          "operator_category": "linear_or_gemm",
+          "implementation": "sm90_fp8_gemm_1d2d_impl",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 2,
+          "gpu_kernel_time_ns_total": 15360,
+          "gpu_kernel_time_ms_total": 0.01536,
+          "runtime_call_count": 6,
+          "dominant_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+          "dominant_kernel_time_ns": 11648,
+          "top_gpu_kernels": [
+            {
+              "short_name": "sm90_fp8_gemm_1d2d_impl",
+              "gpu_time_ns": 11648,
+              "gpu_time_ms": 0.011648
+            },
+            {
+              "short_name": "per_token_group_quant_8bit_kernel",
+              "gpu_time_ns": 3712,
+              "gpu_time_ms": 0.003712
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 18797709,
+                "end_ns": 18802399,
+                "duration_ns": 4690,
+                "global_tid": 281484942377554,
+                "correlation_id": 652,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 18851790,
+                "end_ns": 18852067,
+                "duration_ns": 277,
+                "global_tid": 281484942377554,
+                "correlation_id": 660,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 18852445,
+                "end_ns": 18852571,
+                "duration_ns": 126,
+                "global_tid": 281484942377554,
+                "correlation_id": 661,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 18852790,
+                "end_ns": 18852935,
+                "duration_ns": 145,
+                "global_tid": 281484942377554,
+                "correlation_id": 662,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 18853309,
+                "end_ns": 18853457,
+                "duration_ns": 148,
+                "global_tid": 281484942377554,
+                "correlation_id": 663,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 18860887,
+                "end_ns": 18865717,
+                "duration_ns": 4830,
+                "global_tid": 281484942377554,
+                "correlation_id": 666,
+                "launch_api": "cuLaunchKernelEx"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 18804075,
+                "end_ns": 18807787,
+                "duration_ns": 3712,
+                "stream_id": 13,
+                "correlation_id": 652,
+                "short_name": "per_token_group_quant_8bit_kernel",
+                "demangled_name": "void per_token_group_quant_8bit_kernel<__nv_bfloat16, __nv_fp8_e4m3, (bool)1, (bool)0, float>(const T1 *, void *, T5 *, int, int, int, float, float, float, int, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 18797709,
+                "launch_runtime_end_ns": 18802399
+              },
+              {
+                "start_ns": 18867499,
+                "end_ns": 18879147,
+                "duration_ns": 11648,
+                "stream_id": 13,
+                "correlation_id": 666,
+                "short_name": "sm90_fp8_gemm_1d2d_impl",
+                "demangled_name": "void deep_gemm::sm90_fp8_gemm_1d2d_impl<(cute::UMMA::Major)0, (unsigned int)0, (unsigned int)2112, (unsigned int)7168, (unsigned int)1, (unsigned int)64, (unsigned int)64, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)13, (unsigned int)4, (unsigned int)128, (unsigned int)128, (unsigned int)1, (bool)0, (unsigned int)132, (deep_gemm::GemmType)0, deep_gemm::EpilogueIdentity, (bool)0>(float *, int *, int *, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 18860887,
+                "launch_runtime_end_ns": 18865717
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 18757328,
+          "host_end_ns": 18877967,
+          "host_duration_ns": 120639,
+          "host_duration_ms": 0.120639,
+          "first_kernel_start_ns": 18804075,
+          "last_kernel_end_ns": 18879147,
+          "module_total_to_last_kernel_ns": 121819,
+          "module_total_to_last_kernel_ms": 0.121819,
+          "host_to_first_kernel_gap_ns": 46747,
+          "host_to_first_kernel_gap_ms": 0.046747,
+          "host_end_to_last_kernel_tail_ns": 1180,
+          "host_end_to_last_kernel_tail_ms": 0.00118,
+          "host_end_to_last_kernel_tail_ns_signed": 1180,
+          "host_end_to_last_kernel_tail_ms_signed": 0.00118,
+          "gpu_makespan_ns": 75072,
+          "gpu_makespan_ms": 0.075072,
+          "gpu_kernel_time_sum_ns": 15360,
+          "gpu_kernel_time_sum_ms": 0.01536,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        "start_ns": 18757328,
+        "end_ns": 18877967,
+        "duration_ns": 120639,
+        "duration_ms": 0.120639
+      },
+      {
+        "order_index": 2,
+        "text": "{'Module': 'model.model.layers.1.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[256, 1536]]}",
+        "canonical_name": "q_a_layernorm",
+        "operator_info": {
+          "module_name": "model.model.layers.1.self_attn.q_a_layernorm",
+          "canonical_name": "q_a_layernorm",
+          "inputs": [
+            [
+              256,
+              1536
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              1536
+            ]
+          },
+          "operator_category": "normalization",
+          "implementation": "RMSNormKernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 1,
+          "gpu_kernel_time_ns_total": 2272,
+          "gpu_kernel_time_ms_total": 0.002272,
+          "runtime_call_count": 1,
+          "dominant_kernel_name": "RMSNormKernel",
+          "dominant_kernel_time_ns": 2272,
+          "top_gpu_kernels": [
+            {
+              "short_name": "RMSNormKernel",
+              "gpu_time_ns": 2272,
+              "gpu_time_ms": 0.002272
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 18932237,
+                "end_ns": 18936745,
+                "duration_ns": 4508,
+                "global_tid": 281484942377554,
+                "correlation_id": 680,
+                "launch_api": "cudaLaunchKernelExC_v11060"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 18938827,
+                "end_ns": 18941099,
+                "duration_ns": 2272,
+                "stream_id": 13,
+                "correlation_id": 680,
+                "short_name": "RMSNormKernel",
+                "demangled_name": "void flashinfer::norm::RMSNormKernel<(unsigned int)8, __nv_bfloat16>(T2 *, T2 *, T2 *, unsigned int, unsigned int, unsigned int, float, float)",
+                "launch_api": "cudaLaunchKernelExC_v11060",
+                "launch_runtime_start_ns": 18932237,
+                "launch_runtime_end_ns": 18936745
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 18913460,
+          "host_end_ns": 18940703,
+          "host_duration_ns": 27243,
+          "host_duration_ms": 0.027243,
+          "first_kernel_start_ns": 18938827,
+          "last_kernel_end_ns": 18941099,
+          "module_total_to_last_kernel_ns": 27639,
+          "module_total_to_last_kernel_ms": 0.027639,
+          "host_to_first_kernel_gap_ns": 25367,
+          "host_to_first_kernel_gap_ms": 0.025367,
+          "host_end_to_last_kernel_tail_ns": 396,
+          "host_end_to_last_kernel_tail_ms": 0.000396,
+          "host_end_to_last_kernel_tail_ns_signed": 396,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000396,
+          "gpu_makespan_ns": 2272,
+          "gpu_makespan_ms": 0.002272,
+          "gpu_kernel_time_sum_ns": 2272,
+          "gpu_kernel_time_sum_ms": 0.002272,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        "start_ns": 18913460,
+        "end_ns": 18940703,
+        "duration_ns": 27243,
+        "duration_ms": 0.027243
+      },
+      {
+        "order_index": 3,
+        "text": "{'Module': 'model.model.layers.1.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[256, 512]]}",
+        "canonical_name": "kv_a_layernorm",
+        "operator_info": {
+          "module_name": "model.model.layers.1.self_attn.kv_a_layernorm",
+          "canonical_name": "kv_a_layernorm",
+          "inputs": [
+            [
+              256,
+              512
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              512
+            ]
+          },
+          "operator_category": "normalization",
+          "implementation": "RMSNormKernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 1,
+          "gpu_kernel_time_ns_total": 2144,
+          "gpu_kernel_time_ms_total": 0.002144,
+          "runtime_call_count": 1,
+          "dominant_kernel_name": "RMSNormKernel",
+          "dominant_kernel_time_ns": 2144,
+          "top_gpu_kernels": [
+            {
+              "short_name": "RMSNormKernel",
+              "gpu_time_ns": 2144,
+              "gpu_time_ms": 0.002144
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 18966325,
+                "end_ns": 18970062,
+                "duration_ns": 3737,
+                "global_tid": 281484942377554,
+                "correlation_id": 693,
+                "launch_api": "cudaLaunchKernelExC_v11060"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 18971979,
+                "end_ns": 18974123,
+                "duration_ns": 2144,
+                "stream_id": 13,
+                "correlation_id": 693,
+                "short_name": "RMSNormKernel",
+                "demangled_name": "void flashinfer::norm::RMSNormKernel<(unsigned int)8, __nv_bfloat16>(T2 *, T2 *, T2 *, unsigned int, unsigned int, unsigned int, float, float)",
+                "launch_api": "cudaLaunchKernelExC_v11060",
+                "launch_runtime_start_ns": 18966325,
+                "launch_runtime_end_ns": 18970062
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 18954772,
+          "host_end_ns": 18973240,
+          "host_duration_ns": 18468,
+          "host_duration_ms": 0.018468,
+          "first_kernel_start_ns": 18971979,
+          "last_kernel_end_ns": 18974123,
+          "module_total_to_last_kernel_ns": 19351,
+          "module_total_to_last_kernel_ms": 0.019351,
+          "host_to_first_kernel_gap_ns": 17207,
+          "host_to_first_kernel_gap_ms": 0.017207,
+          "host_end_to_last_kernel_tail_ns": 883,
+          "host_end_to_last_kernel_tail_ms": 0.000883,
+          "host_end_to_last_kernel_tail_ns_signed": 883,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000883,
+          "gpu_makespan_ns": 2144,
+          "gpu_makespan_ms": 0.002144,
+          "gpu_kernel_time_sum_ns": 2144,
+          "gpu_kernel_time_sum_ms": 0.002144,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        "start_ns": 18954772,
+        "end_ns": 18973240,
+        "duration_ns": 18468,
+        "duration_ms": 0.018468
+      },
+      {
+        "order_index": 4,
+        "text": "{'Module': 'model.model.layers.1.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[256, 1536]]}",
+        "canonical_name": "q_b_proj",
+        "operator_info": {
+          "module_name": "model.model.layers.1.self_attn.q_b_proj",
+          "canonical_name": "q_b_proj",
+          "inputs": [
+            [
+              256,
+              1536
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              24576,
+              1536
+            ],
+            "weight_scale_inv": [
+              192,
+              12
+            ]
+          },
+          "operator_category": "linear_or_gemm",
+          "implementation": "sm90_fp8_gemm_1d2d_impl",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 2,
+          "gpu_kernel_time_ns_total": 24288,
+          "gpu_kernel_time_ms_total": 0.024288,
+          "runtime_call_count": 6,
+          "dominant_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+          "dominant_kernel_time_ns": 22240,
+          "top_gpu_kernels": [
+            {
+              "short_name": "sm90_fp8_gemm_1d2d_impl",
+              "gpu_time_ns": 22240,
+              "gpu_time_ms": 0.02224
+            },
+            {
+              "short_name": "per_token_group_quant_8bit_kernel",
+              "gpu_time_ns": 2048,
+              "gpu_time_ms": 0.002048
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 19029641,
+                "end_ns": 19036444,
+                "duration_ns": 6803,
+                "global_tid": 281484942377554,
+                "correlation_id": 714,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 19085451,
+                "end_ns": 19085761,
+                "duration_ns": 310,
+                "global_tid": 281484942377554,
+                "correlation_id": 722,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19086103,
+                "end_ns": 19086207,
+                "duration_ns": 104,
+                "global_tid": 281484942377554,
+                "correlation_id": 723,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19086432,
+                "end_ns": 19086596,
+                "duration_ns": 164,
+                "global_tid": 281484942377554,
+                "correlation_id": 724,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19086907,
+                "end_ns": 19087047,
+                "duration_ns": 140,
+                "global_tid": 281484942377554,
+                "correlation_id": 725,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19094387,
+                "end_ns": 19098849,
+                "duration_ns": 4462,
+                "global_tid": 281484942377554,
+                "correlation_id": 728,
+                "launch_api": "cuLaunchKernelEx"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 19036107,
+                "end_ns": 19038155,
+                "duration_ns": 2048,
+                "stream_id": 13,
+                "correlation_id": 714,
+                "short_name": "per_token_group_quant_8bit_kernel",
+                "demangled_name": "void per_token_group_quant_8bit_kernel<__nv_bfloat16, __nv_fp8_e4m3, (bool)1, (bool)0, float>(const T1 *, void *, T5 *, int, int, int, float, float, float, int, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 19029641,
+                "launch_runtime_end_ns": 19036444
+              },
+              {
+                "start_ns": 19100683,
+                "end_ns": 19122923,
+                "duration_ns": 22240,
+                "stream_id": 13,
+                "correlation_id": 728,
+                "short_name": "sm90_fp8_gemm_1d2d_impl",
+                "demangled_name": "void deep_gemm::sm90_fp8_gemm_1d2d_impl<(cute::UMMA::Major)0, (unsigned int)0, (unsigned int)24576, (unsigned int)1536, (unsigned int)1, (unsigned int)128, (unsigned int)192, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)4, (unsigned int)0, (unsigned int)128, (unsigned int)256, (unsigned int)1, (bool)0, (unsigned int)128, (deep_gemm::GemmType)0, deep_gemm::EpilogueIdentity, (bool)0>(float *, int *, int *, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 19094387,
+                "launch_runtime_end_ns": 19098849
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 18993944,
+          "host_end_ns": 19111017,
+          "host_duration_ns": 117073,
+          "host_duration_ms": 0.117073,
+          "first_kernel_start_ns": 19036107,
+          "last_kernel_end_ns": 19122923,
+          "module_total_to_last_kernel_ns": 128979,
+          "module_total_to_last_kernel_ms": 0.128979,
+          "host_to_first_kernel_gap_ns": 42163,
+          "host_to_first_kernel_gap_ms": 0.042163,
+          "host_end_to_last_kernel_tail_ns": 11906,
+          "host_end_to_last_kernel_tail_ms": 0.011906,
+          "host_end_to_last_kernel_tail_ns_signed": 11906,
+          "host_end_to_last_kernel_tail_ms_signed": 0.011906,
+          "gpu_makespan_ns": 86816,
+          "gpu_makespan_ms": 0.086816,
+          "gpu_kernel_time_sum_ns": 24288,
+          "gpu_kernel_time_sum_ms": 0.024288,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        "start_ns": 18993944,
+        "end_ns": 19111017,
+        "duration_ns": 117073,
+        "duration_ms": 0.117073
+      },
+      {
+        "order_index": 5,
+        "text": "{'Module': 'model.model.layers.0.self_attn.rotary_emb', 'Inputs': [[256], [256, 128, 64], [256, 1, 64]]}",
+        "canonical_name": "rotary_emb",
+        "operator_info": {
+          "module_name": "model.model.layers.0.self_attn.rotary_emb",
+          "canonical_name": "rotary_emb",
+          "inputs": [
+            [
+              256
+            ],
+            [
+              256,
+              128,
+              64
+            ],
+            [
+              256,
+              1,
+              64
+            ]
+          ],
+          "trainable_params": null,
+          "operator_category": "position_embedding",
+          "implementation": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 1,
+          "gpu_kernel_time_ns_total": 5472,
+          "gpu_kernel_time_ms_total": 0.005472,
+          "runtime_call_count": 1,
+          "dominant_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "dominant_kernel_time_ns": 5472,
+          "top_gpu_kernels": [
+            {
+              "short_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+              "gpu_time_ns": 5472,
+              "gpu_time_ms": 0.005472
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 19244192,
+                "end_ns": 19249145,
+                "duration_ns": 4953,
+                "global_tid": 281484942377554,
+                "correlation_id": 752,
+                "launch_api": "cudaLaunchKernel_v7000"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 19251243,
+                "end_ns": 19256715,
+                "duration_ns": 5472,
+                "stream_id": 13,
+                "correlation_id": 752,
+                "short_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+                "demangled_name": "void flashinfer::BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel<(bool)1, (unsigned int)64, (unsigned int)8, (unsigned int)8, __nv_bfloat16, long>(T5 *, T5 *, T5 *, T5 *, float *, T6 *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 19244192,
+                "launch_runtime_end_ns": 19249145
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 19207367,
+          "host_end_ns": 19256357,
+          "host_duration_ns": 48990,
+          "host_duration_ms": 0.04899,
+          "first_kernel_start_ns": 19251243,
+          "last_kernel_end_ns": 19256715,
+          "module_total_to_last_kernel_ns": 49348,
+          "module_total_to_last_kernel_ms": 0.049348,
+          "host_to_first_kernel_gap_ns": 43876,
+          "host_to_first_kernel_gap_ms": 0.043876,
+          "host_end_to_last_kernel_tail_ns": 358,
+          "host_end_to_last_kernel_tail_ms": 0.000358,
+          "host_end_to_last_kernel_tail_ns_signed": 358,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000358,
+          "gpu_makespan_ns": 5472,
+          "gpu_makespan_ms": 0.005472,
+          "gpu_kernel_time_sum_ns": 5472,
+          "gpu_kernel_time_sum_ms": 0.005472,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "last_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel"
+        },
+        "start_ns": 19207367,
+        "end_ns": 19256357,
+        "duration_ns": 48990,
+        "duration_ms": 0.04899
+      },
+      {
+        "order_index": 6,
+        "text": "{'Module': 'model.model.layers.1.self_attn.attn_mqa', 'TrainableParams': {'k_scale': [], 'v_scale': []}, 'Inputs': [[256, 128, 512], [256, 1, 512], [256, 1, 512]]}",
+        "canonical_name": "attn_mqa",
+        "operator_info": {
+          "module_name": "model.model.layers.1.self_attn.attn_mqa",
+          "canonical_name": "attn_mqa",
+          "inputs": [
+            [
+              256,
+              128,
+              512
+            ],
+            [
+              256,
+              1,
+              512
+            ],
+            [
+              256,
+              1,
+              512
+            ]
+          ],
+          "trainable_params": {
+            "k_scale": [],
+            "v_scale": []
+          },
+          "operator_category": "attention_or_fused_attention",
+          "implementation": "device_kernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 3,
+          "gpu_kernel_time_ns_total": 59904,
+          "gpu_kernel_time_ms_total": 0.059904,
+          "runtime_call_count": 15,
+          "dominant_kernel_name": "device_kernel",
+          "dominant_kernel_time_ns": 54592,
+          "top_gpu_kernels": [
+            {
+              "short_name": "device_kernel",
+              "gpu_time_ns": 54592,
+              "gpu_time_ms": 0.054592
+            },
+            {
+              "short_name": "prepare_varlen_num_blocks_kernel",
+              "gpu_time_ns": 3136,
+              "gpu_time_ms": 0.003136
+            },
+            {
+              "short_name": "set_mla_kv_buffer_kernel",
+              "gpu_time_ns": 2176,
+              "gpu_time_ms": 0.002176
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 19334619,
+                "end_ns": 19339155,
+                "duration_ns": 4536,
+                "global_tid": 281484942377554,
+                "correlation_id": 760,
+                "launch_api": "cuLaunchKernelEx"
+              },
+              {
+                "start_ns": 19408100,
+                "end_ns": 19413999,
+                "duration_ns": 5899,
+                "global_tid": 281484942377554,
+                "correlation_id": 794,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 19415671,
+                "end_ns": 19416445,
+                "duration_ns": 774,
+                "global_tid": 281484942377554,
+                "correlation_id": 797,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 19416637,
+                "end_ns": 19417050,
+                "duration_ns": 413,
+                "global_tid": 281484942377554,
+                "correlation_id": 798,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19417310,
+                "end_ns": 19417490,
+                "duration_ns": 180,
+                "global_tid": 281484942377554,
+                "correlation_id": 799,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 19417557,
+                "end_ns": 19417680,
+                "duration_ns": 123,
+                "global_tid": 281484942377554,
+                "correlation_id": 800,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19417902,
+                "end_ns": 19418081,
+                "duration_ns": 179,
+                "global_tid": 281484942377554,
+                "correlation_id": 801,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 19418277,
+                "end_ns": 19418393,
+                "duration_ns": 116,
+                "global_tid": 281484942377554,
+                "correlation_id": 802,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19418539,
+                "end_ns": 19418718,
+                "duration_ns": 179,
+                "global_tid": 281484942377554,
+                "correlation_id": 803,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 19418948,
+                "end_ns": 19419066,
+                "duration_ns": 118,
+                "global_tid": 281484942377554,
+                "correlation_id": 804,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19419305,
+                "end_ns": 19419508,
+                "duration_ns": 203,
+                "global_tid": 281484942377554,
+                "correlation_id": 805,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 19419573,
+                "end_ns": 19419681,
+                "duration_ns": 108,
+                "global_tid": 281484942377554,
+                "correlation_id": 806,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19419889,
+                "end_ns": 19420066,
+                "duration_ns": 177,
+                "global_tid": 281484942377554,
+                "correlation_id": 807,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 19420176,
+                "end_ns": 19420290,
+                "duration_ns": 114,
+                "global_tid": 281484942377554,
+                "correlation_id": 808,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19422240,
+                "end_ns": 19427240,
+                "duration_ns": 5000,
+                "global_tid": 281484942377554,
+                "correlation_id": 810,
+                "launch_api": "cudaLaunchKernelExC_v11060"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 19341131,
+                "end_ns": 19343307,
+                "duration_ns": 2176,
+                "stream_id": 13,
+                "correlation_id": 760,
+                "short_name": "set_mla_kv_buffer_kernel",
+                "demangled_name": "set_mla_kv_buffer_kernel",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 19334619,
+                "launch_runtime_end_ns": 19339155
+              },
+              {
+                "start_ns": 19415531,
+                "end_ns": 19418667,
+                "duration_ns": 3136,
+                "stream_id": 13,
+                "correlation_id": 794,
+                "short_name": "prepare_varlen_num_blocks_kernel",
+                "demangled_name": "void flash::prepare_varlen_num_blocks_kernel<(int)1, (bool)1>(int, int, int, const int *, const int *, const int *, const int *, const int *, const int *, int, int, int, int, int, cutlass::FastDivmod, cutlass::FastDivmod, int *, int *, int *, int *, int *, bool, bool, bool, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 19408100,
+                "launch_runtime_end_ns": 19413999
+              },
+              {
+                "start_ns": 19429547,
+                "end_ns": 19484139,
+                "duration_ns": 54592,
+                "stream_id": 13,
+                "correlation_id": 810,
+                "short_name": "device_kernel",
+                "demangled_name": "void cutlass::device_kernel<flash::enable_sm90_or_later<flash::FlashAttnFwdSm90<flash::CollectiveMainloopFwdSm90<(int)2, cute::tuple<cute::C<(int)1>, cute::C<(int)1>, cute::C<(int)1>>, cute::tuple<cute::C<(int)64>, cute::C<(int)64>, cute::C<(int)64>>, (int)512, cutlass::bfloat16_t, float, cutlass::arch::Sm90, (bool)1, (bool)0, (bool)0, (bool)1, (bool)1, (bool)0, (bool)1, (bool)0, (bool)0, (bool)1, (bool)0, (bool)0, cutlass::bfloat16_t>, flash::CollectiveEpilogueFwd<cute::tuple<cute::C<(int)64>, cute::C<(int)512>, cute::C<(int)64>>, cute::tuple<cute::C<(int)1>, cute::C<(int)1>, cute::C<(int)1>>, cutlass::bfloat16_t, cutlass::arch::Sm90, (int)256, (bool)1, (bool)1, (bool)0, (bool)0>, flash::VarlenDynamicPersistentTileScheduler<(int)64, (int)64, (int)256, (int)128, (bool)0, (bool)1, (bool)1, (bool)1, (bool)1, (bool)1>>>>(T1::Params)",
+                "launch_api": "cudaLaunchKernelExC_v11060",
+                "launch_runtime_start_ns": 19422240,
+                "launch_runtime_end_ns": 19427240
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 19281861,
+          "host_end_ns": 19442276,
+          "host_duration_ns": 160415,
+          "host_duration_ms": 0.160415,
+          "first_kernel_start_ns": 19341131,
+          "last_kernel_end_ns": 19484139,
+          "module_total_to_last_kernel_ns": 202278,
+          "module_total_to_last_kernel_ms": 0.202278,
+          "host_to_first_kernel_gap_ns": 59270,
+          "host_to_first_kernel_gap_ms": 0.05927,
+          "host_end_to_last_kernel_tail_ns": 41863,
+          "host_end_to_last_kernel_tail_ms": 0.041863,
+          "host_end_to_last_kernel_tail_ns_signed": 41863,
+          "host_end_to_last_kernel_tail_ms_signed": 0.041863,
+          "gpu_makespan_ns": 143008,
+          "gpu_makespan_ms": 0.143008,
+          "gpu_kernel_time_sum_ns": 59904,
+          "gpu_kernel_time_sum_ms": 0.059904,
+          "gpu_kernel_count": 3,
+          "first_kernel_name": "set_mla_kv_buffer_kernel",
+          "last_kernel_name": "device_kernel"
+        },
+        "start_ns": 19281861,
+        "end_ns": 19442276,
+        "duration_ns": 160415,
+        "duration_ms": 0.160415
+      },
+      {
+        "order_index": 7,
+        "text": "{'Module': 'model.model.layers.1.self_attn.o_proj', 'TrainableParams': {'weight': [7168, 16384], 'weight_scale_inv': [56, 128]}, 'Inputs': [[256, 16384]]}",
+        "canonical_name": "o_proj",
+        "operator_info": {
+          "module_name": "model.model.layers.1.self_attn.o_proj",
+          "canonical_name": "o_proj",
+          "inputs": [
+            [
+              256,
+              16384
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              7168,
+              16384
+            ],
+            "weight_scale_inv": [
+              56,
+              128
+            ]
+          },
+          "operator_category": "linear_or_gemm",
+          "implementation": "sm90_fp8_gemm_1d2d_impl",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 2,
+          "gpu_kernel_time_ns_total": 57664,
+          "gpu_kernel_time_ms_total": 0.057664,
+          "runtime_call_count": 6,
+          "dominant_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+          "dominant_kernel_time_ns": 51968,
+          "top_gpu_kernels": [
+            {
+              "short_name": "sm90_fp8_gemm_1d2d_impl",
+              "gpu_time_ns": 51968,
+              "gpu_time_ms": 0.051968
+            },
+            {
+              "short_name": "per_token_group_quant_8bit_kernel",
+              "gpu_time_ns": 5696,
+              "gpu_time_ms": 0.005696
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 19569071,
+                "end_ns": 19574016,
+                "duration_ns": 4945,
+                "global_tid": 281484942377554,
+                "correlation_id": 852,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 19642892,
+                "end_ns": 19643330,
+                "duration_ns": 438,
+                "global_tid": 281484942377554,
+                "correlation_id": 860,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19643604,
+                "end_ns": 19643712,
+                "duration_ns": 108,
+                "global_tid": 281484942377554,
+                "correlation_id": 861,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19644051,
+                "end_ns": 19644224,
+                "duration_ns": 173,
+                "global_tid": 281484942377554,
+                "correlation_id": 862,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19644580,
+                "end_ns": 19644750,
+                "duration_ns": 170,
+                "global_tid": 281484942377554,
+                "correlation_id": 863,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 19656573,
+                "end_ns": 19660429,
+                "duration_ns": 3856,
+                "global_tid": 281484942377554,
+                "correlation_id": 866,
+                "launch_api": "cuLaunchKernelEx"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 19575978,
+                "end_ns": 19581674,
+                "duration_ns": 5696,
+                "stream_id": 13,
+                "correlation_id": 852,
+                "short_name": "per_token_group_quant_8bit_kernel",
+                "demangled_name": "void per_token_group_quant_8bit_kernel<__nv_bfloat16, __nv_fp8_e4m3, (bool)1, (bool)0, float>(const T1 *, void *, T5 *, int, int, int, float, float, float, int, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 19569071,
+                "launch_runtime_end_ns": 19574016
+              },
+              {
+                "start_ns": 19662506,
+                "end_ns": 19714474,
+                "duration_ns": 51968,
+                "stream_id": 13,
+                "correlation_id": 866,
+                "short_name": "sm90_fp8_gemm_1d2d_impl",
+                "demangled_name": "void deep_gemm::sm90_fp8_gemm_1d2d_impl<(cute::UMMA::Major)0, (unsigned int)0, (unsigned int)7168, (unsigned int)16384, (unsigned int)1, (unsigned int)128, (unsigned int)112, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)32, (unsigned int)6, (unsigned int)2, (unsigned int)128, (unsigned int)256, (unsigned int)1, (bool)0, (unsigned int)128, (deep_gemm::GemmType)0, deep_gemm::EpilogueIdentity, (bool)0>(float *, int *, int *, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 19656573,
+                "launch_runtime_end_ns": 19660429
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 19518360,
+          "host_end_ns": 19676094,
+          "host_duration_ns": 157734,
+          "host_duration_ms": 0.157734,
+          "first_kernel_start_ns": 19575978,
+          "last_kernel_end_ns": 19714474,
+          "module_total_to_last_kernel_ns": 196114,
+          "module_total_to_last_kernel_ms": 0.196114,
+          "host_to_first_kernel_gap_ns": 57618,
+          "host_to_first_kernel_gap_ms": 0.057618,
+          "host_end_to_last_kernel_tail_ns": 38380,
+          "host_end_to_last_kernel_tail_ms": 0.03838,
+          "host_end_to_last_kernel_tail_ns_signed": 38380,
+          "host_end_to_last_kernel_tail_ms_signed": 0.03838,
+          "gpu_makespan_ns": 138496,
+          "gpu_makespan_ms": 0.138496,
+          "gpu_kernel_time_sum_ns": 57664,
+          "gpu_kernel_time_sum_ms": 0.057664,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        "start_ns": 19518360,
+        "end_ns": 19676094,
+        "duration_ns": 157734,
+        "duration_ms": 0.157734
+      }
+    ],
+    "stage_instance_count": 1,
+    "collector_prefill_aligned": false
+  },
+  {
+    "event_order_index": 3,
+    "layer_id": 2,
+    "stage": "decode",
+    "stage_instance_index": 1,
+    "collector_aligned_boundary": "{'Module': 'model.model.layers.2.self_attn'}",
+    "start_ns": 20189695,
+    "end_ns": 21151030,
+    "duration_ns": 961335,
+    "duration_ms": 0.961335,
+    "shape_info": {
+      "module": "attn_mqa",
+      "inputs": [
+        [
+          256,
+          128,
+          512
+        ],
+        [
+          256,
+          1,
+          512
+        ],
+        [
+          256,
+          1,
+          512
+        ]
+      ],
+      "token_count": 256,
+      "total_tokens": 256,
+      "chunked_req_prefix_len": 0,
+      "current_chunked_req_prefix_len": 0,
+      "current_chunked_req_prefix_len_source": "attention_inputs",
+      "scheduler_chunked_req_prefix_len": null
+    },
+    "timing_breakdown": {
+      "host_start_ns": 20189695,
+      "host_end_ns": 21151030,
+      "host_duration_ns": 961335,
+      "host_duration_ms": 0.961335,
+      "first_kernel_start_ns": 20274250,
+      "last_kernel_end_ns": 21173321,
+      "module_total_to_last_kernel_ns": 983626,
+      "module_total_to_last_kernel_ms": 0.983626,
+      "host_to_first_kernel_gap_ns": 84555,
+      "host_to_first_kernel_gap_ms": 0.084555,
+      "host_end_to_last_kernel_tail_ns": 22291,
+      "host_end_to_last_kernel_tail_ms": 0.022291,
+      "host_end_to_last_kernel_tail_ns_signed": 22291,
+      "host_end_to_last_kernel_tail_ms_signed": 0.022291,
+      "gpu_makespan_ns": 899071,
+      "gpu_makespan_ms": 0.899071,
+      "gpu_kernel_time_sum_ns": 168639,
+      "gpu_kernel_time_sum_ms": 0.168639,
+      "gpu_kernel_count": 12,
+      "first_kernel_name": "per_token_group_quant_8bit_kernel",
+      "last_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+      "children": [
+        {
+          "canonical_name": "fused_qkv_a_proj_with_mqa",
+          "order_index": 1,
+          "host_start_ns": 20228999,
+          "host_end_ns": 20346565,
+          "host_duration_ns": 117566,
+          "host_duration_ms": 0.117566,
+          "first_kernel_start_ns": 20274250,
+          "last_kernel_end_ns": 20347402,
+          "module_total_to_last_kernel_ns": 118403,
+          "module_total_to_last_kernel_ms": 0.118403,
+          "host_to_first_kernel_gap_ns": 45251,
+          "host_to_first_kernel_gap_ms": 0.045251,
+          "host_end_to_last_kernel_tail_ns": 837,
+          "host_end_to_last_kernel_tail_ms": 0.000837,
+          "host_end_to_last_kernel_tail_ns_signed": 837,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000837,
+          "gpu_makespan_ns": 73152,
+          "gpu_makespan_ms": 0.073152,
+          "gpu_kernel_time_sum_ns": 15200,
+          "gpu_kernel_time_sum_ms": 0.0152,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        {
+          "canonical_name": "q_a_layernorm",
+          "order_index": 2,
+          "host_start_ns": 20382101,
+          "host_end_ns": 20408599,
+          "host_duration_ns": 26498,
+          "host_duration_ms": 0.026498,
+          "first_kernel_start_ns": 20406410,
+          "last_kernel_end_ns": 20408778,
+          "module_total_to_last_kernel_ns": 26677,
+          "module_total_to_last_kernel_ms": 0.026677,
+          "host_to_first_kernel_gap_ns": 24309,
+          "host_to_first_kernel_gap_ms": 0.024309,
+          "host_end_to_last_kernel_tail_ns": 179,
+          "host_end_to_last_kernel_tail_ms": 0.000179,
+          "host_end_to_last_kernel_tail_ns_signed": 179,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000179,
+          "gpu_makespan_ns": 2368,
+          "gpu_makespan_ms": 0.002368,
+          "gpu_kernel_time_sum_ns": 2368,
+          "gpu_kernel_time_sum_ms": 0.002368,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        {
+          "canonical_name": "kv_a_layernorm",
+          "order_index": 3,
+          "host_start_ns": 20422823,
+          "host_end_ns": 20440930,
+          "host_duration_ns": 18107,
+          "host_duration_ms": 0.018107,
+          "first_kernel_start_ns": 20440010,
+          "last_kernel_end_ns": 20442122,
+          "module_total_to_last_kernel_ns": 19299,
+          "module_total_to_last_kernel_ms": 0.019299,
+          "host_to_first_kernel_gap_ns": 17187,
+          "host_to_first_kernel_gap_ms": 0.017187,
+          "host_end_to_last_kernel_tail_ns": 1192,
+          "host_end_to_last_kernel_tail_ms": 0.001192,
+          "host_end_to_last_kernel_tail_ns_signed": 1192,
+          "host_end_to_last_kernel_tail_ms_signed": 0.001192,
+          "gpu_makespan_ns": 2112,
+          "gpu_makespan_ms": 0.002112,
+          "gpu_kernel_time_sum_ns": 2112,
+          "gpu_kernel_time_sum_ms": 0.002112,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        {
+          "canonical_name": "q_b_proj",
+          "order_index": 4,
+          "host_start_ns": 20461849,
+          "host_end_ns": 20575196,
+          "host_duration_ns": 113347,
+          "host_duration_ms": 0.113347,
+          "first_kernel_start_ns": 20503658,
+          "last_kernel_end_ns": 20588041,
+          "module_total_to_last_kernel_ns": 126192,
+          "module_total_to_last_kernel_ms": 0.126192,
+          "host_to_first_kernel_gap_ns": 41809,
+          "host_to_first_kernel_gap_ms": 0.041809,
+          "host_end_to_last_kernel_tail_ns": 12845,
+          "host_end_to_last_kernel_tail_ms": 0.012845,
+          "host_end_to_last_kernel_tail_ns_signed": 12845,
+          "host_end_to_last_kernel_tail_ms_signed": 0.012845,
+          "gpu_makespan_ns": 84383,
+          "gpu_makespan_ms": 0.084383,
+          "gpu_kernel_time_sum_ns": 25247,
+          "gpu_kernel_time_sum_ms": 0.025247,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        {
+          "canonical_name": "rotary_emb",
+          "order_index": 5,
+          "host_start_ns": 20665572,
+          "host_end_ns": 20715322,
+          "host_duration_ns": 49750,
+          "host_duration_ms": 0.04975,
+          "first_kernel_start_ns": 20708553,
+          "last_kernel_end_ns": 20713993,
+          "module_total_to_last_kernel_ns": 49750,
+          "module_total_to_last_kernel_ms": 0.04975,
+          "host_to_first_kernel_gap_ns": 42981,
+          "host_to_first_kernel_gap_ms": 0.042981,
+          "host_end_to_last_kernel_tail_ns": 0,
+          "host_end_to_last_kernel_tail_ms": 0.0,
+          "host_end_to_last_kernel_tail_ns_signed": -1329,
+          "host_end_to_last_kernel_tail_ms_signed": -0.001329,
+          "gpu_makespan_ns": 5440,
+          "gpu_makespan_ms": 0.00544,
+          "gpu_kernel_time_sum_ns": 5440,
+          "gpu_kernel_time_sum_ms": 0.00544,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "last_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel"
+        },
+        {
+          "canonical_name": "attn_mqa",
+          "order_index": 6,
+          "host_start_ns": 20746760,
+          "host_end_ns": 20903525,
+          "host_duration_ns": 156765,
+          "host_duration_ms": 0.156765,
+          "first_kernel_start_ns": 20803689,
+          "last_kernel_end_ns": 20945801,
+          "module_total_to_last_kernel_ns": 199041,
+          "module_total_to_last_kernel_ms": 0.199041,
+          "host_to_first_kernel_gap_ns": 56929,
+          "host_to_first_kernel_gap_ms": 0.056929,
+          "host_end_to_last_kernel_tail_ns": 42276,
+          "host_end_to_last_kernel_tail_ms": 0.042276,
+          "host_end_to_last_kernel_tail_ns_signed": 42276,
+          "host_end_to_last_kernel_tail_ms_signed": 0.042276,
+          "gpu_makespan_ns": 142112,
+          "gpu_makespan_ms": 0.142112,
+          "gpu_kernel_time_sum_ns": 60320,
+          "gpu_kernel_time_sum_ms": 0.06032,
+          "gpu_kernel_count": 3,
+          "first_kernel_name": "set_mla_kv_buffer_kernel",
+          "last_kernel_name": "device_kernel"
+        },
+        {
+          "canonical_name": "o_proj",
+          "order_index": 7,
+          "host_start_ns": 20978678,
+          "host_end_ns": 21135057,
+          "host_duration_ns": 156379,
+          "host_duration_ms": 0.156379,
+          "first_kernel_start_ns": 21035401,
+          "last_kernel_end_ns": 21173321,
+          "module_total_to_last_kernel_ns": 194643,
+          "module_total_to_last_kernel_ms": 0.194643,
+          "host_to_first_kernel_gap_ns": 56723,
+          "host_to_first_kernel_gap_ms": 0.056723,
+          "host_end_to_last_kernel_tail_ns": 38264,
+          "host_end_to_last_kernel_tail_ms": 0.038264,
+          "host_end_to_last_kernel_tail_ns_signed": 38264,
+          "host_end_to_last_kernel_tail_ms_signed": 0.038264,
+          "gpu_makespan_ns": 137920,
+          "gpu_makespan_ms": 0.13792,
+          "gpu_kernel_time_sum_ns": 57952,
+          "gpu_kernel_time_sum_ms": 0.057952,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        }
+      ]
+    },
+    "prefill_chunk_info": null,
+    "children": [
+      {
+        "order_index": 1,
+        "text": "{'Module': 'model.model.layers.2.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[256, 7168]]}",
+        "canonical_name": "fused_qkv_a_proj_with_mqa",
+        "operator_info": {
+          "module_name": "model.model.layers.2.self_attn.fused_qkv_a_proj_with_mqa",
+          "canonical_name": "fused_qkv_a_proj_with_mqa",
+          "inputs": [
+            [
+              256,
+              7168
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              2112,
+              7168
+            ],
+            "weight_scale_inv": [
+              17,
+              56
+            ]
+          },
+          "operator_category": "linear_or_gemm",
+          "implementation": "sm90_fp8_gemm_1d2d_impl",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 2,
+          "gpu_kernel_time_ns_total": 15200,
+          "gpu_kernel_time_ms_total": 0.0152,
+          "runtime_call_count": 6,
+          "dominant_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+          "dominant_kernel_time_ns": 11584,
+          "top_gpu_kernels": [
+            {
+              "short_name": "sm90_fp8_gemm_1d2d_impl",
+              "gpu_time_ns": 11584,
+              "gpu_time_ms": 0.011584
+            },
+            {
+              "short_name": "per_token_group_quant_8bit_kernel",
+              "gpu_time_ns": 3616,
+              "gpu_time_ms": 0.003616
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 20268078,
+                "end_ns": 20272567,
+                "duration_ns": 4489,
+                "global_tid": 281484942377554,
+                "correlation_id": 969,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 20321176,
+                "end_ns": 20321487,
+                "duration_ns": 311,
+                "global_tid": 281484942377554,
+                "correlation_id": 977,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20321844,
+                "end_ns": 20321953,
+                "duration_ns": 109,
+                "global_tid": 281484942377554,
+                "correlation_id": 978,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20322280,
+                "end_ns": 20322405,
+                "duration_ns": 125,
+                "global_tid": 281484942377554,
+                "correlation_id": 979,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20322624,
+                "end_ns": 20322768,
+                "duration_ns": 144,
+                "global_tid": 281484942377554,
+                "correlation_id": 980,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20330168,
+                "end_ns": 20333866,
+                "duration_ns": 3698,
+                "global_tid": 281484942377554,
+                "correlation_id": 983,
+                "launch_api": "cuLaunchKernelEx"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 20274250,
+                "end_ns": 20277866,
+                "duration_ns": 3616,
+                "stream_id": 13,
+                "correlation_id": 969,
+                "short_name": "per_token_group_quant_8bit_kernel",
+                "demangled_name": "void per_token_group_quant_8bit_kernel<__nv_bfloat16, __nv_fp8_e4m3, (bool)1, (bool)0, float>(const T1 *, void *, T5 *, int, int, int, float, float, float, int, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 20268078,
+                "launch_runtime_end_ns": 20272567
+              },
+              {
+                "start_ns": 20335818,
+                "end_ns": 20347402,
+                "duration_ns": 11584,
+                "stream_id": 13,
+                "correlation_id": 983,
+                "short_name": "sm90_fp8_gemm_1d2d_impl",
+                "demangled_name": "void deep_gemm::sm90_fp8_gemm_1d2d_impl<(cute::UMMA::Major)0, (unsigned int)0, (unsigned int)2112, (unsigned int)7168, (unsigned int)1, (unsigned int)64, (unsigned int)64, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)13, (unsigned int)4, (unsigned int)128, (unsigned int)128, (unsigned int)1, (bool)0, (unsigned int)132, (deep_gemm::GemmType)0, deep_gemm::EpilogueIdentity, (bool)0>(float *, int *, int *, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 20330168,
+                "launch_runtime_end_ns": 20333866
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 20228999,
+          "host_end_ns": 20346565,
+          "host_duration_ns": 117566,
+          "host_duration_ms": 0.117566,
+          "first_kernel_start_ns": 20274250,
+          "last_kernel_end_ns": 20347402,
+          "module_total_to_last_kernel_ns": 118403,
+          "module_total_to_last_kernel_ms": 0.118403,
+          "host_to_first_kernel_gap_ns": 45251,
+          "host_to_first_kernel_gap_ms": 0.045251,
+          "host_end_to_last_kernel_tail_ns": 837,
+          "host_end_to_last_kernel_tail_ms": 0.000837,
+          "host_end_to_last_kernel_tail_ns_signed": 837,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000837,
+          "gpu_makespan_ns": 73152,
+          "gpu_makespan_ms": 0.073152,
+          "gpu_kernel_time_sum_ns": 15200,
+          "gpu_kernel_time_sum_ms": 0.0152,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        "start_ns": 20228999,
+        "end_ns": 20346565,
+        "duration_ns": 117566,
+        "duration_ms": 0.117566
+      },
+      {
+        "order_index": 2,
+        "text": "{'Module': 'model.model.layers.2.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[256, 1536]]}",
+        "canonical_name": "q_a_layernorm",
+        "operator_info": {
+          "module_name": "model.model.layers.2.self_attn.q_a_layernorm",
+          "canonical_name": "q_a_layernorm",
+          "inputs": [
+            [
+              256,
+              1536
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              1536
+            ]
+          },
+          "operator_category": "normalization",
+          "implementation": "RMSNormKernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 1,
+          "gpu_kernel_time_ns_total": 2368,
+          "gpu_kernel_time_ms_total": 0.002368,
+          "runtime_call_count": 1,
+          "dominant_kernel_name": "RMSNormKernel",
+          "dominant_kernel_time_ns": 2368,
+          "top_gpu_kernels": [
+            {
+              "short_name": "RMSNormKernel",
+              "gpu_time_ns": 2368,
+              "gpu_time_ms": 0.002368
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 20400033,
+                "end_ns": 20404549,
+                "duration_ns": 4516,
+                "global_tid": 281484942377554,
+                "correlation_id": 997,
+                "launch_api": "cudaLaunchKernelExC_v11060"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 20406410,
+                "end_ns": 20408778,
+                "duration_ns": 2368,
+                "stream_id": 13,
+                "correlation_id": 997,
+                "short_name": "RMSNormKernel",
+                "demangled_name": "void flashinfer::norm::RMSNormKernel<(unsigned int)8, __nv_bfloat16>(T2 *, T2 *, T2 *, unsigned int, unsigned int, unsigned int, float, float)",
+                "launch_api": "cudaLaunchKernelExC_v11060",
+                "launch_runtime_start_ns": 20400033,
+                "launch_runtime_end_ns": 20404549
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 20382101,
+          "host_end_ns": 20408599,
+          "host_duration_ns": 26498,
+          "host_duration_ms": 0.026498,
+          "first_kernel_start_ns": 20406410,
+          "last_kernel_end_ns": 20408778,
+          "module_total_to_last_kernel_ns": 26677,
+          "module_total_to_last_kernel_ms": 0.026677,
+          "host_to_first_kernel_gap_ns": 24309,
+          "host_to_first_kernel_gap_ms": 0.024309,
+          "host_end_to_last_kernel_tail_ns": 179,
+          "host_end_to_last_kernel_tail_ms": 0.000179,
+          "host_end_to_last_kernel_tail_ns_signed": 179,
+          "host_end_to_last_kernel_tail_ms_signed": 0.000179,
+          "gpu_makespan_ns": 2368,
+          "gpu_makespan_ms": 0.002368,
+          "gpu_kernel_time_sum_ns": 2368,
+          "gpu_kernel_time_sum_ms": 0.002368,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        "start_ns": 20382101,
+        "end_ns": 20408599,
+        "duration_ns": 26498,
+        "duration_ms": 0.026498
+      },
+      {
+        "order_index": 3,
+        "text": "{'Module': 'model.model.layers.2.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[256, 512]]}",
+        "canonical_name": "kv_a_layernorm",
+        "operator_info": {
+          "module_name": "model.model.layers.2.self_attn.kv_a_layernorm",
+          "canonical_name": "kv_a_layernorm",
+          "inputs": [
+            [
+              256,
+              512
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              512
+            ]
+          },
+          "operator_category": "normalization",
+          "implementation": "RMSNormKernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 1,
+          "gpu_kernel_time_ns_total": 2112,
+          "gpu_kernel_time_ms_total": 0.002112,
+          "runtime_call_count": 1,
+          "dominant_kernel_name": "RMSNormKernel",
+          "dominant_kernel_time_ns": 2112,
+          "top_gpu_kernels": [
+            {
+              "short_name": "RMSNormKernel",
+              "gpu_time_ns": 2112,
+              "gpu_time_ms": 0.002112
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 20434460,
+                "end_ns": 20437995,
+                "duration_ns": 3535,
+                "global_tid": 281484942377554,
+                "correlation_id": 1010,
+                "launch_api": "cudaLaunchKernelExC_v11060"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 20440010,
+                "end_ns": 20442122,
+                "duration_ns": 2112,
+                "stream_id": 13,
+                "correlation_id": 1010,
+                "short_name": "RMSNormKernel",
+                "demangled_name": "void flashinfer::norm::RMSNormKernel<(unsigned int)8, __nv_bfloat16>(T2 *, T2 *, T2 *, unsigned int, unsigned int, unsigned int, float, float)",
+                "launch_api": "cudaLaunchKernelExC_v11060",
+                "launch_runtime_start_ns": 20434460,
+                "launch_runtime_end_ns": 20437995
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 20422823,
+          "host_end_ns": 20440930,
+          "host_duration_ns": 18107,
+          "host_duration_ms": 0.018107,
+          "first_kernel_start_ns": 20440010,
+          "last_kernel_end_ns": 20442122,
+          "module_total_to_last_kernel_ns": 19299,
+          "module_total_to_last_kernel_ms": 0.019299,
+          "host_to_first_kernel_gap_ns": 17187,
+          "host_to_first_kernel_gap_ms": 0.017187,
+          "host_end_to_last_kernel_tail_ns": 1192,
+          "host_end_to_last_kernel_tail_ms": 0.001192,
+          "host_end_to_last_kernel_tail_ns_signed": 1192,
+          "host_end_to_last_kernel_tail_ms_signed": 0.001192,
+          "gpu_makespan_ns": 2112,
+          "gpu_makespan_ms": 0.002112,
+          "gpu_kernel_time_sum_ns": 2112,
+          "gpu_kernel_time_sum_ms": 0.002112,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "RMSNormKernel",
+          "last_kernel_name": "RMSNormKernel"
+        },
+        "start_ns": 20422823,
+        "end_ns": 20440930,
+        "duration_ns": 18107,
+        "duration_ms": 0.018107
+      },
+      {
+        "order_index": 4,
+        "text": "{'Module': 'model.model.layers.2.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[256, 1536]]}",
+        "canonical_name": "q_b_proj",
+        "operator_info": {
+          "module_name": "model.model.layers.2.self_attn.q_b_proj",
+          "canonical_name": "q_b_proj",
+          "inputs": [
+            [
+              256,
+              1536
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              24576,
+              1536
+            ],
+            "weight_scale_inv": [
+              192,
+              12
+            ]
+          },
+          "operator_category": "linear_or_gemm",
+          "implementation": "sm90_fp8_gemm_1d2d_impl",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 2,
+          "gpu_kernel_time_ns_total": 25247,
+          "gpu_kernel_time_ms_total": 0.025247,
+          "runtime_call_count": 6,
+          "dominant_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+          "dominant_kernel_time_ns": 23231,
+          "top_gpu_kernels": [
+            {
+              "short_name": "sm90_fp8_gemm_1d2d_impl",
+              "gpu_time_ns": 23231,
+              "gpu_time_ms": 0.023231
+            },
+            {
+              "short_name": "per_token_group_quant_8bit_kernel",
+              "gpu_time_ns": 2016,
+              "gpu_time_ms": 0.002016
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 20497496,
+                "end_ns": 20501643,
+                "duration_ns": 4147,
+                "global_tid": 281484942377554,
+                "correlation_id": 1031,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 20550149,
+                "end_ns": 20550478,
+                "duration_ns": 329,
+                "global_tid": 281484942377554,
+                "correlation_id": 1039,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20550829,
+                "end_ns": 20550937,
+                "duration_ns": 108,
+                "global_tid": 281484942377554,
+                "correlation_id": 1040,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20551255,
+                "end_ns": 20551399,
+                "duration_ns": 144,
+                "global_tid": 281484942377554,
+                "correlation_id": 1041,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20551658,
+                "end_ns": 20551785,
+                "duration_ns": 127,
+                "global_tid": 281484942377554,
+                "correlation_id": 1042,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20558943,
+                "end_ns": 20562873,
+                "duration_ns": 3930,
+                "global_tid": 281484942377554,
+                "correlation_id": 1045,
+                "launch_api": "cuLaunchKernelEx"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 20503658,
+                "end_ns": 20505674,
+                "duration_ns": 2016,
+                "stream_id": 13,
+                "correlation_id": 1031,
+                "short_name": "per_token_group_quant_8bit_kernel",
+                "demangled_name": "void per_token_group_quant_8bit_kernel<__nv_bfloat16, __nv_fp8_e4m3, (bool)1, (bool)0, float>(const T1 *, void *, T5 *, int, int, int, float, float, float, int, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 20497496,
+                "launch_runtime_end_ns": 20501643
+              },
+              {
+                "start_ns": 20564810,
+                "end_ns": 20588041,
+                "duration_ns": 23231,
+                "stream_id": 13,
+                "correlation_id": 1045,
+                "short_name": "sm90_fp8_gemm_1d2d_impl",
+                "demangled_name": "void deep_gemm::sm90_fp8_gemm_1d2d_impl<(cute::UMMA::Major)0, (unsigned int)0, (unsigned int)24576, (unsigned int)1536, (unsigned int)1, (unsigned int)128, (unsigned int)192, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)4, (unsigned int)0, (unsigned int)128, (unsigned int)256, (unsigned int)1, (bool)0, (unsigned int)128, (deep_gemm::GemmType)0, deep_gemm::EpilogueIdentity, (bool)0>(float *, int *, int *, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 20558943,
+                "launch_runtime_end_ns": 20562873
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 20461849,
+          "host_end_ns": 20575196,
+          "host_duration_ns": 113347,
+          "host_duration_ms": 0.113347,
+          "first_kernel_start_ns": 20503658,
+          "last_kernel_end_ns": 20588041,
+          "module_total_to_last_kernel_ns": 126192,
+          "module_total_to_last_kernel_ms": 0.126192,
+          "host_to_first_kernel_gap_ns": 41809,
+          "host_to_first_kernel_gap_ms": 0.041809,
+          "host_end_to_last_kernel_tail_ns": 12845,
+          "host_end_to_last_kernel_tail_ms": 0.012845,
+          "host_end_to_last_kernel_tail_ns_signed": 12845,
+          "host_end_to_last_kernel_tail_ms_signed": 0.012845,
+          "gpu_makespan_ns": 84383,
+          "gpu_makespan_ms": 0.084383,
+          "gpu_kernel_time_sum_ns": 25247,
+          "gpu_kernel_time_sum_ms": 0.025247,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        "start_ns": 20461849,
+        "end_ns": 20575196,
+        "duration_ns": 113347,
+        "duration_ms": 0.113347
+      },
+      {
+        "order_index": 5,
+        "text": "{'Module': 'model.model.layers.0.self_attn.rotary_emb', 'Inputs': [[256], [256, 128, 64], [256, 1, 64]]}",
+        "canonical_name": "rotary_emb",
+        "operator_info": {
+          "module_name": "model.model.layers.0.self_attn.rotary_emb",
+          "canonical_name": "rotary_emb",
+          "inputs": [
+            [
+              256
+            ],
+            [
+              256,
+              128,
+              64
+            ],
+            [
+              256,
+              1,
+              64
+            ]
+          ],
+          "trainable_params": null,
+          "operator_category": "position_embedding",
+          "implementation": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 1,
+          "gpu_kernel_time_ns_total": 5440,
+          "gpu_kernel_time_ms_total": 0.00544,
+          "runtime_call_count": 1,
+          "dominant_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "dominant_kernel_time_ns": 5440,
+          "top_gpu_kernels": [
+            {
+              "short_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+              "gpu_time_ns": 5440,
+              "gpu_time_ms": 0.00544
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 20701915,
+                "end_ns": 20708061,
+                "duration_ns": 6146,
+                "global_tid": 281484942377554,
+                "correlation_id": 1069,
+                "launch_api": "cudaLaunchKernel_v7000"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 20708553,
+                "end_ns": 20713993,
+                "duration_ns": 5440,
+                "stream_id": 13,
+                "correlation_id": 1069,
+                "short_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+                "demangled_name": "void flashinfer::BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel<(bool)1, (unsigned int)64, (unsigned int)8, (unsigned int)8, __nv_bfloat16, long>(T5 *, T5 *, T5 *, T5 *, float *, T6 *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 20701915,
+                "launch_runtime_end_ns": 20708061
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 20665572,
+          "host_end_ns": 20715322,
+          "host_duration_ns": 49750,
+          "host_duration_ms": 0.04975,
+          "first_kernel_start_ns": 20708553,
+          "last_kernel_end_ns": 20713993,
+          "module_total_to_last_kernel_ns": 49750,
+          "module_total_to_last_kernel_ms": 0.04975,
+          "host_to_first_kernel_gap_ns": 42981,
+          "host_to_first_kernel_gap_ms": 0.042981,
+          "host_end_to_last_kernel_tail_ns": 0,
+          "host_end_to_last_kernel_tail_ms": 0.0,
+          "host_end_to_last_kernel_tail_ns_signed": -1329,
+          "host_end_to_last_kernel_tail_ms_signed": -0.001329,
+          "gpu_makespan_ns": 5440,
+          "gpu_makespan_ms": 0.00544,
+          "gpu_kernel_time_sum_ns": 5440,
+          "gpu_kernel_time_sum_ms": 0.00544,
+          "gpu_kernel_count": 1,
+          "first_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel",
+          "last_kernel_name": "BatchQKApplyRotaryPosIdsCosSinCacheHeadParallelismKernel"
+        },
+        "start_ns": 20665572,
+        "end_ns": 20715322,
+        "duration_ns": 49750,
+        "duration_ms": 0.04975
+      },
+      {
+        "order_index": 6,
+        "text": "{'Module': 'model.model.layers.2.self_attn.attn_mqa', 'TrainableParams': {'k_scale': [], 'v_scale': []}, 'Inputs': [[256, 128, 512], [256, 1, 512], [256, 1, 512]]}",
+        "canonical_name": "attn_mqa",
+        "operator_info": {
+          "module_name": "model.model.layers.2.self_attn.attn_mqa",
+          "canonical_name": "attn_mqa",
+          "inputs": [
+            [
+              256,
+              128,
+              512
+            ],
+            [
+              256,
+              1,
+              512
+            ],
+            [
+              256,
+              1,
+              512
+            ]
+          ],
+          "trainable_params": {
+            "k_scale": [],
+            "v_scale": []
+          },
+          "operator_category": "attention_or_fused_attention",
+          "implementation": "device_kernel",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 3,
+          "gpu_kernel_time_ns_total": 60320,
+          "gpu_kernel_time_ms_total": 0.06032,
+          "runtime_call_count": 15,
+          "dominant_kernel_name": "device_kernel",
+          "dominant_kernel_time_ns": 55072,
+          "top_gpu_kernels": [
+            {
+              "short_name": "device_kernel",
+              "gpu_time_ns": 55072,
+              "gpu_time_ms": 0.055072
+            },
+            {
+              "short_name": "prepare_varlen_num_blocks_kernel",
+              "gpu_time_ns": 3200,
+              "gpu_time_ms": 0.0032
+            },
+            {
+              "short_name": "set_mla_kv_buffer_kernel",
+              "gpu_time_ns": 2048,
+              "gpu_time_ms": 0.002048
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 20797091,
+                "end_ns": 20801865,
+                "duration_ns": 4774,
+                "global_tid": 281484942377554,
+                "correlation_id": 1077,
+                "launch_api": "cuLaunchKernelEx"
+              },
+              {
+                "start_ns": 20871084,
+                "end_ns": 20876333,
+                "duration_ns": 5249,
+                "global_tid": 281484942377554,
+                "correlation_id": 1111,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 20877926,
+                "end_ns": 20878665,
+                "duration_ns": 739,
+                "global_tid": 281484942377554,
+                "correlation_id": 1114,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 20878884,
+                "end_ns": 20879438,
+                "duration_ns": 554,
+                "global_tid": 281484942377554,
+                "correlation_id": 1115,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20879677,
+                "end_ns": 20879872,
+                "duration_ns": 195,
+                "global_tid": 281484942377554,
+                "correlation_id": 1116,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 20880190,
+                "end_ns": 20880314,
+                "duration_ns": 124,
+                "global_tid": 281484942377554,
+                "correlation_id": 1117,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20880486,
+                "end_ns": 20880662,
+                "duration_ns": 176,
+                "global_tid": 281484942377554,
+                "correlation_id": 1118,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 20880860,
+                "end_ns": 20880968,
+                "duration_ns": 108,
+                "global_tid": 281484942377554,
+                "correlation_id": 1119,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20881118,
+                "end_ns": 20881294,
+                "duration_ns": 176,
+                "global_tid": 281484942377554,
+                "correlation_id": 1120,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 20881477,
+                "end_ns": 20881586,
+                "duration_ns": 109,
+                "global_tid": 281484942377554,
+                "correlation_id": 1121,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20881813,
+                "end_ns": 20881988,
+                "duration_ns": 175,
+                "global_tid": 281484942377554,
+                "correlation_id": 1122,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 20882052,
+                "end_ns": 20882166,
+                "duration_ns": 114,
+                "global_tid": 281484942377554,
+                "correlation_id": 1123,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20882403,
+                "end_ns": 20882575,
+                "duration_ns": 172,
+                "global_tid": 281484942377554,
+                "correlation_id": 1124,
+                "launch_api": "cudaGetDriverEntryPoint_v11030"
+              },
+              {
+                "start_ns": 20882690,
+                "end_ns": 20882803,
+                "duration_ns": 113,
+                "global_tid": 281484942377554,
+                "correlation_id": 1125,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 20884760,
+                "end_ns": 20888584,
+                "duration_ns": 3824,
+                "global_tid": 281484942377554,
+                "correlation_id": 1127,
+                "launch_api": "cudaLaunchKernelExC_v11060"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 20803689,
+                "end_ns": 20805737,
+                "duration_ns": 2048,
+                "stream_id": 13,
+                "correlation_id": 1077,
+                "short_name": "set_mla_kv_buffer_kernel",
+                "demangled_name": "set_mla_kv_buffer_kernel",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 20797091,
+                "launch_runtime_end_ns": 20801865
+              },
+              {
+                "start_ns": 20878153,
+                "end_ns": 20881353,
+                "duration_ns": 3200,
+                "stream_id": 13,
+                "correlation_id": 1111,
+                "short_name": "prepare_varlen_num_blocks_kernel",
+                "demangled_name": "void flash::prepare_varlen_num_blocks_kernel<(int)1, (bool)1>(int, int, int, const int *, const int *, const int *, const int *, const int *, const int *, int, int, int, int, int, cutlass::FastDivmod, cutlass::FastDivmod, int *, int *, int *, int *, int *, bool, bool, bool, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 20871084,
+                "launch_runtime_end_ns": 20876333
+              },
+              {
+                "start_ns": 20890729,
+                "end_ns": 20945801,
+                "duration_ns": 55072,
+                "stream_id": 13,
+                "correlation_id": 1127,
+                "short_name": "device_kernel",
+                "demangled_name": "void cutlass::device_kernel<flash::enable_sm90_or_later<flash::FlashAttnFwdSm90<flash::CollectiveMainloopFwdSm90<(int)2, cute::tuple<cute::C<(int)1>, cute::C<(int)1>, cute::C<(int)1>>, cute::tuple<cute::C<(int)64>, cute::C<(int)64>, cute::C<(int)64>>, (int)512, cutlass::bfloat16_t, float, cutlass::arch::Sm90, (bool)1, (bool)0, (bool)0, (bool)1, (bool)1, (bool)0, (bool)1, (bool)0, (bool)0, (bool)1, (bool)0, (bool)0, cutlass::bfloat16_t>, flash::CollectiveEpilogueFwd<cute::tuple<cute::C<(int)64>, cute::C<(int)512>, cute::C<(int)64>>, cute::tuple<cute::C<(int)1>, cute::C<(int)1>, cute::C<(int)1>>, cutlass::bfloat16_t, cutlass::arch::Sm90, (int)256, (bool)1, (bool)1, (bool)0, (bool)0>, flash::VarlenDynamicPersistentTileScheduler<(int)64, (int)64, (int)256, (int)128, (bool)0, (bool)1, (bool)1, (bool)1, (bool)1, (bool)1>>>>(T1::Params)",
+                "launch_api": "cudaLaunchKernelExC_v11060",
+                "launch_runtime_start_ns": 20884760,
+                "launch_runtime_end_ns": 20888584
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 20746760,
+          "host_end_ns": 20903525,
+          "host_duration_ns": 156765,
+          "host_duration_ms": 0.156765,
+          "first_kernel_start_ns": 20803689,
+          "last_kernel_end_ns": 20945801,
+          "module_total_to_last_kernel_ns": 199041,
+          "module_total_to_last_kernel_ms": 0.199041,
+          "host_to_first_kernel_gap_ns": 56929,
+          "host_to_first_kernel_gap_ms": 0.056929,
+          "host_end_to_last_kernel_tail_ns": 42276,
+          "host_end_to_last_kernel_tail_ms": 0.042276,
+          "host_end_to_last_kernel_tail_ns_signed": 42276,
+          "host_end_to_last_kernel_tail_ms_signed": 0.042276,
+          "gpu_makespan_ns": 142112,
+          "gpu_makespan_ms": 0.142112,
+          "gpu_kernel_time_sum_ns": 60320,
+          "gpu_kernel_time_sum_ms": 0.06032,
+          "gpu_kernel_count": 3,
+          "first_kernel_name": "set_mla_kv_buffer_kernel",
+          "last_kernel_name": "device_kernel"
+        },
+        "start_ns": 20746760,
+        "end_ns": 20903525,
+        "duration_ns": 156765,
+        "duration_ms": 0.156765
+      },
+      {
+        "order_index": 7,
+        "text": "{'Module': 'model.model.layers.2.self_attn.o_proj', 'TrainableParams': {'weight': [7168, 16384], 'weight_scale_inv': [56, 128]}, 'Inputs': [[256, 16384]]}",
+        "canonical_name": "o_proj",
+        "operator_info": {
+          "module_name": "model.model.layers.2.self_attn.o_proj",
+          "canonical_name": "o_proj",
+          "inputs": [
+            [
+              256,
+              16384
+            ]
+          ],
+          "trainable_params": {
+            "weight": [
+              7168,
+              16384
+            ],
+            "weight_scale_inv": [
+              56,
+              128
+            ]
+          },
+          "operator_category": "linear_or_gemm",
+          "implementation": "sm90_fp8_gemm_1d2d_impl",
+          "implementation_source": "cupti_kernel.shortName",
+          "gpu_kernel_count": 2,
+          "gpu_kernel_time_ns_total": 57952,
+          "gpu_kernel_time_ms_total": 0.057952,
+          "runtime_call_count": 6,
+          "dominant_kernel_name": "sm90_fp8_gemm_1d2d_impl",
+          "dominant_kernel_time_ns": 52160,
+          "top_gpu_kernels": [
+            {
+              "short_name": "sm90_fp8_gemm_1d2d_impl",
+              "gpu_time_ns": 52160,
+              "gpu_time_ms": 0.05216
+            },
+            {
+              "short_name": "per_token_group_quant_8bit_kernel",
+              "gpu_time_ns": 5792,
+              "gpu_time_ms": 0.005792
+            }
+          ],
+          "trace_backend_raw": {
+            "runtime_calls": [
+              {
+                "start_ns": 21028936,
+                "end_ns": 21033247,
+                "duration_ns": 4311,
+                "global_tid": 281484942377554,
+                "correlation_id": 1169,
+                "launch_api": "cudaLaunchKernel_v7000"
+              },
+              {
+                "start_ns": 21101366,
+                "end_ns": 21101802,
+                "duration_ns": 436,
+                "global_tid": 281484942377554,
+                "correlation_id": 1177,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 21102125,
+                "end_ns": 21102244,
+                "duration_ns": 119,
+                "global_tid": 281484942377554,
+                "correlation_id": 1178,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 21102602,
+                "end_ns": 21102800,
+                "duration_ns": 198,
+                "global_tid": 281484942377554,
+                "correlation_id": 1179,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 21103138,
+                "end_ns": 21103281,
+                "duration_ns": 143,
+                "global_tid": 281484942377554,
+                "correlation_id": 1180,
+                "launch_api": "cuTensorMapEncodeTiled"
+              },
+              {
+                "start_ns": 21115355,
+                "end_ns": 21119216,
+                "duration_ns": 3861,
+                "global_tid": 281484942377554,
+                "correlation_id": 1183,
+                "launch_api": "cuLaunchKernelEx"
+              }
+            ],
+            "gpu_kernels": [
+              {
+                "start_ns": 21035401,
+                "end_ns": 21041193,
+                "duration_ns": 5792,
+                "stream_id": 13,
+                "correlation_id": 1169,
+                "short_name": "per_token_group_quant_8bit_kernel",
+                "demangled_name": "void per_token_group_quant_8bit_kernel<__nv_bfloat16, __nv_fp8_e4m3, (bool)1, (bool)0, float>(const T1 *, void *, T5 *, int, int, int, float, float, float, int, int)",
+                "launch_api": "cudaLaunchKernel_v7000",
+                "launch_runtime_start_ns": 21028936,
+                "launch_runtime_end_ns": 21033247
+              },
+              {
+                "start_ns": 21121161,
+                "end_ns": 21173321,
+                "duration_ns": 52160,
+                "stream_id": 13,
+                "correlation_id": 1183,
+                "short_name": "sm90_fp8_gemm_1d2d_impl",
+                "demangled_name": "void deep_gemm::sm90_fp8_gemm_1d2d_impl<(cute::UMMA::Major)0, (unsigned int)0, (unsigned int)7168, (unsigned int)16384, (unsigned int)1, (unsigned int)128, (unsigned int)112, (unsigned int)128, (unsigned int)128, (unsigned int)128, (unsigned int)32, (unsigned int)6, (unsigned int)2, (unsigned int)128, (unsigned int)256, (unsigned int)1, (bool)0, (unsigned int)128, (deep_gemm::GemmType)0, deep_gemm::EpilogueIdentity, (bool)0>(float *, int *, int *, unsigned int, unsigned int, unsigned int, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st, CUtensorMap_st)",
+                "launch_api": "cuLaunchKernelEx",
+                "launch_runtime_start_ns": 21115355,
+                "launch_runtime_end_ns": 21119216
+              }
+            ]
+          }
+        },
+        "timing_breakdown": {
+          "host_start_ns": 20978678,
+          "host_end_ns": 21135057,
+          "host_duration_ns": 156379,
+          "host_duration_ms": 0.156379,
+          "first_kernel_start_ns": 21035401,
+          "last_kernel_end_ns": 21173321,
+          "module_total_to_last_kernel_ns": 194643,
+          "module_total_to_last_kernel_ms": 0.194643,
+          "host_to_first_kernel_gap_ns": 56723,
+          "host_to_first_kernel_gap_ms": 0.056723,
+          "host_end_to_last_kernel_tail_ns": 38264,
+          "host_end_to_last_kernel_tail_ms": 0.038264,
+          "host_end_to_last_kernel_tail_ns_signed": 38264,
+          "host_end_to_last_kernel_tail_ms_signed": 0.038264,
+          "gpu_makespan_ns": 137920,
+          "gpu_makespan_ms": 0.13792,
+          "gpu_kernel_time_sum_ns": 57952,
+          "gpu_kernel_time_sum_ms": 0.057952,
+          "gpu_kernel_count": 2,
+          "first_kernel_name": "per_token_group_quant_8bit_kernel",
+          "last_kernel_name": "sm90_fp8_gemm_1d2d_impl"
+        },
+        "start_ns": 20978678,
+        "end_ns": 21135057,
+        "duration_ns": 156379,
+        "duration_ms": 0.156379
+      }
+    ],
+    "stage_instance_count": 1,
+    "collector_prefill_aligned": false
+  }
+]

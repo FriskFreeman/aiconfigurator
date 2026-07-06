@@ -1,0 +1,10 @@
+run,batch_size,prefix_len,attention_backend,decode_attention_backend,cuda_graph_mode,engine_kv_cache_dtype,engine_quantization,config_quant_method,config_quant_fmt,config_weight_block_size,deepgemm_fp8_kernel_count,bf16_to_fp8_quant_kernel_count,set_mla_kv_buffer_kernel_count,torch_nvjet_bmm_kernel_count,qkv_downscale_2112x7168,q_b_proj_24576x1536,o_proj_7168x16384
+20260625_141235_decode_stage1_decode_b1p512_cg_on_b1_f1_p512_layers5_backend_auto_cg_on_pcg_off_tp1_marker_on_profile_nsys,1,512,auto,,on,,,fp8,e4m3,"[128, 128]",21,25,5,11,5,5,5
+20260625_141521_decode_stage1_decode_b4p512_cg_on_b4_f1_p512_layers5_backend_auto_cg_on_pcg_off_tp1_marker_on_profile_nsys,4,512,auto,,on,,,fp8,e4m3,"[128, 128]",21,25,5,11,5,5,5
+20260625_141800_decode_stage1_decode_b32p512_cg_on_b32_f1_p512_layers5_backend_auto_cg_on_pcg_off_tp1_marker_on_profile_nsys,32,512,auto,,on,,,fp8,e4m3,"[128, 128]",21,25,5,13,5,5,5
+20260625_142044_decode_stage1_decode_b4p2048_cg_on_b4_f1_p2048_layers5_backend_auto_cg_on_pcg_off_tp1_marker_on_profile_nsys,4,2048,auto,,on,,,fp8,e4m3,"[128, 128]",21,25,5,11,5,5,5
+20260625_142332_decode_stage1_decode_b16p2048_cg_on_b16_f1_p2048_layers5_backend_auto_cg_on_pcg_off_tp1_marker_on_profile_nsys,16,2048,auto,,on,,,fp8,e4m3,"[128, 128]",21,25,5,11,5,5,5
+20260625_142620_decode_stage1_decode_b4p4096_cg_on_b4_f1_p4096_layers5_backend_auto_cg_on_pcg_off_tp1_marker_on_profile_nsys,4,4096,auto,,on,,,fp8,e4m3,"[128, 128]",21,25,5,11,5,5,5
+20260625_142903_decode_stage1_decode_b8p4096_cg_on_b8_f1_p4096_layers5_backend_auto_cg_on_pcg_off_tp1_marker_on_profile_nsys,8,4096,auto,,on,,,fp8,e4m3,"[128, 128]",21,25,5,11,5,5,5
+20260625_143152_decode_stage1_decode_b4p8192_cg_on_b4_f1_p8192_layers5_backend_auto_cg_on_pcg_off_tp1_marker_on_profile_nsys,4,8192,auto,,on,,,fp8,e4m3,"[128, 128]",21,25,5,11,5,5,5
+20260625_143436_decode_stage1_decode_b2p16384_cg_on_b2_f1_p16384_layers5_backend_auto_cg_on_pcg_off_tp1_marker_on_profile_nsys,2,16384,auto,,on,,,fp8,e4m3,"[128, 128]",21,25,5,11,5,5,5
