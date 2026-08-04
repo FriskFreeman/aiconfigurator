@@ -1,0 +1,19 @@
+{
+  "case_id": "deepseek_v3__b300_sxm__analytical__high",
+  "model_key": "deepseek_v3",
+  "model_path": "deepseek-ai/DeepSeek-V3",
+  "system": "b300_sxm",
+  "mode": "ANALYTICAL",
+  "analytical_level": "high",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 143,
+  "best_tokens_per_s_gpu": 1171.516,
+  "best_cluster_request_rate": 27.457,
+  "elapsed_s": 10.285595178604126
+}

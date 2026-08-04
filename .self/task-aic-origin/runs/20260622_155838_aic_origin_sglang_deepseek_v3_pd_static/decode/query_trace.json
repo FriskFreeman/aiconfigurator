@@ -1,0 +1,2462 @@
+[
+  {
+    "phase": "generation",
+    "path": "generation_ops[0]",
+    "op_name": "generation_embedding",
+    "op_class": "Embedding",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.0030213970149253733,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.017761,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[1]",
+    "op_name": "generation_add_norm_1",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18822087164179105,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.008166,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2]",
+    "op_name": "generation_mla_block",
+    "op_class": "FallbackOp",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 4.628166104086741,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 94.033102,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].primary",
+    "op_name": "generation_mla_module",
+    "op_class": "MLAModule",
+    "op_quant_fields": {
+      "_fmha_quant_mode": {
+        "enum": "FMHAQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      },
+      "_gemm_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      },
+      "_kvcache_quant_mode": {
+        "enum": "KVCacheQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          0,
+          "fp8"
+        ]
+      },
+      "_num_heads": 16
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "exception",
+    "exception_type": "PerfDataNotAvailableError",
+    "exception": "Error loading silicon data for op PerfDataFilename.mla_generation_module: File does not exist at /home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_generation_module_perf.txt. This combination of model, system, backend, and backend version is not supported by AIC in SILICON mode. Failed to query generation MLA module data for b=4, s=1025, num_heads=16, kv_cache_dtype=<KVCacheQuantMode.fp8: QuantMapping(memory=1, compute=0, name='fp8')>, gemm_quant_mode=<GEMMQuantMode.fp8_block: QuantMapping(memory=1, compute=2, name='fp8_block')>. Consider using HYBRID mode.",
+    "traceback_tail": [
+      "  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/perf_database.py\", line 3873, in _query_silicon_or_hybrid",
+      "    return get_silicon()",
+      "           ^^^^^^^^^^^^^",
+      "  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/perf_database.py\", line 4841, in get_silicon",
+      "    self._generation_mla_module_data.raise_if_not_loaded()",
+      "  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/perf_database.py\", line 2538, in raise_if_not_loaded",
+      "    raise PerfDataNotAvailableError(",
+      "aiconfigurator.sdk.perf_database.PerfDataNotAvailableError: Error loading silicon data for op PerfDataFilename.mla_generation_module: File does not exist at /home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_generation_module_perf.txt. This combination of model, system, backend, and backend version is not supported by AIC in SILICON mode. Failed to query generation MLA module data for b=4, s=1025, num_heads=16, kv_cache_dtype=<KVCacheQuantMode.fp8: QuantMapping(memory=1, compute=0, name='fp8')>, gemm_quant_mode=<GEMMQuantMode.fp8_block: QuantMapping(memory=1, compute=2, name='fp8_block')>. Consider using HYBRID mode."
+    ],
+    "elapsed_wall_ms": 0.279543,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[0]",
+    "op_name": "generation_downscale_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 2112,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.0016661366735957,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 46.016512,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[1]",
+    "op_name": "generation_q_b_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 3072,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.456822228928407,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.023235,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[2]",
+    "op_name": "generation_bmm_pre",
+    "op_class": "MLABmm",
+    "op_quant_fields": {
+      "_num_heads": 16,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          2,
+          "fp8"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5057631880044937,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.032742,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[3]",
+    "op_name": "generation_attention",
+    "op_class": "GenerationMLA",
+    "op_quant_fields": {
+      "_kv_cache_dtype": {
+        "enum": "KVCacheQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          0,
+          "fp8"
+        ]
+      },
+      "_num_heads": 16
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.7435874066257386,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 2.010037,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[4]",
+    "op_name": "generation_bmm_post",
+    "op_class": "MLABmm",
+    "op_quant_fields": {
+      "_num_heads": 16,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          2,
+          "fp8"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5036160171031953,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.025577,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[5]",
+    "op_name": "generation_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.41671112675131133,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 45.528485,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[3]",
+    "op_name": "generation_add_norm_2",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18822087164179105,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.006287,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4]",
+    "op_name": "generation_moe_overlap",
+    "op_class": "OverlapOp",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 22.591171043680774,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.200856,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[0]",
+    "op_name": "generation_router_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 256,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5325164215432272,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.022007,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[1]",
+    "op_name": "generation_moe_pre_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.38050334408879277,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.038116,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[2]",
+    "op_name": "generation_moe",
+    "op_class": "MoE",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 21.29764793395996,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.030009,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[3]",
+    "op_name": "generation_moe_post_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.38050334408879277,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.00739,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[0]",
+    "op_name": "generation_shared_gate_up_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 512,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.7056479950745901,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.013624,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[1]",
+    "op_name": "generation_shared_act_gate",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18313984477611941,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.010347,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[2]",
+    "op_name": "generation_shared_ffn2_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.2758284364309576,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.010595,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[5]",
+    "op_name": "generation_logits_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 16160,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.08176057401226938,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 46.548281,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[6]",
+    "op_name": "generation_p2p",
+    "op_class": "P2P",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1025,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.0,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.004677,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[0]",
+    "op_name": "generation_embedding",
+    "op_class": "Embedding",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.0030213970149253733,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.0049,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[1]",
+    "op_name": "generation_add_norm_1",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18822087164179105,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003771,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2]",
+    "op_name": "generation_mla_block",
+    "op_class": "FallbackOp",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 4.629972085684604,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 1.221486,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[0]",
+    "op_name": "generation_downscale_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 2112,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.0016661366735957,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.016818,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[1]",
+    "op_name": "generation_q_b_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 3072,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.456822228928407,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.005016,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[2]",
+    "op_name": "generation_bmm_pre",
+    "op_class": "MLABmm",
+    "op_quant_fields": {
+      "_num_heads": 16,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          2,
+          "fp8"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5057631880044937,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.004398,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[3]",
+    "op_name": "generation_attention",
+    "op_class": "GenerationMLA",
+    "op_quant_fields": {
+      "_kv_cache_dtype": {
+        "enum": "KVCacheQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          0,
+          "fp8"
+        ]
+      },
+      "_num_heads": 16
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.7453933882236015,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 1.124207,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[4]",
+    "op_name": "generation_bmm_post",
+    "op_class": "MLABmm",
+    "op_quant_fields": {
+      "_num_heads": 16,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          2,
+          "fp8"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5036160171031953,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.004635,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[5]",
+    "op_name": "generation_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.41671112675131133,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.007539,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[3]",
+    "op_name": "generation_add_norm_2",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18822087164179105,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003738,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4]",
+    "op_name": "generation_moe_overlap",
+    "op_class": "OverlapOp",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 22.591171043680774,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.099058,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[0]",
+    "op_name": "generation_router_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 256,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5325164215432272,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.004539,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[1]",
+    "op_name": "generation_moe_pre_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.38050334408879277,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.01148,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[2]",
+    "op_name": "generation_moe",
+    "op_class": "MoE",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 21.29764793395996,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.006327,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[3]",
+    "op_name": "generation_moe_post_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.38050334408879277,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.005912,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[0]",
+    "op_name": "generation_shared_gate_up_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 512,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.7056479950745901,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.004017,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[1]",
+    "op_name": "generation_shared_act_gate",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18313984477611941,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.002999,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[2]",
+    "op_name": "generation_shared_ffn2_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.2758284364309576,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003675,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[5]",
+    "op_name": "generation_logits_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 16160,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.08176057401226938,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.005307,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[6]",
+    "op_name": "generation_p2p",
+    "op_class": "P2P",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1029,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.0,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.002555,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[0]",
+    "op_name": "generation_embedding",
+    "op_class": "Embedding",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.0030213970149253733,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003203,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[1]",
+    "op_name": "generation_add_norm_1",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18822087164179105,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.002754,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2]",
+    "op_name": "generation_mla_block",
+    "op_class": "FallbackOp",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 4.631778067282467,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 1.099099,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[0]",
+    "op_name": "generation_downscale_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 2112,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.0016661366735957,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.007316,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[1]",
+    "op_name": "generation_q_b_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 3072,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.456822228928407,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003487,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[2]",
+    "op_name": "generation_bmm_pre",
+    "op_class": "MLABmm",
+    "op_quant_fields": {
+      "_num_heads": 16,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          2,
+          "fp8"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5057631880044937,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003468,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[3]",
+    "op_name": "generation_attention",
+    "op_class": "GenerationMLA",
+    "op_quant_fields": {
+      "_kv_cache_dtype": {
+        "enum": "KVCacheQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          0,
+          "fp8"
+        ]
+      },
+      "_num_heads": 16
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.7471993698214645,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 1.026496,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[4]",
+    "op_name": "generation_bmm_post",
+    "op_class": "MLABmm",
+    "op_quant_fields": {
+      "_num_heads": 16,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          2,
+          "fp8"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5036160171031953,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003631,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[5]",
+    "op_name": "generation_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.41671112675131133,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.006124,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[3]",
+    "op_name": "generation_add_norm_2",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18822087164179105,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003232,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4]",
+    "op_name": "generation_moe_overlap",
+    "op_class": "OverlapOp",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 22.591171043680774,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.086496,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[0]",
+    "op_name": "generation_router_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 256,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5325164215432272,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003983,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[1]",
+    "op_name": "generation_moe_pre_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.38050334408879277,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.006834,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[2]",
+    "op_name": "generation_moe",
+    "op_class": "MoE",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 21.29764793395996,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.004922,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[3]",
+    "op_name": "generation_moe_post_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.38050334408879277,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.00519,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[0]",
+    "op_name": "generation_shared_gate_up_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 512,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.7056479950745901,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.004209,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[1]",
+    "op_name": "generation_shared_act_gate",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18313984477611941,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.002815,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[2]",
+    "op_name": "generation_shared_ffn2_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.2758284364309576,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003254,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[5]",
+    "op_name": "generation_logits_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 16160,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.08176057401226938,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.005262,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[6]",
+    "op_name": "generation_p2p",
+    "op_class": "P2P",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1033,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.0,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.002312,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[0]",
+    "op_name": "generation_embedding",
+    "op_class": "Embedding",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.0030213970149253733,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.00275,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[1]",
+    "op_name": "generation_add_norm_1",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18822087164179105,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.002832,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2]",
+    "op_name": "generation_mla_block",
+    "op_class": "FallbackOp",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 4.633584048880331,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 1.094507,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[0]",
+    "op_name": "generation_downscale_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 2112,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.0016661366735957,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.005258,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[1]",
+    "op_name": "generation_q_b_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 3072,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.456822228928407,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003362,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[2]",
+    "op_name": "generation_bmm_pre",
+    "op_class": "MLABmm",
+    "op_quant_fields": {
+      "_num_heads": 16,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          2,
+          "fp8"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5057631880044937,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.002855,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[3]",
+    "op_name": "generation_attention",
+    "op_class": "GenerationMLA",
+    "op_quant_fields": {
+      "_kv_cache_dtype": {
+        "enum": "KVCacheQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          0,
+          "fp8"
+        ]
+      },
+      "_num_heads": 16
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.7490053514193278,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 1.021192,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[4]",
+    "op_name": "generation_bmm_post",
+    "op_class": "MLABmm",
+    "op_quant_fields": {
+      "_num_heads": 16,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          2,
+          "fp8"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5036160171031953,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.004043,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[2].fallback[5]",
+    "op_name": "generation_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.41671112675131133,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.007028,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[3]",
+    "op_name": "generation_add_norm_2",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18822087164179105,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003251,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4]",
+    "op_name": "generation_moe_overlap",
+    "op_class": "OverlapOp",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 22.591171043680774,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.087498,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[0]",
+    "op_name": "generation_router_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 256,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.5325164215432272,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.00446,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[1]",
+    "op_name": "generation_moe_pre_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.38050334408879277,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.00709,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[2]",
+    "op_name": "generation_moe",
+    "op_class": "MoE",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 21.29764793395996,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.005109,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_a[3]",
+    "op_name": "generation_moe_post_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.38050334408879277,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.005061,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[0]",
+    "op_name": "generation_shared_gate_up_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 512,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.7056479950745901,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.00363,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[1]",
+    "op_name": "generation_shared_act_gate",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.18313984477611941,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.002761,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[4].group_b[2]",
+    "op_name": "generation_shared_ffn2_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.2758284364309576,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.003167,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[5]",
+    "op_name": "generation_logits_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 16160,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.08176057401226938,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.005178,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "generation",
+    "path": "generation_ops[6]",
+    "op_name": "generation_p2p",
+    "op_class": "P2P",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 4,
+      "batch_size": 4,
+      "beam_width": 1,
+      "s": 1037,
+      "model_name": "",
+      "gen_seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.0,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.002392,
+    "database_mode_after": "SILICON"
+  }
+]

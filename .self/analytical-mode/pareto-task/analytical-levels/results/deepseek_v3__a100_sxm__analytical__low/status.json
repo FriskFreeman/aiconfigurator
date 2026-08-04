@@ -1,0 +1,19 @@
+{
+  "case_id": "deepseek_v3__a100_sxm__analytical__low",
+  "model_key": "deepseek_v3",
+  "model_path": "deepseek-ai/DeepSeek-V3",
+  "system": "a100_sxm",
+  "mode": "ANALYTICAL",
+  "analytical_level": "low",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 64,
+  "status": "success",
+  "pareto_points": 46,
+  "best_tokens_per_s_gpu": 92.477,
+  "best_cluster_request_rate": 5.78,
+  "elapsed_s": 3.6887128353118896
+}

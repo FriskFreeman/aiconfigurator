@@ -1,0 +1,11 @@
+framework,version,device,op_name,kernel_source,model,architecture,mla_dtype,kv_cache_dtype,gemm_type,num_heads,batch_size,isl,tp_size,step,latency
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,1,1,1,0,35.3694
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,2,1,1,0,35.3687
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,4,1,1,0,35.3586
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,8,1,1,0,35.3593
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,16,1,1,0,35.3610
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,32,1,1,0,35.3736
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,64,1,1,0,35.3690
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,4,512,1,0,35.3672
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,8,2048,1,0,35.3795
+SGLang,timing,NVIDIA H100 80GB HBM3,mla_generation,fa3,deepseek-ai/DeepSeek-V3,DeepseekV3ForCausalLM,fp8_block,fp8,fp8_block,128,16,4096,1,0,35.4077

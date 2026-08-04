@@ -1,0 +1,18 @@
+{
+  "case_id": "deepseek_v3__rtx_pro_6000_server__silicon",
+  "model_key": "deepseek_v3",
+  "model_path": "deepseek-ai/DeepSeek-V3",
+  "system": "rtx_pro_6000_server",
+  "mode": "SILICON",
+  "analytical_level": "",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "skipped",
+  "error_type": "RuntimeError",
+  "error": "No results found for any parallel configuration. Showing last exception: Error loading silicon data for op PerfDataFilename.wideep_context_mla: File does not exist at /home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/rtx_pro_6000_server/sglang/0.5.10/wideep_context_mla_perf.txt. This combination of model, system, backend, and backend version is not supported by AIC in SILICON mode. Failed to query wideep context mla data for b=1, s=4096, prefix=0, tp_size=8, kvcache_quant_mode=<KVCacheQuantMode.bfloat16: QuantMapping(memory=2, compute=0, name='bfloat16')>, fmha_quant_mode=<FMHAQuantMode.fp8_block: QuantMapping(memory=1, compute=2, name='fp8_block')>. Consider using HYBRID mode.",
+  "elapsed_s": 0.0593876838684082
+}

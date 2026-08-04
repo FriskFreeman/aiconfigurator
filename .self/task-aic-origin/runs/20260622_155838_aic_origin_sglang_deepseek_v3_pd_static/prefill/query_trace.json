@@ -1,0 +1,633 @@
+[
+  {
+    "phase": "context",
+    "path": "context_ops[0]",
+    "op_name": "context_embedding",
+    "op_class": "Embedding",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.008477635820895522,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.024108,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[1]",
+    "op_name": "context_add_norm_1",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.5195431402985071,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.012192,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[2]",
+    "op_name": "context_mla_block",
+    "op_class": "FallbackOp",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 9.711452282798268,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 66.146471,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[2].primary",
+    "op_name": "context_mla_module",
+    "op_class": "MLAModule",
+    "op_quant_fields": {
+      "_fmha_quant_mode": {
+        "enum": "FMHAQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      },
+      "_gemm_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      },
+      "_kvcache_quant_mode": {
+        "enum": "KVCacheQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          0,
+          "fp8"
+        ]
+      },
+      "_num_heads": 16
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "exception",
+    "exception_type": "PerfDataNotAvailableError",
+    "exception": "Error loading silicon data for op PerfDataFilename.mla_context_module: File does not exist at /home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_context_module_perf.txt. This combination of model, system, backend, and backend version is not supported by AIC in SILICON mode. Failed to query context MLA module data for b=1, s=1024, prefix=0, num_heads=16, kvcache_quant_mode=<KVCacheQuantMode.fp8: QuantMapping(memory=1, compute=0, name='fp8')>, fmha_quant_mode=<FMHAQuantMode.bfloat16: QuantMapping(memory=2, compute=1, name='bfloat16')>, gemm_quant_mode=<GEMMQuantMode.fp8_block: QuantMapping(memory=1, compute=2, name='fp8_block')>. Consider using HYBRID mode.",
+    "traceback_tail": [
+      "  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/perf_database.py\", line 3873, in _query_silicon_or_hybrid",
+      "    return get_silicon()",
+      "           ^^^^^^^^^^^^^",
+      "  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/perf_database.py\", line 4748, in get_silicon",
+      "    self._context_mla_module_data.raise_if_not_loaded()",
+      "  File \"/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/sdk/perf_database.py\", line 2538, in raise_if_not_loaded",
+      "    raise PerfDataNotAvailableError(",
+      "aiconfigurator.sdk.perf_database.PerfDataNotAvailableError: Error loading silicon data for op PerfDataFilename.mla_context_module: File does not exist at /home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_context_module_perf.txt. This combination of model, system, backend, and backend version is not supported by AIC in SILICON mode. Failed to query context MLA module data for b=1, s=1024, prefix=0, num_heads=16, kvcache_quant_mode=<KVCacheQuantMode.fp8: QuantMapping(memory=1, compute=0, name='fp8')>, fmha_quant_mode=<FMHAQuantMode.bfloat16: QuantMapping(memory=2, compute=1, name='bfloat16')>, gemm_quant_mode=<GEMMQuantMode.fp8_block: QuantMapping(memory=1, compute=2, name='fp8_block')>. Consider using HYBRID mode."
+    ],
+    "elapsed_wall_ms": 1.558964,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[2].fallback[0]",
+    "op_name": "context_downscale_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 2112,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 2.1147344961748966,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 61.04984,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[2].fallback[1]",
+    "op_name": "context_q_b_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 3072,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.9616852833165063,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.028852,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[2].fallback[2]",
+    "op_name": "context_kv_b_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 4096,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.8105680238869455,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.017113,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[2].fallback[3]",
+    "op_name": "context_attention",
+    "op_class": "ContextMLA",
+    "op_quant_fields": {
+      "_fmha_quant_mode": {
+        "enum": "FMHAQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      },
+      "_kvcache_quant_mode": {
+        "enum": "KVCacheQuantMode",
+        "name": "fp8",
+        "value": [
+          1,
+          0,
+          "fp8"
+        ]
+      },
+      "_num_heads": 16
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 3.753500884771347,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 3.315081,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[2].fallback[4]",
+    "op_name": "context_proj_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 2.0709635946485734,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.024578,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[3]",
+    "op_name": "context_add_norm_2",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.5195431402985071,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.006251,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[4]",
+    "op_name": "context_shared_gate_up_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 512,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 1.4320089105102751,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.014698,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[5]",
+    "op_name": "context_shared_act_gate",
+    "op_class": "ElementWise",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.21880026268656716,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.011875,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[6]",
+    "op_name": "context_shared_ffn2_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 7168,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.831389313770665,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.011488,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[7]",
+    "op_name": "context_router_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 256,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.8213039793901973,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.011354,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[8]",
+    "op_name": "context_moe_pre_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 6.534944725036622,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.043584,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[9]",
+    "op_name": "context_moe",
+    "op_class": "MoE",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 38.254984283447264,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.031934,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[10]",
+    "op_name": "context_moe_post_dispatch",
+    "op_class": "MoEDispatch",
+    "op_quant_fields": {
+      "_quant_mode": {
+        "enum": "MoEQuantMode",
+        "name": "fp8_block",
+        "value": [
+          1,
+          2,
+          "fp8_block"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 6.534944725036622,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.009654,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[11]",
+    "op_name": "context_logits_gemm",
+    "op_class": "GEMM",
+    "op_quant_fields": {
+      "_n": 16160,
+      "_quant_mode": {
+        "enum": "GEMMQuantMode",
+        "name": "bfloat16",
+        "value": [
+          2,
+          1,
+          "bfloat16"
+        ]
+      }
+    },
+    "kwargs": {
+      "x": 1,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.08138227974965077,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 59.270851,
+    "database_mode_after": "SILICON"
+  },
+  {
+    "phase": "context",
+    "path": "context_ops[12]",
+    "op_name": "context_p2p",
+    "op_class": "P2P",
+    "op_quant_fields": {},
+    "kwargs": {
+      "x": 1024,
+      "batch_size": 1,
+      "beam_width": 1,
+      "s": 1024,
+      "prefix": 0,
+      "model_name": "",
+      "seq_imbalance_correction_scale": 1.0
+    },
+    "database_mode_before": "SILICON",
+    "status": "ok",
+    "latency_ms": 0.0,
+    "energy_wms": 0.0,
+    "power_w": 0.0,
+    "source": "silicon",
+    "elapsed_wall_ms": 0.004912,
+    "database_mode_after": "SILICON"
+  }
+]

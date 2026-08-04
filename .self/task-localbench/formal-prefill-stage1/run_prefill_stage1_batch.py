@@ -16,6 +16,7 @@ class BatchCase:
     prefix_lens: list[int]
     attention_backend: str
     force_prefill_mha_for_prefix: bool
+    kv_cache_dtype: str = "auto"
     tp_size: int = 1
     num_layers: int = 5
     context_length: int = 0
@@ -77,6 +78,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--triton-debug", action="store_true")
     parser.add_argument("--triton-print-autotuning", action="store_true")
     parser.add_argument("--extra-env", action="append", default=[])
+    parser.add_argument(
+        "--kv-cache-dtype",
+        default=None,
+        choices=["auto", "bf16", "bfloat16", "fp8", "fp8_e4m3", "fp8_e5m2"],
+        help="Override all cases' SGLang kv_cache_dtype.",
+    )
     parser.add_argument("--docker-privileged", action="store_true")
     parser.add_argument("--docker-cap-add", action="append", default=[])
     parser.add_argument("--docker-security-opt", action="append", default=[])
@@ -355,6 +362,8 @@ def build_command(
         "off",
         "--tp-size",
         str(case.tp_size),
+        "--kv-cache-dtype",
+        case.kv_cache_dtype,
         "--tag",
         case.tag,
         "--run-root",
@@ -464,6 +473,7 @@ def write_manifest_row(
         "fresh_lens",
         "prefix_lens",
         "tp_size",
+        "kv_cache_dtype",
         "attention_backend",
     ]
     exists = manifest_path.exists()
@@ -512,7 +522,7 @@ def main() -> int:
             args.triton_cache_dir,
             args.triton_dump_dir,
         ]
-    ) or args.triton_debug or args.triton_print_autotuning or args.extra_env or args.docker_privileged or args.docker_cap_add or args.docker_security_opt or args.docker_pid_host:
+    ) or args.triton_debug or args.triton_print_autotuning or args.extra_env or args.kv_cache_dtype is not None or args.docker_privileged or args.docker_cap_add or args.docker_security_opt or args.docker_pid_host:
         cases = [
             replace(
                 case,
@@ -534,6 +544,7 @@ def main() -> int:
                 triton_print_autotuning=(
                     args.triton_print_autotuning or case.triton_print_autotuning
                 ),
+                kv_cache_dtype=args.kv_cache_dtype or case.kv_cache_dtype,
                 extra_env=tuple([*case.extra_env, *args.extra_env]),
                 docker_privileged=args.docker_privileged or case.docker_privileged,
                 docker_cap_add=tuple([*case.docker_cap_add, *args.docker_cap_add]),
@@ -582,6 +593,7 @@ def main() -> int:
                     "fresh_lens": ",".join(str(x) for x in case.fresh_lens),
                     "prefix_lens": ",".join(str(x) for x in case.prefix_lens),
                     "tp_size": str(case.tp_size),
+                    "kv_cache_dtype": case.kv_cache_dtype,
                     "attention_backend": case.attention_backend,
                 },
             )

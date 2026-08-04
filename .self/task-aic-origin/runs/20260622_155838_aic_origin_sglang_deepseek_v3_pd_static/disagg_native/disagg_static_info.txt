@@ -1,0 +1,12 @@
+Performance Summary:
+total latency                  0.00000 ms
+context latency (ttft):         0.00000 ms
+
+
+Memory Usage: 
+
+Context breakdown:
+total                      (   0.00000 ms)
+
+Generation breakdown:
+total                      (   0.00000 ms)

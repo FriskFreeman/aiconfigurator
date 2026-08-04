@@ -1,0 +1,78 @@
+{
+  "profile_count": 10,
+  "kernel_launch_rows": 440,
+  "category_rows": 38,
+  "latency_rows": 10,
+  "pair_rows": [
+    {
+      "case": "prefill_b1_s256",
+      "stage": "prefill",
+      "batch_size": 1,
+      "input_len": 256,
+      "num_heads": 128,
+      "tp_size": 1,
+      "bf16_graph_ms": 0.026013120021671058,
+      "fp8_graph_ms": 0.04004096020013094,
+      "fp8_over_bf16_graph": 1.5392601951159086,
+      "bf16_database_ms": 0.02301120012998581,
+      "fp8_database_ms": 0.03753759860992432,
+      "fp8_over_bf16_database": 1.6312751354940942
+    },
+    {
+      "case": "prefill_b1_s2048",
+      "stage": "prefill",
+      "batch_size": 1,
+      "input_len": 2048,
+      "num_heads": 128,
+      "tp_size": 1,
+      "bf16_graph_ms": 0.2993203207850456,
+      "fp8_graph_ms": 0.3610697615146637,
+      "fp8_over_bf16_graph": 1.206298859254407,
+      "bf16_database_ms": 0.29507999420166015,
+      "fp8_database_ms": 0.3550944089889526,
+      "fp8_over_bf16_database": 1.2033835433325857
+    },
+    {
+      "case": "decode_b1_step255",
+      "stage": "decode",
+      "batch_size": 1,
+      "input_len": 255,
+      "num_heads": 128,
+      "tp_size": 1,
+      "bf16_graph_ms": 0.023674560002982615,
+      "fp8_graph_ms": 0.026478720009326936,
+      "fp8_over_bf16_graph": 1.1184461297692985,
+      "bf16_database_ms": 0.018211199343204497,
+      "fp8_database_ms": 0.024166400730609893,
+      "fp8_over_bf16_database": 1.3270076437677114
+    },
+    {
+      "case": "decode_b1_step2047",
+      "stage": "decode",
+      "batch_size": 1,
+      "input_len": 2047,
+      "num_heads": 128,
+      "tp_size": 1,
+      "bf16_graph_ms": 0.02459263989701867,
+      "fp8_graph_ms": 0.03283071983605623,
+      "fp8_over_bf16_graph": 1.3349815218510255,
+      "bf16_database_ms": 0.021907199919223786,
+      "fp8_database_ms": 0.03027999997138977,
+      "fp8_over_bf16_database": 1.3821939856776844
+    },
+    {
+      "case": "decode_b64_step32767",
+      "stage": "decode",
+      "batch_size": 64,
+      "input_len": 32767,
+      "num_heads": 128,
+      "tp_size": 1,
+      "bf16_graph_ms": 0.9363635188341141,
+      "fp8_graph_ms": 4.461786575317383,
+      "fp8_over_bf16_graph": 4.765015387264176,
+      "bf16_database_ms": 0.902683162689209,
+      "fp8_database_ms": 4.452476882934571,
+      "fp8_over_bf16_database": 4.93249134022847
+    }
+  ]
+}

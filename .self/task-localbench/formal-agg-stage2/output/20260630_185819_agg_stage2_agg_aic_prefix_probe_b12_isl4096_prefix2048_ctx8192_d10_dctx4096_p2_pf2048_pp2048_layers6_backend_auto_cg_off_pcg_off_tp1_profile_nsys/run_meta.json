@@ -1,0 +1,37 @@
+{
+  "run_name": "20260630_185819_agg_stage2_agg_aic_prefix_probe_b12_isl4096_prefix2048_ctx8192_d10_dctx4096_p2_pf2048_pp2048_layers6_backend_auto_cg_off_pcg_off_tp1_profile_nsys",
+  "tag": "agg_aic_prefix_probe_b12_isl4096_prefix2048_ctx8192",
+  "gpu_id": 5,
+  "profile_mode": "nsys",
+  "num_layers": 6,
+  "attention_backend": "auto",
+  "decode_attention_backend": "auto",
+  "context_length": 4120,
+  "chunked_prefill_size": 8192,
+  "max_prefill_tokens": 16384,
+  "mixed_profile_steps": 1,
+  "mixed_warmup_runs": 1,
+  "deepgemm_precompile": false,
+  "deepgemm_fast_warmup": true,
+  "decode_prefix_lens": [
+    4096,
+    4096,
+    4096,
+    4096,
+    4096,
+    4096,
+    4096,
+    4096,
+    4096,
+    4096
+  ],
+  "prefill_prefix_lens": [
+    2048,
+    2048
+  ],
+  "prefill_fresh_lens": [
+    2048,
+    2048
+  ],
+  "vocab_size": 129280
+}

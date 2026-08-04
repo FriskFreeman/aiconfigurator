@@ -1,0 +1,19 @@
+{
+  "case_id": "llama31_70b__rtx_pro_6000_server__silicon",
+  "model_key": "llama31_70b",
+  "model_path": "meta-llama/Meta-Llama-3.1-70B",
+  "system": "rtx_pro_6000_server",
+  "mode": "SILICON",
+  "analytical_level": "",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 55,
+  "best_tokens_per_s_gpu": 101.779,
+  "best_cluster_request_rate": 2.53,
+  "elapsed_s": 6.543092489242554
+}

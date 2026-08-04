@@ -1,0 +1,19 @@
+{
+  "case_id": "qwen3_32b__rtx_pro_6000_server__analytical__high",
+  "model_key": "qwen3_32b",
+  "model_path": "Qwen/Qwen3-32B",
+  "system": "rtx_pro_6000_server",
+  "mode": "ANALYTICAL",
+  "analytical_level": "high",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 86,
+  "best_tokens_per_s_gpu": 231.398,
+  "best_cluster_request_rate": 6.147,
+  "elapsed_s": 5.801311254501343
+}

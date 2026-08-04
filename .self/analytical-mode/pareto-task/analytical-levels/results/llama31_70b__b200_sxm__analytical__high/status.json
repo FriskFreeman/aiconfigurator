@@ -1,0 +1,19 @@
+{
+  "case_id": "llama31_70b__b200_sxm__analytical__high",
+  "model_key": "llama31_70b",
+  "model_path": "meta-llama/Meta-Llama-3.1-70B",
+  "system": "b200_sxm",
+  "mode": "ANALYTICAL",
+  "analytical_level": "high",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 49,
+  "best_tokens_per_s_gpu": 634.982,
+  "best_cluster_request_rate": 19.74,
+  "elapsed_s": 6.927372694015503
+}

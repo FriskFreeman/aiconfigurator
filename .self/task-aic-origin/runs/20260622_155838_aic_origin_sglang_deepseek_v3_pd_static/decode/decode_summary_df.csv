@@ -1,0 +1,2 @@
+model,isl,osl,prefix,concurrency,request_rate,bs,global_bs,ttft,tpot,seq/s,seq/s/gpu,tokens/s,tokens/s/gpu,tokens/s/user,request_latency,context_latency,generation_latency,num_total_gpus,tp,pp,dp,moe_tp,moe_ep,parallel,gemm,kvcache,fmha,moe,comm,memory,backend,version,system,power_w
+deepseek-ai/DeepSeek-V3,1024,16,0,4,0.0,4,4,0,27.683,9.633,1.204,144.493,18.062,36.123,415.246,0,415.246,8,8,1,1,1,8,tp8pp1dp1etp1ep8,fp8_block,fp8,bfloat16,fp8_block,half,89.427,sglang,0.5.9,h100_sxm,0.0

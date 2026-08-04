@@ -1,0 +1,18 @@
+{
+  "case_id": "deepseek_v3__b200_sxm__empirical",
+  "model_key": "deepseek_v3",
+  "model_path": "deepseek-ai/DeepSeek-V3",
+  "system": "b200_sxm",
+  "mode": "EMPIRICAL",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 92,
+  "best_tokens_per_s_gpu": 1825.69,
+  "best_cluster_request_rate": 28.526,
+  "elapsed_s": 8.867525577545166
+}

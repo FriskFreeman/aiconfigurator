@@ -1,0 +1,27 @@
+Performance Summary:
+total latency                415.24634 ms
+context latency (ttft):         0.00000 ms
+generation latency:          415.24634 ms
+throughput 144.49 tokens/s, tpot 27.683 ms
+
+
+Memory Usage: 
+total                           89.427 GiB
+weights                         84.607 GiB
+activations                      0.101 GiB
+kvcache                          0.136 GiB
+nccl                             0.383 GiB
+others                           4.200 GiB
+
+Context breakdown:
+total                      (   0.00000 ms)
+
+Generation breakdown:
+total                      ( 415.24634 ms)
+generation_embedding             0.045 ms     0%
+generation_add_norm_1            2.823 ms     0%
+generation_mla_block            69.460 ms    16%
+generation_add_norm_2            2.823 ms     0%
+generation_moe_overlap         338.868 ms    81%
+generation_logits_gemm           1.226 ms     0%
+generation_p2p                   0.000 ms     0%

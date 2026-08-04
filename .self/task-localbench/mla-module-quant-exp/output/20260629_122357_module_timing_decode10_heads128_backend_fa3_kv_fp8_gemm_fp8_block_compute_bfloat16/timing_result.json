@@ -1,0 +1,85 @@
+{
+  "load_model_runner_s": 14.02835803013295,
+  "case_run_s": 45.57863925793208,
+  "total_s": 59.60699756909162,
+  "num_cases": 10,
+  "warmup": 3,
+  "iterations": 10,
+  "server_args": {
+    "attention_backend": "fa3",
+    "kv_cache_dtype": "fp8_e4m3",
+    "quantization": "fp8"
+  },
+  "per_case": [
+    {
+      "batch_size": 1,
+      "seq_length": 1,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 22.88931338209659
+    },
+    {
+      "batch_size": 2,
+      "seq_length": 1,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 1.8415792500600219
+    },
+    {
+      "batch_size": 4,
+      "seq_length": 1,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 0.9336039440240711
+    },
+    {
+      "batch_size": 8,
+      "seq_length": 1,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 0.9358123259153217
+    },
+    {
+      "batch_size": 16,
+      "seq_length": 1,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 0.9180594210047275
+    },
+    {
+      "batch_size": 32,
+      "seq_length": 1,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 7.046552161220461
+    },
+    {
+      "batch_size": 64,
+      "seq_length": 1,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 8.246026797918603
+    },
+    {
+      "batch_size": 4,
+      "seq_length": 512,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 0.9222786421887577
+    },
+    {
+      "batch_size": 8,
+      "seq_length": 2048,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 0.9227247040253133
+    },
+    {
+      "batch_size": 16,
+      "seq_length": 4096,
+      "phase": "decode",
+      "ok": true,
+      "wall_s": 0.9226004360243678
+    }
+  ]
+}

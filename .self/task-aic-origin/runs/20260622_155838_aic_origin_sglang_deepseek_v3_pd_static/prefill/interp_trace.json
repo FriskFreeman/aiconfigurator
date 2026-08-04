@@ -1,0 +1,173 @@
+[
+  {
+    "classification_best_effort": "interpolation_or_sparse_grid",
+    "exact_hit": false,
+    "requested": {
+      "x": 1024,
+      "y": 2112,
+      "z": 7168
+    },
+    "global_axes": {
+      "x": {
+        "count": 83,
+        "min": 1,
+        "max": 16777216
+      },
+      "y": {
+        "count": 2656,
+        "min": 32,
+        "max": 262144
+      },
+      "z": {
+        "count": 84972,
+        "min": 32,
+        "max": 262144
+      }
+    },
+    "local_axes": {
+      "y_at_x": {
+        "count": 32,
+        "min": 32,
+        "max": 262144
+      },
+      "z_at_xy": {
+        "count": 0,
+        "min": null,
+        "max": null,
+        "contains": false
+      }
+    },
+    "exact_leaf_value": null,
+    "note": "Best-effort wrapper around PerfDatabase._interp_3d. Native AIC returns metrics only; it does not expose interpolation neighbor points or row ids.",
+    "method": "cubic",
+    "data_id": 129173097700608,
+    "current_op": {
+      "phase": "context",
+      "path": "context_ops[2].fallback[0]",
+      "op_name": "context_downscale_gemm",
+      "op_class": "GEMM"
+    },
+    "status": "ok",
+    "result": {
+      "latency": 0.03466777862581798,
+      "power": 0.0,
+      "energy": "array(0.)"
+    },
+    "elapsed_wall_ms": 37.564172
+  },
+  {
+    "classification_best_effort": "direct_hit",
+    "exact_hit": true,
+    "requested": {
+      "x": 16,
+      "y": 1024,
+      "z": 1
+    },
+    "global_axes": {
+      "x": {
+        "count": 8,
+        "min": 1,
+        "max": 128
+      },
+      "y": {
+        "count": 416,
+        "min": 1,
+        "max": 1048576
+      },
+      "z": {
+        "count": 5408,
+        "min": 1,
+        "max": 2048
+      }
+    },
+    "local_axes": {
+      "y_at_x": {
+        "count": 52,
+        "min": 1,
+        "max": 1048576
+      },
+      "z_at_xy": {
+        "count": 13,
+        "min": 1,
+        "max": 2048
+      }
+    },
+    "exact_leaf_value": {
+      "latency": 0.06153280138969421,
+      "power": 0.0,
+      "energy": 0.0
+    },
+    "note": "Best-effort wrapper around PerfDatabase._interp_3d. Native AIC returns metrics only; it does not expose interpolation neighbor points or row ids.",
+    "method": "cubic",
+    "data_id": 129172950658208,
+    "current_op": {
+      "phase": "context",
+      "path": "context_ops[2].fallback[3]",
+      "op_name": "context_attention",
+      "op_class": "ContextMLA"
+    },
+    "status": "ok",
+    "result": {
+      "latency": 0.06153280138969421,
+      "power": 0.0,
+      "energy": "array(0.)"
+    },
+    "elapsed_wall_ms": 2.437834
+  },
+  {
+    "classification_best_effort": "interpolation_or_sparse_grid",
+    "exact_hit": false,
+    "requested": {
+      "x": 1,
+      "y": 16160,
+      "z": 7168
+    },
+    "global_axes": {
+      "x": {
+        "count": 83,
+        "min": 1,
+        "max": 16777216
+      },
+      "y": {
+        "count": 2656,
+        "min": 32,
+        "max": 262144
+      },
+      "z": {
+        "count": 84992,
+        "min": 32,
+        "max": 262144
+      }
+    },
+    "local_axes": {
+      "y_at_x": {
+        "count": 32,
+        "min": 32,
+        "max": 262144
+      },
+      "z_at_xy": {
+        "count": 0,
+        "min": null,
+        "max": null,
+        "contains": false
+      }
+    },
+    "exact_leaf_value": null,
+    "note": "Best-effort wrapper around PerfDatabase._interp_3d. Native AIC returns metrics only; it does not expose interpolation neighbor points or row ids.",
+    "method": "cubic",
+    "data_id": 129173097699248,
+    "current_op": {
+      "phase": "context",
+      "path": "context_ops[11]",
+      "op_name": "context_logits_gemm",
+      "op_class": "GEMM"
+    },
+    "status": "ok",
+    "result": {
+      "latency": 0.08138227974965077,
+      "power": 0.0,
+      "energy": "array(0.)"
+    },
+    "elapsed_wall_ms": 33.570806
+  }
+]

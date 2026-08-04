@@ -1,0 +1,190 @@
+hardware,hardware_label,engine,version,operator,phase,compute_tag,kv_cache_dtype,kernel_source,rows
+a100_sxm,A100 SXM,sglang,0.5.10,attention,prefill,bfloat16,bfloat16,flash_attention,5627
+a100_sxm,A100 SXM,sglang,0.5.10,attention,decode,bfloat16,bfloat16,flash_attention,5093
+a100_sxm,A100 SXM,trtllm,1.0.0,attention,prefill,bfloat16,bfloat16,torch_flow,4864
+a100_sxm,A100 SXM,trtllm,1.0.0,attention,decode,bfloat16,bfloat16,torch_flow,5026
+a100_sxm,A100 SXM,trtllm,1.0.0,mla,prefill,bfloat16,bfloat16,default,1218
+a100_sxm,A100 SXM,trtllm,1.0.0,mla,prefill,bfloat16,fp8,default,1218
+a100_sxm,A100 SXM,trtllm,1.0.0,mla,decode,bfloat16,bfloat16,default,2534
+a100_sxm,A100 SXM,trtllm,1.0.0,mla,decode,bfloat16,fp8,default,2534
+a100_sxm,A100 SXM,vllm,0.14.0,attention,prefill,bfloat16,bfloat16,vllm_flash_attn,5457
+a100_sxm,A100 SXM,vllm,0.14.0,attention,decode,bfloat16,bfloat16,vllm_flash_attn,5431
+a100_sxm,A100 SXM,vllm,0.14.0,mla,prefill,bfloat16,bfloat16,vllm_triton_mla,880
+a100_sxm,A100 SXM,vllm,0.14.0,mla,decode,bfloat16,bfloat16,vllm_triton_mla,1365
+l40s,L40S,sglang,0.5.10,attention,prefill,bfloat16,bfloat16,flash_attention,5627
+l40s,L40S,sglang,0.5.10,attention,decode,bfloat16,bfloat16,flash_attention,5093
+l40s,L40S,trtllm,1.0.0,attention,prefill,bfloat16,bfloat16,torch_flow,9764
+l40s,L40S,trtllm,1.0.0,attention,prefill,bfloat16,fp8,torch_flow,9765
+l40s,L40S,trtllm,1.0.0,attention,prefill,fp8,fp8,torch_flow,9794
+l40s,L40S,trtllm,1.0.0,attention,decode,bfloat16,bfloat16,torch_flow,10052
+l40s,L40S,trtllm,1.0.0,attention,decode,bfloat16,fp8,torch_flow,10052
+l40s,L40S,trtllm,1.0.0,mla,prefill,bfloat16,bfloat16,default,1218
+l40s,L40S,trtllm,1.0.0,mla,prefill,bfloat16,fp8,default,1218
+l40s,L40S,trtllm,1.0.0,mla,decode,bfloat16,bfloat16,default,2534
+l40s,L40S,trtllm,1.0.0,mla,decode,bfloat16,fp8,default,2534
+l40s,L40S,vllm,0.14.0,attention,prefill,bfloat16,bfloat16,vllm_flash_attn,5457
+l40s,L40S,vllm,0.14.0,attention,prefill,bfloat16,fp8,vllm_flashinfer,5457
+l40s,L40S,vllm,0.14.0,attention,decode,bfloat16,bfloat16,vllm_flash_attn,5432
+l40s,L40S,vllm,0.14.0,attention,decode,bfloat16,fp8,vllm_flashinfer,5435
+l40s,L40S,vllm,0.14.0,mla,prefill,bfloat16,bfloat16,vllm_triton_mla,880
+l40s,L40S,vllm,0.14.0,mla,decode,bfloat16,bfloat16,vllm_triton_mla,1401
+h100_sxm,H100 SXM,sglang,0.5.10,attention,prefill,bfloat16,bfloat16,flash_attention,5627
+h100_sxm,H100 SXM,sglang,0.5.10,attention,prefill,bfloat16,fp8,flash_attention,5627
+h100_sxm,H100 SXM,sglang,0.5.10,attention,prefill,fp8,fp8,flash_attention,5627
+h100_sxm,H100 SXM,sglang,0.5.10,attention,decode,bfloat16,bfloat16,flash_attention,5093
+h100_sxm,H100 SXM,sglang,0.5.10,attention,decode,bfloat16,fp8,flash_attention,5093
+h100_sxm,H100 SXM,sglang,0.5.10,mla,prefill,bfloat16,bfloat16,flash_attention,1540
+h100_sxm,H100 SXM,sglang,0.5.10,mla,prefill,bfloat16,fp8,flash_attention,1540
+h100_sxm,H100 SXM,sglang,0.5.10,mla,decode,bfloat16,bfloat16,flash_attention,2324
+h100_sxm,H100 SXM,sglang,0.5.10,mla,decode,bfloat16,fp8,flash_attention,2324
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,attention,prefill,bfloat16,bfloat16,torch_flow,16848
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,attention,prefill,bfloat16,fp8,torch_flow,16847
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,attention,prefill,fp8,fp8,torch_flow,16881
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,attention,decode,bfloat16,bfloat16,torch_flow,15057
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,attention,decode,bfloat16,fp8,torch_flow,9381
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,mla,prefill,bfloat16,bfloat16,default,880
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,mla,prefill,bfloat16,fp8,default,880
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,mla,decode,bfloat16,bfloat16,default,1448
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,mla,decode,bfloat16,fp8,default,1448
+h100_sxm,H100 SXM,vllm,0.19.0,attention,prefill,bfloat16,bfloat16,vllm_flash_attn,21828
+h100_sxm,H100 SXM,vllm,0.19.0,attention,prefill,bfloat16,fp8,vllm_flash_attn,21828
+h100_sxm,H100 SXM,vllm,0.19.0,attention,decode,bfloat16,bfloat16,vllm_flash_attn,22528
+h100_sxm,H100 SXM,vllm,0.19.0,attention,decode,bfloat16,fp8,vllm_flash_attn,22528
+h100_sxm,H100 SXM,vllm,0.14.0,mla,prefill,bfloat16,bfloat16,vllm_flash_attn_mla,1650
+h100_sxm,H100 SXM,vllm,0.14.0,mla,prefill,bfloat16,fp8,vllm_flashmla,1515
+h100_sxm,H100 SXM,vllm,0.14.0,mla,decode,bfloat16,bfloat16,vllm_flash_attn_mla,2715
+h100_sxm,H100 SXM,vllm,0.14.0,mla,decode,bfloat16,fp8,vllm_flashmla,2715
+h200_sxm,H200 SXM,sglang,0.5.10,attention,prefill,bfloat16,bfloat16,flash_attention,5627
+h200_sxm,H200 SXM,sglang,0.5.10,attention,prefill,bfloat16,fp8,flash_attention,5627
+h200_sxm,H200 SXM,sglang,0.5.10,attention,prefill,fp8,fp8,flash_attention,5627
+h200_sxm,H200 SXM,sglang,0.5.10,attention,decode,bfloat16,bfloat16,flash_attention,5093
+h200_sxm,H200 SXM,sglang,0.5.10,attention,decode,bfloat16,fp8,flash_attention,5093
+h200_sxm,H200 SXM,sglang,0.5.10,mla,prefill,bfloat16,bfloat16,flash_attention,1540
+h200_sxm,H200 SXM,sglang,0.5.10,mla,prefill,bfloat16,fp8,flash_attention,1540
+h200_sxm,H200 SXM,sglang,0.5.10,mla,decode,bfloat16,bfloat16,flash_attention,2324
+h200_sxm,H200 SXM,sglang,0.5.10,mla,decode,bfloat16,fp8,flash_attention,2324
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,attention,prefill,bfloat16,bfloat16,torch_flow,16848
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,attention,prefill,bfloat16,fp8,torch_flow,16845
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,attention,prefill,fp8,fp8,torch_flow,16881
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,attention,decode,bfloat16,bfloat16,torch_flow,15057
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,attention,decode,bfloat16,fp8,torch_flow,9381
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,mla,prefill,bfloat16,bfloat16,default,880
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,mla,prefill,bfloat16,fp8,default,880
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,mla,decode,bfloat16,bfloat16,default,1448
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,mla,decode,bfloat16,fp8,default,1448
+h200_sxm,H200 SXM,vllm,0.19.0,attention,prefill,bfloat16,bfloat16,vllm_flash_attn,24974
+h200_sxm,H200 SXM,vllm,0.19.0,attention,prefill,bfloat16,fp8,vllm_flash_attn,24978
+h200_sxm,H200 SXM,vllm,0.19.0,attention,decode,bfloat16,bfloat16,vllm_flash_attn,27175
+h200_sxm,H200 SXM,vllm,0.19.0,attention,decode,bfloat16,fp8,vllm_flash_attn,27172
+h200_sxm,H200 SXM,vllm,0.14.0,mla,prefill,bfloat16,bfloat16,vllm_flash_attn_mla,1650
+h200_sxm,H200 SXM,vllm,0.14.0,mla,prefill,bfloat16,fp8,vllm_flashmla,1515
+h200_sxm,H200 SXM,vllm,0.14.0,mla,decode,bfloat16,bfloat16,vllm_flash_attn_mla,2715
+h200_sxm,H200 SXM,vllm,0.14.0,mla,decode,bfloat16,fp8,vllm_flashmla,2715
+b200_sxm,B200 SXM,sglang,0.5.10,attention,prefill,bfloat16,bfloat16,trtllm_mha,11238
+b200_sxm,B200 SXM,sglang,0.5.10,attention,prefill,bfloat16,fp8,trtllm_mha,11238
+b200_sxm,B200 SXM,sglang,0.5.10,attention,prefill,fp8,fp8,trtllm_mha,11238
+b200_sxm,B200 SXM,sglang,0.5.10,attention,decode,bfloat16,bfloat16,trtllm_mha,9742
+b200_sxm,B200 SXM,sglang,0.5.10,attention,decode,bfloat16,fp8,trtllm_mha,9742
+b200_sxm,B200 SXM,sglang,0.5.10,mla,prefill,bfloat16,bfloat16,trtllm_mla,1540
+b200_sxm,B200 SXM,sglang,0.5.10,mla,prefill,bfloat16,fp8,trtllm_mla,1540
+b200_sxm,B200 SXM,sglang,0.5.10,mla,decode,bfloat16,bfloat16,trtllm_mla,2324
+b200_sxm,B200 SXM,sglang,0.5.10,mla,decode,bfloat16,fp8,trtllm_mla,2324
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,attention,prefill,bfloat16,bfloat16,torch_flow,21064
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,attention,prefill,bfloat16,fp8,torch_flow,21064
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,attention,prefill,fp8,fp8,torch_flow,20995
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,attention,decode,bfloat16,bfloat16,torch_flow,20120
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,attention,decode,bfloat16,fp8,torch_flow,20120
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,mla,prefill,bfloat16,bfloat16,default,880
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,mla,prefill,bfloat16,fp8,default,880
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,mla,decode,bfloat16,bfloat16,default,1448
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,mla,decode,bfloat16,fp8,default,1448
+b200_sxm,B200 SXM,vllm,0.19.0,attention,prefill,bfloat16,bfloat16,vllm_flashinfer,10908
+b200_sxm,B200 SXM,vllm,0.19.0,attention,prefill,bfloat16,fp8,vllm_flashinfer,10908
+b200_sxm,B200 SXM,vllm,0.19.0,attention,decode,bfloat16,bfloat16,vllm_flashinfer,8454
+b200_sxm,B200 SXM,vllm,0.19.0,attention,decode,bfloat16,fp8,vllm_flashinfer,8454
+b300_sxm,B300 SXM,sglang,0.5.10,attention,prefill,bfloat16,bfloat16,trtllm_mha,5627
+b300_sxm,B300 SXM,sglang,0.5.10,attention,prefill,bfloat16,fp8,trtllm_mha,5627
+b300_sxm,B300 SXM,sglang,0.5.10,attention,prefill,fp8,fp8,trtllm_mha,5627
+b300_sxm,B300 SXM,sglang,0.5.10,attention,decode,bfloat16,bfloat16,trtllm_mha,5093
+b300_sxm,B300 SXM,sglang,0.5.10,attention,decode,bfloat16,fp8,trtllm_mha,5093
+b300_sxm,B300 SXM,sglang,0.5.10,mla,prefill,bfloat16,bfloat16,trtllm_mla,1540
+b300_sxm,B300 SXM,sglang,0.5.10,mla,prefill,bfloat16,fp8,trtllm_mla,1540
+b300_sxm,B300 SXM,sglang,0.5.10,mla,decode,bfloat16,bfloat16,trtllm_mla,2324
+b300_sxm,B300 SXM,sglang,0.5.10,mla,decode,bfloat16,fp8,trtllm_mla,2324
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,attention,prefill,bfloat16,bfloat16,torch_flow,21064
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,attention,prefill,bfloat16,fp8,torch_flow,21064
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,attention,prefill,fp8,fp8,torch_flow,21005
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,attention,decode,bfloat16,bfloat16,torch_flow,20120
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,attention,decode,bfloat16,fp8,torch_flow,20120
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,mla,prefill,bfloat16,bfloat16,default,880
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,mla,prefill,bfloat16,fp8,default,880
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,mla,decode,bfloat16,bfloat16,default,1448
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,mla,decode,bfloat16,fp8,default,1448
+b300_sxm,B300 SXM,vllm,0.19.0,attention,prefill,bfloat16,bfloat16,vllm_flashinfer,10908
+b300_sxm,B300 SXM,vllm,0.19.0,attention,prefill,bfloat16,fp8,vllm_flashinfer,10908
+b300_sxm,B300 SXM,vllm,0.19.0,attention,decode,bfloat16,bfloat16,vllm_flashinfer,8454
+b300_sxm,B300 SXM,vllm,0.19.0,attention,decode,bfloat16,fp8,vllm_flashinfer,8454
+gb200,GB200,sglang,0.5.10,attention,prefill,bfloat16,bfloat16,trtllm_mha,5627
+gb200,GB200,sglang,0.5.10,attention,prefill,bfloat16,fp8,trtllm_mha,5627
+gb200,GB200,sglang,0.5.10,attention,prefill,fp8,fp8,trtllm_mha,5627
+gb200,GB200,sglang,0.5.10,attention,decode,bfloat16,bfloat16,trtllm_mha,5093
+gb200,GB200,sglang,0.5.10,attention,decode,bfloat16,fp8,trtllm_mha,5093
+gb200,GB200,sglang,0.5.10,mla,prefill,bfloat16,bfloat16,trtllm_mla,1540
+gb200,GB200,sglang,0.5.10,mla,prefill,bfloat16,fp8,trtllm_mla,1540
+gb200,GB200,sglang,0.5.10,mla,decode,bfloat16,bfloat16,trtllm_mla,2324
+gb200,GB200,sglang,0.5.10,mla,decode,bfloat16,fp8,trtllm_mla,2324
+gb200,GB200,trtllm,1.3.0rc10,attention,prefill,bfloat16,bfloat16,torch_flow,21064
+gb200,GB200,trtllm,1.3.0rc10,attention,prefill,bfloat16,fp8,torch_flow,21064
+gb200,GB200,trtllm,1.3.0rc10,attention,prefill,fp8,fp8,torch_flow,20992
+gb200,GB200,trtllm,1.3.0rc10,attention,decode,bfloat16,bfloat16,torch_flow,20120
+gb200,GB200,trtllm,1.3.0rc10,attention,decode,bfloat16,fp8,torch_flow,20120
+gb200,GB200,trtllm,1.3.0rc10,mla,prefill,bfloat16,bfloat16,default,880
+gb200,GB200,trtllm,1.3.0rc10,mla,prefill,bfloat16,fp8,default,880
+gb200,GB200,trtllm,1.3.0rc10,mla,decode,bfloat16,bfloat16,default,1808
+gb200,GB200,trtllm,1.3.0rc10,mla,decode,bfloat16,fp8,default,1807
+gb200,GB200,vllm,0.19.0,attention,prefill,bfloat16,bfloat16,vllm_flashinfer,10908
+gb200,GB200,vllm,0.19.0,attention,prefill,bfloat16,fp8,vllm_flashinfer,10908
+gb200,GB200,vllm,0.19.0,attention,decode,bfloat16,bfloat16,vllm_flashinfer,8454
+gb200,GB200,vllm,0.19.0,attention,decode,bfloat16,fp8,vllm_flashinfer,8454
+gb300,GB300,sglang,0.5.10,attention,prefill,bfloat16,bfloat16,trtllm_mha,5627
+gb300,GB300,sglang,0.5.10,attention,prefill,bfloat16,fp8,trtllm_mha,5627
+gb300,GB300,sglang,0.5.10,attention,prefill,fp8,fp8,trtllm_mha,5627
+gb300,GB300,sglang,0.5.10,attention,decode,bfloat16,bfloat16,trtllm_mha,5093
+gb300,GB300,sglang,0.5.10,attention,decode,bfloat16,fp8,trtllm_mha,5093
+gb300,GB300,sglang,0.5.10,mla,prefill,bfloat16,bfloat16,trtllm_mla,1540
+gb300,GB300,sglang,0.5.10,mla,prefill,bfloat16,fp8,trtllm_mla,1540
+gb300,GB300,sglang,0.5.10,mla,decode,bfloat16,bfloat16,trtllm_mla,2324
+gb300,GB300,sglang,0.5.10,mla,decode,bfloat16,fp8,trtllm_mla,2324
+gb300,GB300,trtllm,1.3.0rc10,attention,prefill,bfloat16,bfloat16,torch_flow,21064
+gb300,GB300,trtllm,1.3.0rc10,attention,prefill,bfloat16,fp8,torch_flow,21064
+gb300,GB300,trtllm,1.3.0rc10,attention,prefill,fp8,fp8,torch_flow,20993
+gb300,GB300,trtllm,1.3.0rc10,attention,decode,bfloat16,bfloat16,torch_flow,20120
+gb300,GB300,trtllm,1.3.0rc10,attention,decode,bfloat16,fp8,torch_flow,20120
+gb300,GB300,trtllm,1.3.0rc10,mla,prefill,bfloat16,bfloat16,default,880
+gb300,GB300,trtllm,1.3.0rc10,mla,prefill,bfloat16,fp8,default,880
+gb300,GB300,trtllm,1.3.0rc10,mla,decode,bfloat16,bfloat16,default,1448
+gb300,GB300,trtllm,1.3.0rc10,mla,decode,bfloat16,fp8,default,1448
+gb300,GB300,vllm,0.19.0,attention,prefill,bfloat16,bfloat16,vllm_flashinfer,10908
+gb300,GB300,vllm,0.19.0,attention,prefill,bfloat16,fp8,vllm_flashinfer,10908
+gb300,GB300,vllm,0.19.0,attention,decode,bfloat16,bfloat16,vllm_flashinfer,8454
+gb300,GB300,vllm,0.19.0,attention,decode,bfloat16,fp8,vllm_flashinfer,8454
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,attention,prefill,bfloat16,bfloat16,triton,11174
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,attention,prefill,bfloat16,fp8,triton,11174
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,attention,prefill,fp8,fp8,triton,11174
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,attention,decode,bfloat16,bfloat16,triton,9742
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,attention,decode,bfloat16,fp8,triton,9742
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,mla,prefill,bfloat16,bfloat16,triton,1540
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,mla,decode,bfloat16,bfloat16,triton,2324
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,attention,prefill,bfloat16,bfloat16,torch_flow,21064
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,attention,prefill,bfloat16,fp8,torch_flow,21064
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,attention,prefill,fp8,fp8,torch_flow,21046
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,attention,decode,bfloat16,bfloat16,torch_flow,20120
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,attention,decode,bfloat16,fp8,torch_flow,20120
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,mla,prefill,bfloat16,bfloat16,default,880
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,mla,prefill,bfloat16,fp8,default,880
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,mla,decode,bfloat16,bfloat16,default,1448
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,mla,decode,bfloat16,fp8,default,1448
+rtx_pro_6000_server,RTX PRO 6000,vllm,0.19.0,attention,prefill,bfloat16,bfloat16,vllm_flash_attn,10908
+rtx_pro_6000_server,RTX PRO 6000,vllm,0.19.0,attention,prefill,bfloat16,fp8,vllm_flashinfer,10908
+rtx_pro_6000_server,RTX PRO 6000,vllm,0.19.0,attention,decode,bfloat16,bfloat16,vllm_flash_attn,8454
+rtx_pro_6000_server,RTX PRO 6000,vllm,0.19.0,attention,decode,bfloat16,fp8,vllm_flashinfer,8454

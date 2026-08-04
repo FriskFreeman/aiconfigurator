@@ -1,0 +1,36 @@
+scenario,group,operation,latency_ms_per_step
+PRO6000 baseline,routed,generation_router_gemm,0.1796637552925837
+PRO6000 baseline,routed,generation_moe_pre_dispatch,0.7567083243243242
+PRO6000 baseline,routed,generation_moe,39.45655787854563
+PRO6000 baseline,routed,generation_moe_post_dispatch,0.7567083243243242
+PRO6000 baseline,shared,generation_shared_gate_up_gemm,0.41831017694081823
+PRO6000 baseline,shared,generation_shared_act_gate,0.10183320463320462
+PRO6000 baseline,shared,generation_shared_ffn2_gemm,0.3027460942617402
+H100 topology only,routed,generation_router_gemm,0.1796637552925837
+H100 topology only,routed,generation_moe_pre_dispatch,0.08407870270270268
+H100 topology only,routed,generation_moe,39.45655787854563
+H100 topology only,routed,generation_moe_post_dispatch,0.08407870270270268
+H100 topology only,shared,generation_shared_gate_up_gemm,0.41831017694081823
+H100 topology only,shared,generation_shared_act_gate,0.10183320463320462
+H100 topology only,shared,generation_shared_ffn2_gemm,0.3027460942617402
+H100 memory BW only,routed,generation_router_gemm,0.132170408088874
+H100 memory BW only,routed,generation_moe_pre_dispatch,0.7567083243243242
+H100 memory BW only,routed,generation_moe,21.895645075522683
+H100 memory BW only,routed,generation_moe_post_dispatch,0.7567083243243242
+H100 memory BW only,shared,generation_shared_gate_up_gemm,0.3177636368791473
+H100 memory BW only,shared,generation_shared_act_gate,0.10123201936264623
+H100 memory BW only,shared,generation_shared_ffn2_gemm,0.2454869562808862
+H100 compute only,routed,generation_router_gemm,0.17412139358295511
+H100 compute only,routed,generation_moe_pre_dispatch,0.7567083243243242
+H100 compute only,routed,generation_moe,39.37456129434838
+H100 compute only,routed,generation_moe_post_dispatch,0.7567083243243242
+H100 compute only,shared,generation_shared_gate_up_gemm,0.41831017694081823
+H100 compute only,shared,generation_shared_act_gate,0.10183320463320462
+H100 compute only,shared,generation_shared_ffn2_gemm,0.3027460942617402
+H100 topology + resources,routed,generation_router_gemm,0.1266280463792454
+H100 topology + resources,routed,generation_moe_pre_dispatch,0.08407870270270268
+H100 topology + resources,routed,generation_moe,21.813648491325445
+H100 topology + resources,routed,generation_moe_post_dispatch,0.08407870270270268
+H100 topology + resources,shared,generation_shared_gate_up_gemm,0.3177636368791473
+H100 topology + resources,shared,generation_shared_act_gate,0.10123201936264623
+H100 topology + resources,shared,generation_shared_ffn2_gemm,0.2454869562808862

@@ -1,0 +1,19 @@
+{
+  "case_id": "deepseek_v3__h200_sxm__analytical__low",
+  "model_key": "deepseek_v3",
+  "model_path": "deepseek-ai/DeepSeek-V3",
+  "system": "h200_sxm",
+  "mode": "ANALYTICAL",
+  "analytical_level": "low",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 98,
+  "best_tokens_per_s_gpu": 902.419,
+  "best_cluster_request_rate": 14.1,
+  "elapsed_s": 6.204766273498535
+}

@@ -1,0 +1,19 @@
+{
+  "case_id": "qwen3_32b__a100_sxm__analytical__high",
+  "model_key": "qwen3_32b",
+  "model_path": "Qwen/Qwen3-32B",
+  "system": "a100_sxm",
+  "mode": "ANALYTICAL",
+  "analytical_level": "high",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 64,
+  "best_tokens_per_s_gpu": 224.922,
+  "best_cluster_request_rate": 5.616,
+  "elapsed_s": 3.1846327781677246
+}

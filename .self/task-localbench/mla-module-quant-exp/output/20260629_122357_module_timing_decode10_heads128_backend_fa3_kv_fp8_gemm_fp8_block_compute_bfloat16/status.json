@@ -1,0 +1,4 @@
+{
+  "returncode": 0,
+  "run_dir": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/.self/task-localbench/mla-module-quant-exp/20260629_122357_module_timing_decode10_heads128_backend_fa3_kv_fp8_gemm_fp8_block_compute_bfloat16"
+}

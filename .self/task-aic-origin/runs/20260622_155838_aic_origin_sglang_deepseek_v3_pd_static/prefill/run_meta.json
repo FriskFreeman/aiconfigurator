@@ -1,0 +1,1200 @@
+{
+  "role": "prefill",
+  "mode": "static_ctx",
+  "model_class": "DeepSeekModel",
+  "backend_class": "SGLANGBackend",
+  "runtime_config": {
+    "batch_size": 1,
+    "beam_width": 1,
+    "isl": 1024,
+    "osl": 16,
+    "prefix": 0,
+    "ttft": null,
+    "tpot": null,
+    "request_latency": null,
+    "seq_imbalance_correction_scale": 1.0,
+    "gen_seq_imbalance_correction_scale": 1.0,
+    "engine_step_backend": null
+  },
+  "model_config_after_defaults": {
+    "tp_size": 8,
+    "pp_size": 1,
+    "gemm_quant_mode": {
+      "enum": "GEMMQuantMode",
+      "name": "fp8_block",
+      "value": [
+        1,
+        2,
+        "fp8_block"
+      ]
+    },
+    "moe_quant_mode": {
+      "enum": "MoEQuantMode",
+      "name": "fp8_block",
+      "value": [
+        1,
+        2,
+        "fp8_block"
+      ]
+    },
+    "kvcache_quant_mode": {
+      "enum": "KVCacheQuantMode",
+      "name": "fp8",
+      "value": [
+        1,
+        0,
+        "fp8"
+      ]
+    },
+    "fmha_quant_mode": {
+      "enum": "FMHAQuantMode",
+      "name": "bfloat16",
+      "value": [
+        2,
+        1,
+        "bfloat16"
+      ]
+    },
+    "comm_quant_mode": {
+      "enum": "CommQuantMode",
+      "name": "half",
+      "value": [
+        2,
+        0,
+        "half"
+      ]
+    },
+    "moe_tp_size": 1,
+    "moe_ep_size": 8,
+    "attention_dp_size": 1,
+    "workload_distribution": "power_law",
+    "nextn": 0,
+    "nextn_accept_rates": null,
+    "overwrite_num_layers": 0,
+    "sms": 20,
+    "moe_backend": null,
+    "attention_backend": "flashinfer",
+    "enable_wideep": false,
+    "enable_eplb": false,
+    "wideep_num_slots": null
+  },
+  "model_info": {
+    "model_path": "deepseek-ai/DeepSeek-V3",
+    "model_name": "",
+    "model_family": "DEEPSEEK",
+    "architecture": "",
+    "num_context_ops": 13,
+    "num_generation_ops": 7
+  },
+  "context_ops": [
+    {
+      "class": "Embedding",
+      "name": "context_embedding",
+      "scale_factor": 1,
+      "fields": {
+        "_column_size": 7168,
+        "_constant_latency": 5e-06,
+        "_empirical_bw_scaling_factor": 0.3,
+        "_name": "context_embedding",
+        "_row_size": 129280,
+        "_scale_factor": 1,
+        "_weights": 1853358080
+      }
+    },
+    {
+      "class": "ElementWise",
+      "name": "context_add_norm_1",
+      "scale_factor": 61,
+      "fields": {
+        "_constant_latency": 5e-06,
+        "_dim_in": 14336,
+        "_dim_out": 14336,
+        "_empirical_bw_scaling_factor": 0.8,
+        "_name": "context_add_norm_1",
+        "_scale_factor": 61,
+        "_scale_num_tokens": 1,
+        "_weights": 0.0
+      }
+    },
+    {
+      "class": "FallbackOp",
+      "name": "context_mla_block",
+      "scale_factor": 1.0,
+      "fields": {
+        "_name": "context_mla_block",
+        "_primary_unavailable": true,
+        "_scale_factor": 1.0
+      },
+      "primary": {
+        "class": "MLAModule",
+        "name": "context_mla_module",
+        "scale_factor": 61,
+        "fields": {
+          "_fmha_quant_mode": {
+            "enum": "FMHAQuantMode",
+            "name": "bfloat16",
+            "value": [
+              2,
+              1,
+              "bfloat16"
+            ]
+          },
+          "_gemm_quant_mode": {
+            "enum": "GEMMQuantMode",
+            "name": "fp8_block",
+            "value": [
+              1,
+              2,
+              "fp8_block"
+            ]
+          },
+          "_is_context": true,
+          "_kvcache_quant_mode": {
+            "enum": "KVCacheQuantMode",
+            "name": "fp8",
+            "value": [
+              1,
+              0,
+              "fp8"
+            ]
+          },
+          "_name": "context_mla_module",
+          "_num_heads": 16,
+          "_scale_factor": 61,
+          "_weights": 0.0
+        }
+      },
+      "fallback": [
+        {
+          "class": "GEMM",
+          "name": "context_downscale_gemm",
+          "scale_factor": 61,
+          "fields": {
+            "_k": 7168,
+            "_low_precision_input": false,
+            "_n": 2112,
+            "_name": "context_downscale_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61,
+            "_scale_num_tokens": 1,
+            "_weights": 15138816
+          }
+        },
+        {
+          "class": "GEMM",
+          "name": "context_q_b_proj_gemm",
+          "scale_factor": 61,
+          "fields": {
+            "_k": 1536,
+            "_low_precision_input": false,
+            "_n": 3072,
+            "_name": "context_q_b_proj_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61,
+            "_scale_num_tokens": 1,
+            "_weights": 4718592
+          }
+        },
+        {
+          "class": "GEMM",
+          "name": "context_kv_b_proj_gemm",
+          "scale_factor": 61,
+          "fields": {
+            "_k": 512,
+            "_low_precision_input": false,
+            "_n": 4096,
+            "_name": "context_kv_b_proj_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61,
+            "_scale_num_tokens": 1,
+            "_weights": 2097152
+          }
+        },
+        {
+          "class": "ContextMLA",
+          "name": "context_attention",
+          "scale_factor": 61,
+          "fields": {
+            "_fmha_quant_mode": {
+              "enum": "FMHAQuantMode",
+              "name": "bfloat16",
+              "value": [
+                2,
+                1,
+                "bfloat16"
+              ]
+            },
+            "_kvcache_quant_mode": {
+              "enum": "KVCacheQuantMode",
+              "name": "fp8",
+              "value": [
+                1,
+                0,
+                "fp8"
+              ]
+            },
+            "_name": "context_attention",
+            "_num_heads": 16,
+            "_scale_factor": 61,
+            "_weights": 0.0
+          }
+        },
+        {
+          "class": "GEMM",
+          "name": "context_proj_gemm",
+          "scale_factor": 61,
+          "fields": {
+            "_k": 2048,
+            "_low_precision_input": false,
+            "_n": 7168,
+            "_name": "context_proj_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61,
+            "_scale_num_tokens": 1,
+            "_weights": 14680064
+          }
+        }
+      ]
+    },
+    {
+      "class": "ElementWise",
+      "name": "context_add_norm_2",
+      "scale_factor": 61,
+      "fields": {
+        "_constant_latency": 5e-06,
+        "_dim_in": 14336,
+        "_dim_out": 14336,
+        "_empirical_bw_scaling_factor": 0.8,
+        "_name": "context_add_norm_2",
+        "_scale_factor": 61,
+        "_scale_num_tokens": 1,
+        "_weights": 0.0
+      }
+    },
+    {
+      "class": "GEMM",
+      "name": "context_shared_gate_up_gemm",
+      "scale_factor": 61,
+      "fields": {
+        "_k": 7168,
+        "_low_precision_input": false,
+        "_n": 512,
+        "_name": "context_shared_gate_up_gemm",
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        },
+        "_scale_factor": 61,
+        "_scale_num_tokens": 1,
+        "_weights": 3670016
+      }
+    },
+    {
+      "class": "ElementWise",
+      "name": "context_shared_act_gate",
+      "scale_factor": 61,
+      "fields": {
+        "_constant_latency": 5e-06,
+        "_dim_in": 512,
+        "_dim_out": 256,
+        "_empirical_bw_scaling_factor": 0.8,
+        "_name": "context_shared_act_gate",
+        "_scale_factor": 61,
+        "_scale_num_tokens": 1,
+        "_weights": 0.0
+      }
+    },
+    {
+      "class": "GEMM",
+      "name": "context_shared_ffn2_gemm",
+      "scale_factor": 61,
+      "fields": {
+        "_k": 256,
+        "_low_precision_input": false,
+        "_n": 7168,
+        "_name": "context_shared_ffn2_gemm",
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        },
+        "_scale_factor": 61,
+        "_scale_num_tokens": 1,
+        "_weights": 1835008
+      }
+    },
+    {
+      "class": "GEMM",
+      "name": "context_router_gemm",
+      "scale_factor": 61,
+      "fields": {
+        "_k": 7168,
+        "_low_precision_input": false,
+        "_n": 256,
+        "_name": "context_router_gemm",
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        },
+        "_scale_factor": 61,
+        "_scale_num_tokens": 1,
+        "_weights": 3670016
+      }
+    },
+    {
+      "class": "MoEDispatch",
+      "name": "context_moe_pre_dispatch",
+      "scale_factor": 61,
+      "fields": {
+        "_attention_dp_size": 1,
+        "_attention_tp_size": 8,
+        "_enable_fp4_all2all": true,
+        "_hidden_size": 7168,
+        "_is_context": true,
+        "_moe_backend": null,
+        "_moe_ep_size": 8,
+        "_moe_tp_size": 1,
+        "_name": "context_moe_pre_dispatch",
+        "_num_experts": 256,
+        "_pre_dispatch": true,
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        },
+        "_reduce_results": true,
+        "_scale_factor": 61,
+        "_scale_num_tokens": 1,
+        "_sms": 12,
+        "_topk": 8,
+        "_weights": 0.0,
+        "num_gpus": 8
+      }
+    },
+    {
+      "class": "MoE",
+      "name": "context_moe",
+      "scale_factor": 61,
+      "fields": {
+        "_attention_dp_size": 1,
+        "_enable_eplb": false,
+        "_hidden_size": 7168,
+        "_inter_size": 2048,
+        "_is_context": true,
+        "_is_gated": true,
+        "_moe_backend": null,
+        "_moe_ep_size": 8,
+        "_moe_tp_size": 1,
+        "_name": "context_moe",
+        "_num_experts": 256,
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        },
+        "_scale_factor": 61,
+        "_topk": 8,
+        "_weights": 1409286144,
+        "_workload_distribution": "power_law_1.01"
+      }
+    },
+    {
+      "class": "MoEDispatch",
+      "name": "context_moe_post_dispatch",
+      "scale_factor": 61,
+      "fields": {
+        "_attention_dp_size": 1,
+        "_attention_tp_size": 8,
+        "_enable_fp4_all2all": true,
+        "_hidden_size": 7168,
+        "_is_context": true,
+        "_moe_backend": null,
+        "_moe_ep_size": 8,
+        "_moe_tp_size": 1,
+        "_name": "context_moe_post_dispatch",
+        "_num_experts": 256,
+        "_pre_dispatch": false,
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        },
+        "_reduce_results": true,
+        "_scale_factor": 61,
+        "_scale_num_tokens": 1,
+        "_sms": 12,
+        "_topk": 8,
+        "_weights": 0.0,
+        "num_gpus": 8
+      }
+    },
+    {
+      "class": "GEMM",
+      "name": "context_logits_gemm",
+      "scale_factor": 1,
+      "fields": {
+        "_k": 7168,
+        "_low_precision_input": false,
+        "_n": 16160,
+        "_name": "context_logits_gemm",
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        },
+        "_scale_factor": 1,
+        "_scale_num_tokens": 1,
+        "_weights": 231669760
+      }
+    },
+    {
+      "class": "P2P",
+      "name": "context_p2p",
+      "scale_factor": 0,
+      "fields": {
+        "_bytes_per_element": 2,
+        "_h": 7168,
+        "_name": "context_p2p",
+        "_pp_size": 1,
+        "_scale_factor": 0,
+        "_weights": 0.0
+      }
+    }
+  ],
+  "generation_ops": [
+    {
+      "class": "Embedding",
+      "name": "generation_embedding",
+      "scale_factor": 1.0,
+      "fields": {
+        "_column_size": 7168,
+        "_constant_latency": 5e-06,
+        "_empirical_bw_scaling_factor": 0.3,
+        "_name": "generation_embedding",
+        "_row_size": 129280,
+        "_scale_factor": 1.0,
+        "_weights": 1853358080
+      }
+    },
+    {
+      "class": "ElementWise",
+      "name": "generation_add_norm_1",
+      "scale_factor": 61.0,
+      "fields": {
+        "_constant_latency": 5e-06,
+        "_dim_in": 14336,
+        "_dim_out": 14336,
+        "_empirical_bw_scaling_factor": 0.8,
+        "_name": "generation_add_norm_1",
+        "_scale_factor": 61.0,
+        "_scale_num_tokens": 1,
+        "_weights": 0.0
+      }
+    },
+    {
+      "class": "FallbackOp",
+      "name": "generation_mla_block",
+      "scale_factor": 1.0,
+      "fields": {
+        "_name": "generation_mla_block",
+        "_primary_unavailable": false,
+        "_scale_factor": 1.0
+      },
+      "primary": {
+        "class": "MLAModule",
+        "name": "generation_mla_module",
+        "scale_factor": 61.0,
+        "fields": {
+          "_fmha_quant_mode": {
+            "enum": "FMHAQuantMode",
+            "name": "bfloat16",
+            "value": [
+              2,
+              1,
+              "bfloat16"
+            ]
+          },
+          "_gemm_quant_mode": {
+            "enum": "GEMMQuantMode",
+            "name": "fp8_block",
+            "value": [
+              1,
+              2,
+              "fp8_block"
+            ]
+          },
+          "_is_context": false,
+          "_kvcache_quant_mode": {
+            "enum": "KVCacheQuantMode",
+            "name": "fp8",
+            "value": [
+              1,
+              0,
+              "fp8"
+            ]
+          },
+          "_name": "generation_mla_module",
+          "_num_heads": 16,
+          "_scale_factor": 61.0,
+          "_weights": 0.0
+        }
+      },
+      "fallback": [
+        {
+          "class": "GEMM",
+          "name": "generation_downscale_gemm",
+          "scale_factor": 61.0,
+          "fields": {
+            "_k": 7168,
+            "_low_precision_input": false,
+            "_n": 2112,
+            "_name": "generation_downscale_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61.0,
+            "_scale_num_tokens": 1,
+            "_weights": 15138816
+          }
+        },
+        {
+          "class": "GEMM",
+          "name": "generation_q_b_proj_gemm",
+          "scale_factor": 61.0,
+          "fields": {
+            "_k": 1536,
+            "_low_precision_input": false,
+            "_n": 3072,
+            "_name": "generation_q_b_proj_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61.0,
+            "_scale_num_tokens": 1,
+            "_weights": 4718592
+          }
+        },
+        {
+          "class": "MLABmm",
+          "name": "generation_bmm_pre",
+          "scale_factor": 61.0,
+          "fields": {
+            "_if_pre": true,
+            "_name": "generation_bmm_pre",
+            "_num_heads": 16,
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8",
+              "value": [
+                1,
+                2,
+                "fp8"
+              ]
+            },
+            "_scale_factor": 61.0,
+            "_weights": 0.0
+          }
+        },
+        {
+          "class": "GenerationMLA",
+          "name": "generation_attention",
+          "scale_factor": 61.0,
+          "fields": {
+            "_kv_cache_dtype": {
+              "enum": "KVCacheQuantMode",
+              "name": "fp8",
+              "value": [
+                1,
+                0,
+                "fp8"
+              ]
+            },
+            "_name": "generation_attention",
+            "_num_heads": 16,
+            "_scale_factor": 61.0,
+            "_weights": 0.0
+          }
+        },
+        {
+          "class": "MLABmm",
+          "name": "generation_bmm_post",
+          "scale_factor": 61.0,
+          "fields": {
+            "_if_pre": false,
+            "_name": "generation_bmm_post",
+            "_num_heads": 16,
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8",
+              "value": [
+                1,
+                2,
+                "fp8"
+              ]
+            },
+            "_scale_factor": 61.0,
+            "_weights": 0.0
+          }
+        },
+        {
+          "class": "GEMM",
+          "name": "generation_proj_gemm",
+          "scale_factor": 61.0,
+          "fields": {
+            "_k": 896,
+            "_low_precision_input": false,
+            "_n": 7168,
+            "_name": "generation_proj_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61.0,
+            "_scale_num_tokens": 1,
+            "_weights": 6422528
+          }
+        }
+      ]
+    },
+    {
+      "class": "ElementWise",
+      "name": "generation_add_norm_2",
+      "scale_factor": 61.0,
+      "fields": {
+        "_constant_latency": 5e-06,
+        "_dim_in": 14336,
+        "_dim_out": 14336,
+        "_empirical_bw_scaling_factor": 0.8,
+        "_name": "generation_add_norm_2",
+        "_scale_factor": 61.0,
+        "_scale_num_tokens": 1,
+        "_weights": 0.0
+      }
+    },
+    {
+      "class": "OverlapOp",
+      "name": "generation_moe_overlap",
+      "scale_factor": 1.0,
+      "fields": {
+        "_name": "generation_moe_overlap",
+        "_scale_factor": 1.0
+      },
+      "group_a": [
+        {
+          "class": "GEMM",
+          "name": "generation_router_gemm",
+          "scale_factor": 61.0,
+          "fields": {
+            "_k": 7168,
+            "_low_precision_input": false,
+            "_n": 256,
+            "_name": "generation_router_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "bfloat16",
+              "value": [
+                2,
+                1,
+                "bfloat16"
+              ]
+            },
+            "_scale_factor": 61.0,
+            "_scale_num_tokens": 1,
+            "_weights": 3670016
+          }
+        },
+        {
+          "class": "MoEDispatch",
+          "name": "generation_moe_pre_dispatch",
+          "scale_factor": 61.0,
+          "fields": {
+            "_attention_dp_size": 1,
+            "_attention_tp_size": 8,
+            "_enable_fp4_all2all": true,
+            "_hidden_size": 7168,
+            "_is_context": true,
+            "_moe_backend": null,
+            "_moe_ep_size": 8,
+            "_moe_tp_size": 1,
+            "_name": "generation_moe_pre_dispatch",
+            "_num_experts": 256,
+            "_pre_dispatch": true,
+            "_quant_mode": {
+              "enum": "MoEQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_reduce_results": true,
+            "_scale_factor": 61.0,
+            "_scale_num_tokens": 1,
+            "_sms": 12,
+            "_topk": 8,
+            "_weights": 0.0,
+            "num_gpus": 8
+          }
+        },
+        {
+          "class": "MoE",
+          "name": "generation_moe",
+          "scale_factor": 61.0,
+          "fields": {
+            "_attention_dp_size": 1,
+            "_enable_eplb": false,
+            "_hidden_size": 7168,
+            "_inter_size": 2048,
+            "_is_context": true,
+            "_is_gated": true,
+            "_moe_backend": null,
+            "_moe_ep_size": 8,
+            "_moe_tp_size": 1,
+            "_name": "generation_moe",
+            "_num_experts": 256,
+            "_quant_mode": {
+              "enum": "MoEQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61.0,
+            "_topk": 8,
+            "_weights": 1409286144,
+            "_workload_distribution": "power_law_1.01"
+          }
+        },
+        {
+          "class": "MoEDispatch",
+          "name": "generation_moe_post_dispatch",
+          "scale_factor": 61.0,
+          "fields": {
+            "_attention_dp_size": 1,
+            "_attention_tp_size": 8,
+            "_enable_fp4_all2all": true,
+            "_hidden_size": 7168,
+            "_is_context": true,
+            "_moe_backend": null,
+            "_moe_ep_size": 8,
+            "_moe_tp_size": 1,
+            "_name": "generation_moe_post_dispatch",
+            "_num_experts": 256,
+            "_pre_dispatch": false,
+            "_quant_mode": {
+              "enum": "MoEQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_reduce_results": true,
+            "_scale_factor": 61.0,
+            "_scale_num_tokens": 1,
+            "_sms": 12,
+            "_topk": 8,
+            "_weights": 0.0,
+            "num_gpus": 8
+          }
+        }
+      ],
+      "group_b": [
+        {
+          "class": "GEMM",
+          "name": "generation_shared_gate_up_gemm",
+          "scale_factor": 61.0,
+          "fields": {
+            "_k": 7168,
+            "_low_precision_input": false,
+            "_n": 512,
+            "_name": "generation_shared_gate_up_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61.0,
+            "_scale_num_tokens": 1,
+            "_weights": 3670016
+          }
+        },
+        {
+          "class": "ElementWise",
+          "name": "generation_shared_act_gate",
+          "scale_factor": 61.0,
+          "fields": {
+            "_constant_latency": 5e-06,
+            "_dim_in": 512,
+            "_dim_out": 256,
+            "_empirical_bw_scaling_factor": 0.8,
+            "_name": "generation_shared_act_gate",
+            "_scale_factor": 61.0,
+            "_scale_num_tokens": 1,
+            "_weights": 0.0
+          }
+        },
+        {
+          "class": "GEMM",
+          "name": "generation_shared_ffn2_gemm",
+          "scale_factor": 61.0,
+          "fields": {
+            "_k": 256,
+            "_low_precision_input": false,
+            "_n": 7168,
+            "_name": "generation_shared_ffn2_gemm",
+            "_quant_mode": {
+              "enum": "GEMMQuantMode",
+              "name": "fp8_block",
+              "value": [
+                1,
+                2,
+                "fp8_block"
+              ]
+            },
+            "_scale_factor": 61.0,
+            "_scale_num_tokens": 1,
+            "_weights": 1835008
+          }
+        }
+      ]
+    },
+    {
+      "class": "GEMM",
+      "name": "generation_logits_gemm",
+      "scale_factor": 1.0,
+      "fields": {
+        "_k": 7168,
+        "_low_precision_input": false,
+        "_n": 16160,
+        "_name": "generation_logits_gemm",
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        },
+        "_scale_factor": 1.0,
+        "_scale_num_tokens": 1,
+        "_weights": 231669760
+      }
+    },
+    {
+      "class": "P2P",
+      "name": "generation_p2p",
+      "scale_factor": 0.0,
+      "fields": {
+        "_bytes_per_element": 2,
+        "_h": 7168,
+        "_name": "generation_p2p",
+        "_pp_size": 1,
+        "_scale_factor": 0.0,
+        "_weights": 0.0
+      }
+    }
+  ],
+  "database": {
+    "system": "h100_sxm",
+    "backend": "sglang",
+    "version": "0.5.9",
+    "systems_root": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems",
+    "default_database_mode": "SILICON",
+    "enable_shared_layer": false,
+    "loaded_op_data": [
+      {
+        "attribute": "_compute_scale_data",
+        "op_file": "computescale_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/computescale_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_context_attention_data",
+        "op_file": "context_attention_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/context_attention_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_context_deepseek_v4_attention_module_data",
+        "op_file": "deepseek_v4_context_module_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/deepseek_v4_context_module_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_context_dsa_module_data",
+        "op_file": "dsa_context_module_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/dsa_context_module_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_context_mla_data",
+        "op_file": "context_mla_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/context_mla_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_context_mla_module_data",
+        "op_file": "mla_context_module_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_context_module_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_custom_allreduce_data",
+        "op_file": "custom_allreduce_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/custom_allreduce_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_gdn_data",
+        "op_file": "gdn_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/gdn_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_gemm_data",
+        "op_file": "gemm_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/gemm_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_generation_attention_data",
+        "op_file": "generation_attention_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/generation_attention_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_generation_deepseek_v4_attention_module_data",
+        "op_file": "deepseek_v4_generation_module_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/deepseek_v4_generation_module_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_generation_dsa_module_data",
+        "op_file": "dsa_generation_module_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/dsa_generation_module_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_generation_mla_data",
+        "op_file": "generation_mla_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/generation_mla_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_generation_mla_module_data",
+        "op_file": "mla_generation_module_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_generation_module_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_mamba2_data",
+        "op_file": "mamba2_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mamba2_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_mhc_module_data",
+        "op_file": "mhc_module_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mhc_module_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_mla_bmm_data",
+        "op_file": "mla_bmm_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_bmm_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_moe_data",
+        "op_file": "moe_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/moe_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_moe_low_latency_data",
+        "op_file": "moe_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/moe_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_nccl_data",
+        "op_file": "nccl_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/nccl/2.27.3/nccl_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_raw_context_deepseek_v4_attention_module_data",
+        "op_file": "deepseek_v4_context_module_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/deepseek_v4_context_module_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_raw_context_dsa_module_data",
+        "op_file": "dsa_context_module_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/dsa_context_module_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_scale_matrix_data",
+        "op_file": "scale_matrix_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/scale_matrix_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_wideep_context_mla_data",
+        "op_file": "wideep_context_mla_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_context_mla_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_wideep_context_moe_data",
+        "op_file": "wideep_context_moe_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_context_moe_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_wideep_deepep_ll_data",
+        "op_file": "wideep_deepep_ll_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_deepep_ll_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_wideep_deepep_normal_data",
+        "op_file": "wideep_deepep_normal_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_deepep_normal_perf.txt",
+        "exists": false
+      },
+      {
+        "attribute": "_wideep_generation_mla_data",
+        "op_file": "wideep_generation_mla_perf.txt",
+        "loaded": true,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_generation_mla_perf.txt",
+        "exists": true
+      },
+      {
+        "attribute": "_wideep_generation_moe_data",
+        "op_file": "wideep_generation_moe_perf.txt",
+        "loaded": false,
+        "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_generation_moe_perf.txt",
+        "exists": false
+      }
+    ]
+  },
+  "interp_trace_events": 3
+}

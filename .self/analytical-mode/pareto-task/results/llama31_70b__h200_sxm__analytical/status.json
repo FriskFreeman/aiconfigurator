@@ -1,0 +1,18 @@
+{
+  "case_id": "llama31_70b__h200_sxm__analytical",
+  "model_key": "llama31_70b",
+  "model_path": "meta-llama/Meta-Llama-3.1-70B",
+  "system": "h200_sxm",
+  "mode": "ANALYTICAL",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 47,
+  "best_tokens_per_s_gpu": 421.747,
+  "best_cluster_request_rate": 13.18,
+  "elapsed_s": 9.38567590713501
+}

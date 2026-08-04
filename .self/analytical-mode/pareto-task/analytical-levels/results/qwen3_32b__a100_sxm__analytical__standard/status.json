@@ -1,0 +1,19 @@
+{
+  "case_id": "qwen3_32b__a100_sxm__analytical__standard",
+  "model_key": "qwen3_32b",
+  "model_path": "Qwen/Qwen3-32B",
+  "system": "a100_sxm",
+  "mode": "ANALYTICAL",
+  "analytical_level": "standard",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 55,
+  "best_tokens_per_s_gpu": 303.782,
+  "best_cluster_request_rate": 7.12,
+  "elapsed_s": 2.9268996715545654
+}

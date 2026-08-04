@@ -1,0 +1,1011 @@
+{
+  "sqlite_path": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/.self/task-localbench/formal-agg-stage2/20260630_185819_agg_stage2_agg_aic_prefix_probe_b12_isl4096_prefix2048_ctx8192_d10_dctx4096_p2_pf2048_pp2048_layers6_backend_auto_cg_off_pcg_off_tp1_profile_nsys/nsys/report.sqlite",
+  "tables": [
+    "ANALYSIS_DETAILS",
+    "ANALYSIS_FILE",
+    "CUPTI_ACTIVITY_KIND_CUDA_EVENT",
+    "CUPTI_ACTIVITY_KIND_KERNEL",
+    "CUPTI_ACTIVITY_KIND_MEMCPY",
+    "CUPTI_ACTIVITY_KIND_RUNTIME",
+    "CUPTI_ACTIVITY_KIND_SYNCHRONIZATION",
+    "DIAGNOSTIC_EVENT",
+    "ENUM_CUDA_DEV_MEM_EVENT_OPER",
+    "ENUM_CUDA_FUNC_CACHE_CONFIG",
+    "ENUM_CUDA_KERNEL_LAUNCH_TYPE",
+    "ENUM_CUDA_MEMCPY_OPER",
+    "ENUM_CUDA_MEMPOOL_OPER",
+    "ENUM_CUDA_MEMPOOL_TYPE",
+    "ENUM_CUDA_MEM_KIND",
+    "ENUM_CUDA_SHARED_MEM_LIMIT_CONFIG",
+    "ENUM_CUDA_UNIF_MEM_ACCESS_TYPE",
+    "ENUM_CUDA_UNIF_MEM_MIGRATION",
+    "ENUM_CUPTI_OVERHEAD_TYPE",
+    "ENUM_CUPTI_STREAM_TYPE",
+    "ENUM_CUPTI_SYNC_TYPE",
+    "ENUM_DIAGNOSTIC_SEVERITY_LEVEL",
+    "ENUM_DIAGNOSTIC_SOURCE_TYPE",
+    "ENUM_DIAGNOSTIC_TIMESTAMP_SOURCE",
+    "ENUM_NSYS_EVENT_CLASS",
+    "ENUM_NSYS_EVENT_TYPE",
+    "ENUM_NSYS_GENERIC_EVENT_FIELD_ETW_FLAGS",
+    "ENUM_NSYS_GENERIC_EVENT_FIELD_ETW_PROPERTY",
+    "ENUM_NSYS_GENERIC_EVENT_FIELD_ETW_TYPE",
+    "ENUM_NSYS_GENERIC_EVENT_FIELD_TYPE",
+    "ENUM_NSYS_GENERIC_EVENT_GROUP",
+    "ENUM_NSYS_GENERIC_EVENT_SOURCE",
+    "ENUM_OSRT_FILE_ACCESS_EVENT_TYPE",
+    "ENUM_SAMPLING_THREAD_STATE",
+    "ENUM_SCHEDULING_THREAD_BLOCK",
+    "ENUM_STACK_UNWIND_METHOD",
+    "META_DATA_CAPTURE",
+    "META_DATA_EXPORT",
+    "NVTX_EVENTS",
+    "OSRT_API",
+    "OSRT_CALLCHAINS",
+    "PROCESSES",
+    "PROFILER_OVERHEAD",
+    "ProcessStreams",
+    "StringIds",
+    "TARGET_INFO_CUDA_CONTEXT_INFO",
+    "TARGET_INFO_CUDA_DEVICE",
+    "TARGET_INFO_CUDA_STREAM",
+    "TARGET_INFO_GPU",
+    "TARGET_INFO_NIC_INFO",
+    "TARGET_INFO_SESSION_START_TIME",
+    "TARGET_INFO_SYSTEM_ENV",
+    "ThreadNames"
+  ],
+  "nvtx_table": "NVTX_EVENTS",
+  "string_table": "StringIds",
+  "nvtx_columns": [
+    "start",
+    "end",
+    "eventType",
+    "rangeId",
+    "category",
+    "color",
+    "text",
+    "globalTid",
+    "endGlobalTid",
+    "textId",
+    "domainId",
+    "uint64Value",
+    "int64Value",
+    "doubleValue",
+    "uint32Value",
+    "int32Value",
+    "floatValue",
+    "jsonTextId",
+    "jsonText",
+    "binaryData"
+  ],
+  "nvtx_preview": [
+    [
+      -144654321203,
+      null,
+      75,
+      null,
+      null,
+      null,
+      "CCCL",
+      281484942377554,
+      null,
+      null,
+      1,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      21125343,
+      21158147,
+      59,
+      null,
+      null,
+      null,
+      null,
+      281484942377554,
+      null,
+      283,
+      1,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      21322268,
+      21341428,
+      59,
+      null,
+      null,
+      null,
+      null,
+      281484942377554,
+      null,
+      283,
+      1,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      23218136,
+      23243893,
+      59,
+      null,
+      null,
+      null,
+      null,
+      281484942377554,
+      null,
+      283,
+      1,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      40358522,
+      40383854,
+      59,
+      null,
+      null,
+      null,
+      null,
+      281484942377554,
+      null,
+      283,
+      1,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      21465911,
+      40234736,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model', 'Inputs': [[4106], [4106]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      21538976,
+      21624262,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.embed_tokens', 'TrainableParams': {'weight': [129280, 7168]}, 'Inputs': [[4106]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      21672124,
+      25026310,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0', 'Inputs': [[4106], [4106, 7168]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      21700774,
+      21768909,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      21794973,
+      24315338,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.self_attn'}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      21980919,
+      22341778,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      22398211,
+      22447647,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      22482780,
+      22721786,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      22788130,
+      22830432,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      22878216,
+      22967764,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.self_attn.rotary_emb', 'Inputs': [[4106], [4106, 128, 64], [4106, 1, 64]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      23453863,
+      23720502,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.self_attn.kv_b_proj', 'TrainableParams': {'weight': [32768, 512], 'weight_scale_inv': [256, 4]}, 'Inputs': [[49213, 512]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      23832417,
+      24007199,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.self_attn.attn_mha', 'TrainableParams': {'k_scale': [], 'v_scale': []}, 'Inputs': [[4106, 128, 192], [49213, 128, 192], [49213, 128, 128]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      24053263,
+      24300520,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.self_attn.o_proj', 'TrainableParams': {'weight': [7168, 16384], 'weight_scale_inv': [56, 128]}, 'Inputs': [[4106, 16384]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      24352945,
+      24389283,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.post_attention_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      24425338,
+      25016518,
+      59,
+      null,
+      null,
+      null,
+      "{'Module': 'model.model.layers.0.mlp', 'Inputs': [[4106, 7168]]}",
+      281484942377554,
+      null,
+      null,
+      0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "nvtx_candidate_text_columns": [
+    "text",
+    "textId",
+    "jsonTextId",
+    "jsonText"
+  ],
+  "layer_marker_count": 96,
+  "layer_marker_preview": [
+    [
+      "{'Module': 'model.model.layers.0', 'Inputs': [[4106], [4106, 7168]]}",
+      21672124,
+      25026310
+    ],
+    [
+      "{'Module': 'model.model.layers.0.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168]]}",
+      21700774,
+      21768909
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn'}",
+      21794973,
+      24315338
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+      21980919,
+      22341778
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+      22398211,
+      22447647
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+      22482780,
+      22721786
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+      22788130,
+      22830432
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.rotary_emb', 'Inputs': [[4106], [4106, 128, 64], [4106, 1, 64]]}",
+      22878216,
+      22967764
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.kv_b_proj', 'TrainableParams': {'weight': [32768, 512], 'weight_scale_inv': [256, 4]}, 'Inputs': [[49213, 512]]}",
+      23453863,
+      23720502
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.attn_mha', 'TrainableParams': {'k_scale': [], 'v_scale': []}, 'Inputs': [[4106, 128, 192], [49213, 128, 192], [49213, 128, 128]]}",
+      23832417,
+      24007199
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.o_proj', 'TrainableParams': {'weight': [7168, 16384], 'weight_scale_inv': [56, 128]}, 'Inputs': [[4106, 16384]]}",
+      24053263,
+      24300520
+    ],
+    [
+      "{'Module': 'model.model.layers.0.post_attention_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+      24352945,
+      24389283
+    ],
+    [
+      "{'Module': 'model.model.layers.0.mlp', 'Inputs': [[4106, 7168]]}",
+      24425338,
+      25016518
+    ],
+    [
+      "{'Module': 'model.model.layers.0.mlp.gate_up_proj', 'TrainableParams': {'weight': [36864, 7168], 'weight_scale_inv': [288, 56]}, 'Inputs': [[4106, 7168]]}",
+      24457520,
+      24677416
+    ],
+    [
+      "{'Module': 'model.model.layers.0.mlp.act_fn', 'Inputs': [[4106, 36864]]}",
+      24705651,
+      24752000
+    ],
+    [
+      "{'Module': 'model.model.layers.0.mlp.down_proj', 'TrainableParams': {'weight': [7168, 18432], 'weight_scale_inv': [56, 144]}, 'Inputs': [[4106, 18432]]}",
+      24782413,
+      25006915
+    ],
+    [
+      "{'Module': 'model.model.layers.1', 'Inputs': [[4106], [4106, 7168], [4106, 7168]]}",
+      25070879,
+      27729814
+    ],
+    [
+      "{'Module': 'model.model.layers.1.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+      25098179,
+      25127503
+    ],
+    [
+      "{'Module': 'model.model.layers.1.self_attn'}",
+      25156945,
+      27075287
+    ],
+    [
+      "{'Module': 'model.model.layers.1.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+      25302306,
+      25524797
+    ],
+    [
+      "{'Module': 'model.model.layers.1.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+      25579910,
+      25626280
+    ],
+    [
+      "{'Module': 'model.model.layers.1.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+      25655176,
+      25856327
+    ],
+    [
+      "{'Module': 'model.model.layers.1.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+      25928981,
+      25972449
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.rotary_emb', 'Inputs': [[4106], [4106, 128, 64], [4106, 1, 64]]}",
+      26010659,
+      26085751
+    ],
+    [
+      "{'Module': 'model.model.layers.1.self_attn.kv_b_proj', 'TrainableParams': {'weight': [32768, 512], 'weight_scale_inv': [256, 4]}, 'Inputs': [[49213, 512]]}",
+      26299533,
+      26535608
+    ],
+    [
+      "{'Module': 'model.model.layers.1.self_attn.attn_mha', 'TrainableParams': {'k_scale': [], 'v_scale': []}, 'Inputs': [[4106, 128, 192], [49213, 128, 192], [49213, 128, 128]]}",
+      26635359,
+      26776778
+    ],
+    [
+      "{'Module': 'model.model.layers.1.self_attn.o_proj', 'TrainableParams': {'weight': [7168, 16384], 'weight_scale_inv': [56, 128]}, 'Inputs': [[4106, 16384]]}",
+      26816181,
+      27060600
+    ],
+    [
+      "{'Module': 'model.model.layers.1.post_attention_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+      27109479,
+      27140173
+    ],
+    [
+      "{'Module': 'model.model.layers.1.mlp', 'Inputs': [[4106, 7168]]}",
+      27172151,
+      27721376
+    ],
+    [
+      "{'Module': 'model.model.layers.1.mlp.gate_up_proj', 'TrainableParams': {'weight': [36864, 7168], 'weight_scale_inv': [288, 56]}, 'Inputs': [[4106, 7168]]}",
+      27202630,
+      27412172
+    ],
+    [
+      "{'Module': 'model.model.layers.1.mlp.act_fn', 'Inputs': [[4106, 36864]]}",
+      27438040,
+      27480552
+    ],
+    [
+      "{'Module': 'model.model.layers.1.mlp.down_proj', 'TrainableParams': {'weight': [7168, 18432], 'weight_scale_inv': [56, 144]}, 'Inputs': [[4106, 18432]]}",
+      27511147,
+      27712365
+    ],
+    [
+      "{'Module': 'model.model.layers.2', 'Inputs': [[4106], [4106, 7168], [4106, 7168]]}",
+      27772259,
+      30395567
+    ],
+    [
+      "{'Module': 'model.model.layers.2.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+      27798696,
+      27834011
+    ],
+    [
+      "{'Module': 'model.model.layers.2.self_attn'}",
+      27870882,
+      29739626
+    ],
+    [
+      "{'Module': 'model.model.layers.2.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+      28015080,
+      28240550
+    ],
+    [
+      "{'Module': 'model.model.layers.2.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+      28286585,
+      28330851
+    ],
+    [
+      "{'Module': 'model.model.layers.2.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+      28358783,
+      28567206
+    ],
+    [
+      "{'Module': 'model.model.layers.2.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+      28627017,
+      28668790
+    ],
+    [
+      "{'Module': 'model.model.layers.0.self_attn.rotary_emb', 'Inputs': [[4106], [4106, 128, 64], [4106, 1, 64]]}",
+      28706111,
+      28777281
+    ]
+  ],
+  "layer_stats": {
+    "0": {
+      "count": 21,
+      "examples": [
+        {
+          "text": "{'Module': 'model.model.layers.0', 'Inputs': [[4106], [4106, 7168]]}",
+          "duration_ns": 3354186,
+          "duration_ms": 3.354186
+        },
+        {
+          "text": "{'Module': 'model.model.layers.0.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168]]}",
+          "duration_ns": 68135,
+          "duration_ms": 0.068135
+        },
+        {
+          "text": "{'Module': 'model.model.layers.0.self_attn'}",
+          "duration_ns": 2520365,
+          "duration_ms": 2.520365
+        },
+        {
+          "text": "{'Module': 'model.model.layers.0.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+          "duration_ns": 360859,
+          "duration_ms": 0.360859
+        },
+        {
+          "text": "{'Module': 'model.model.layers.0.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 49436,
+          "duration_ms": 0.049436
+        },
+        {
+          "text": "{'Module': 'model.model.layers.0.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 239006,
+          "duration_ms": 0.239006
+        },
+        {
+          "text": "{'Module': 'model.model.layers.0.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+          "duration_ns": 42302,
+          "duration_ms": 0.042302
+        },
+        {
+          "text": "{'Module': 'model.model.layers.0.self_attn.rotary_emb', 'Inputs': [[4106], [4106, 128, 64], [4106, 1, 64]]}",
+          "duration_ns": 89548,
+          "duration_ms": 0.089548
+        }
+      ],
+      "max_duration_ns": 3354186
+    },
+    "1": {
+      "count": 15,
+      "examples": [
+        {
+          "text": "{'Module': 'model.model.layers.1', 'Inputs': [[4106], [4106, 7168], [4106, 7168]]}",
+          "duration_ns": 2658935,
+          "duration_ms": 2.658935
+        },
+        {
+          "text": "{'Module': 'model.model.layers.1.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+          "duration_ns": 29324,
+          "duration_ms": 0.029324
+        },
+        {
+          "text": "{'Module': 'model.model.layers.1.self_attn'}",
+          "duration_ns": 1918342,
+          "duration_ms": 1.918342
+        },
+        {
+          "text": "{'Module': 'model.model.layers.1.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+          "duration_ns": 222491,
+          "duration_ms": 0.222491
+        },
+        {
+          "text": "{'Module': 'model.model.layers.1.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 46370,
+          "duration_ms": 0.04637
+        },
+        {
+          "text": "{'Module': 'model.model.layers.1.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 201151,
+          "duration_ms": 0.201151
+        },
+        {
+          "text": "{'Module': 'model.model.layers.1.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+          "duration_ns": 43468,
+          "duration_ms": 0.043468
+        },
+        {
+          "text": "{'Module': 'model.model.layers.1.self_attn.kv_b_proj', 'TrainableParams': {'weight': [32768, 512], 'weight_scale_inv': [256, 4]}, 'Inputs': [[49213, 512]]}",
+          "duration_ns": 236075,
+          "duration_ms": 0.236075
+        }
+      ],
+      "max_duration_ns": 2658935
+    },
+    "2": {
+      "count": 15,
+      "examples": [
+        {
+          "text": "{'Module': 'model.model.layers.2', 'Inputs': [[4106], [4106, 7168], [4106, 7168]]}",
+          "duration_ns": 2623308,
+          "duration_ms": 2.623308
+        },
+        {
+          "text": "{'Module': 'model.model.layers.2.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+          "duration_ns": 35315,
+          "duration_ms": 0.035315
+        },
+        {
+          "text": "{'Module': 'model.model.layers.2.self_attn'}",
+          "duration_ns": 1868744,
+          "duration_ms": 1.868744
+        },
+        {
+          "text": "{'Module': 'model.model.layers.2.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+          "duration_ns": 225470,
+          "duration_ms": 0.22547
+        },
+        {
+          "text": "{'Module': 'model.model.layers.2.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 44266,
+          "duration_ms": 0.044266
+        },
+        {
+          "text": "{'Module': 'model.model.layers.2.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 208423,
+          "duration_ms": 0.208423
+        },
+        {
+          "text": "{'Module': 'model.model.layers.2.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+          "duration_ns": 41773,
+          "duration_ms": 0.041773
+        },
+        {
+          "text": "{'Module': 'model.model.layers.2.self_attn.kv_b_proj', 'TrainableParams': {'weight': [32768, 512], 'weight_scale_inv': [256, 4]}, 'Inputs': [[49213, 512]]}",
+          "duration_ns": 235105,
+          "duration_ms": 0.235105
+        }
+      ],
+      "max_duration_ns": 2623308
+    },
+    "3": {
+      "count": 15,
+      "examples": [
+        {
+          "text": "{'Module': 'model.model.layers.3', 'Inputs': [[4106], [4106, 7168], [4106, 7168]]}",
+          "duration_ns": 3180875,
+          "duration_ms": 3.180875
+        },
+        {
+          "text": "{'Module': 'model.model.layers.3.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+          "duration_ns": 28328,
+          "duration_ms": 0.028328
+        },
+        {
+          "text": "{'Module': 'model.model.layers.3.self_attn'}",
+          "duration_ns": 1845963,
+          "duration_ms": 1.845963
+        },
+        {
+          "text": "{'Module': 'model.model.layers.3.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+          "duration_ns": 222788,
+          "duration_ms": 0.222788
+        },
+        {
+          "text": "{'Module': 'model.model.layers.3.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 42706,
+          "duration_ms": 0.042706
+        },
+        {
+          "text": "{'Module': 'model.model.layers.3.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 206003,
+          "duration_ms": 0.206003
+        },
+        {
+          "text": "{'Module': 'model.model.layers.3.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+          "duration_ns": 39679,
+          "duration_ms": 0.039679
+        },
+        {
+          "text": "{'Module': 'model.model.layers.3.self_attn.kv_b_proj', 'TrainableParams': {'weight': [32768, 512], 'weight_scale_inv': [256, 4]}, 'Inputs': [[49213, 512]]}",
+          "duration_ns": 223646,
+          "duration_ms": 0.223646
+        }
+      ],
+      "max_duration_ns": 3180875
+    },
+    "4": {
+      "count": 15,
+      "examples": [
+        {
+          "text": "{'Module': 'model.model.layers.4', 'Inputs': [[4106], [4106, 7168], [4106, 7168]]}",
+          "duration_ns": 3237217,
+          "duration_ms": 3.237217
+        },
+        {
+          "text": "{'Module': 'model.model.layers.4.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+          "duration_ns": 32668,
+          "duration_ms": 0.032668
+        },
+        {
+          "text": "{'Module': 'model.model.layers.4.self_attn'}",
+          "duration_ns": 1988304,
+          "duration_ms": 1.988304
+        },
+        {
+          "text": "{'Module': 'model.model.layers.4.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+          "duration_ns": 276603,
+          "duration_ms": 0.276603
+        },
+        {
+          "text": "{'Module': 'model.model.layers.4.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 46411,
+          "duration_ms": 0.046411
+        },
+        {
+          "text": "{'Module': 'model.model.layers.4.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 217678,
+          "duration_ms": 0.217678
+        },
+        {
+          "text": "{'Module': 'model.model.layers.4.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+          "duration_ns": 40238,
+          "duration_ms": 0.040238
+        },
+        {
+          "text": "{'Module': 'model.model.layers.4.self_attn.kv_b_proj', 'TrainableParams': {'weight': [32768, 512], 'weight_scale_inv': [256, 4]}, 'Inputs': [[49213, 512]]}",
+          "duration_ns": 238131,
+          "duration_ms": 0.238131
+        }
+      ],
+      "max_duration_ns": 3237217
+    },
+    "5": {
+      "count": 15,
+      "examples": [
+        {
+          "text": "{'Module': 'model.model.layers.5', 'Inputs': [[4106], [4106, 7168], [4106, 7168]]}",
+          "duration_ns": 3184463,
+          "duration_ms": 3.184463
+        },
+        {
+          "text": "{'Module': 'model.model.layers.5.input_layernorm', 'TrainableParams': {'weight': [7168]}, 'Inputs': [[4106, 7168], [4106, 7168]]}",
+          "duration_ns": 33405,
+          "duration_ms": 0.033405
+        },
+        {
+          "text": "{'Module': 'model.model.layers.5.self_attn'}",
+          "duration_ns": 1954088,
+          "duration_ms": 1.954088
+        },
+        {
+          "text": "{'Module': 'model.model.layers.5.self_attn.fused_qkv_a_proj_with_mqa', 'TrainableParams': {'weight': [2112, 7168], 'weight_scale_inv': [17, 56]}, 'Inputs': [[4106, 7168]]}",
+          "duration_ns": 277759,
+          "duration_ms": 0.277759
+        },
+        {
+          "text": "{'Module': 'model.model.layers.5.self_attn.q_a_layernorm', 'TrainableParams': {'weight': [1536]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 47554,
+          "duration_ms": 0.047554
+        },
+        {
+          "text": "{'Module': 'model.model.layers.5.self_attn.q_b_proj', 'TrainableParams': {'weight': [24576, 1536], 'weight_scale_inv': [192, 12]}, 'Inputs': [[4106, 1536]]}",
+          "duration_ns": 220768,
+          "duration_ms": 0.220768
+        },
+        {
+          "text": "{'Module': 'model.model.layers.5.self_attn.kv_a_layernorm', 'TrainableParams': {'weight': [512]}, 'Inputs': [[4106, 512]]}",
+          "duration_ns": 44322,
+          "duration_ms": 0.044322
+        },
+        {
+          "text": "{'Module': 'model.model.layers.5.self_attn.kv_b_proj', 'TrainableParams': {'weight': [32768, 512], 'weight_scale_inv': [256, 4]}, 'Inputs': [[49213, 512]]}",
+          "duration_ns": 222319,
+          "duration_ms": 0.222319
+        }
+      ],
+      "max_duration_ns": 3184463
+    }
+  }
+}

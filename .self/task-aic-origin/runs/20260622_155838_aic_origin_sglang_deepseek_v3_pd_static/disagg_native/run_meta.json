@@ -1,0 +1,142 @@
+{
+  "runtime_config": {
+    "batch_size": null,
+    "beam_width": 1,
+    "isl": 1024,
+    "osl": 16,
+    "prefix": 0,
+    "ttft": null,
+    "tpot": null,
+    "request_latency": null,
+    "seq_imbalance_correction_scale": 1.0,
+    "gen_seq_imbalance_correction_scale": 1.0,
+    "engine_step_backend": null
+  },
+  "prefill_model_config": {
+    "tp_size": 8,
+    "pp_size": 1,
+    "gemm_quant_mode": {
+      "enum": "GEMMQuantMode",
+      "name": "fp8_block",
+      "value": [
+        1,
+        2,
+        "fp8_block"
+      ]
+    },
+    "moe_quant_mode": {
+      "enum": "MoEQuantMode",
+      "name": "fp8_block",
+      "value": [
+        1,
+        2,
+        "fp8_block"
+      ]
+    },
+    "kvcache_quant_mode": {
+      "enum": "KVCacheQuantMode",
+      "name": "fp8",
+      "value": [
+        1,
+        0,
+        "fp8"
+      ]
+    },
+    "fmha_quant_mode": {
+      "enum": "FMHAQuantMode",
+      "name": "bfloat16",
+      "value": [
+        2,
+        1,
+        "bfloat16"
+      ]
+    },
+    "comm_quant_mode": {
+      "enum": "CommQuantMode",
+      "name": "half",
+      "value": [
+        2,
+        0,
+        "half"
+      ]
+    },
+    "moe_tp_size": 1,
+    "moe_ep_size": 8,
+    "attention_dp_size": 1,
+    "workload_distribution": "power_law",
+    "nextn": 0,
+    "nextn_accept_rates": null,
+    "overwrite_num_layers": 0,
+    "sms": 20,
+    "moe_backend": null,
+    "attention_backend": "flashinfer",
+    "enable_wideep": false,
+    "enable_eplb": false,
+    "wideep_num_slots": null
+  },
+  "decode_model_config": {
+    "tp_size": 8,
+    "pp_size": 1,
+    "gemm_quant_mode": {
+      "enum": "GEMMQuantMode",
+      "name": "fp8_block",
+      "value": [
+        1,
+        2,
+        "fp8_block"
+      ]
+    },
+    "moe_quant_mode": {
+      "enum": "MoEQuantMode",
+      "name": "fp8_block",
+      "value": [
+        1,
+        2,
+        "fp8_block"
+      ]
+    },
+    "kvcache_quant_mode": {
+      "enum": "KVCacheQuantMode",
+      "name": "fp8",
+      "value": [
+        1,
+        0,
+        "fp8"
+      ]
+    },
+    "fmha_quant_mode": {
+      "enum": "FMHAQuantMode",
+      "name": "bfloat16",
+      "value": [
+        2,
+        1,
+        "bfloat16"
+      ]
+    },
+    "comm_quant_mode": {
+      "enum": "CommQuantMode",
+      "name": "half",
+      "value": [
+        2,
+        0,
+        "half"
+      ]
+    },
+    "moe_tp_size": 1,
+    "moe_ep_size": 8,
+    "attention_dp_size": 1,
+    "workload_distribution": "power_law",
+    "nextn": 0,
+    "nextn_accept_rates": null,
+    "overwrite_num_layers": 0,
+    "sms": 20,
+    "moe_backend": null,
+    "attention_backend": "flashinfer",
+    "enable_wideep": false,
+    "enable_eplb": false,
+    "wideep_num_slots": null
+  },
+  "prefill_num_workers": 1,
+  "decode_num_workers": 1,
+  "note": "This is the unwrapped DisaggInferenceSession.run_disagg result. Detailed per-inner-query trace is collected in prefill/ and decode/ static runs."
+}

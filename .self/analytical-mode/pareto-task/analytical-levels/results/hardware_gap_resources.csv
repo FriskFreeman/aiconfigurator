@@ -1,0 +1,4 @@
+system,memory_gib,memory_bw_tb_s,bf16_tflops,fp8_tflops,gpus_per_node,intra_node_gb_s,inter_node_gb_s
+h100_sxm,80.0,3.35,989.0,1978.0,8,450.0,50.0
+h200_sxm,141.0,4.8,989.0,1978.0,8,450.0,50.0
+rtx_pro_6000_server,95.5927734375,1.792,467.800534963698,935.601069927397,2,64.0,50.0

@@ -1,0 +1,3594 @@
+{
+  "role": "decode",
+  "mode": "static_gen",
+  "model_class": "DeepSeekModel",
+  "backend_quant_defaults_after_model_build": {
+    "gemm_quant_mode": {
+      "enum": "GEMMQuantMode",
+      "name": "fp8_block",
+      "value": [
+        1,
+        2,
+        "fp8_block"
+      ]
+    },
+    "moe_quant_mode": {
+      "enum": "MoEQuantMode",
+      "name": "fp8_block",
+      "value": [
+        1,
+        2,
+        "fp8_block"
+      ]
+    },
+    "kvcache_quant_mode": {
+      "enum": "KVCacheQuantMode",
+      "name": "fp8",
+      "value": [
+        1,
+        0,
+        "fp8"
+      ]
+    },
+    "fmha_quant_mode": {
+      "enum": "FMHAQuantMode",
+      "name": "bfloat16",
+      "value": [
+        2,
+        1,
+        "bfloat16"
+      ]
+    },
+    "comm_quant_mode": {
+      "enum": "CommQuantMode",
+      "name": "half",
+      "value": [
+        2,
+        0,
+        "half"
+      ]
+    }
+  },
+  "notes": {
+    "gemm_and_moe": "Quant modes here are used by SDK ops for weight memory scaling, compute throughput assumptions, and perf-table lookup axes.",
+    "kvcache": "KV cache quant mode models stored/read KV cache precision; live q/k/v activations can remain BF16 unless a collector/backend explicitly casts them.",
+    "fmha": "FMHA quant mode models attention compute/table axis. For DeepSeek V3 SGLang defaults in this run it is BF16 even when KV cache is FP8."
+  },
+  "operation_quant_fields": [
+    {
+      "phase": "context",
+      "path": "context_ops[2].primary",
+      "op_name": "context_mla_module",
+      "op_class": "MLAModule",
+      "quant_fields": {
+        "_fmha_quant_mode": {
+          "enum": "FMHAQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        },
+        "_gemm_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        },
+        "_kvcache_quant_mode": {
+          "enum": "KVCacheQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            0,
+            "fp8"
+          ]
+        },
+        "_num_heads": 16
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[2].fallback[0]",
+      "op_name": "context_downscale_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 2112,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[2].fallback[1]",
+      "op_name": "context_q_b_proj_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 3072,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[2].fallback[2]",
+      "op_name": "context_kv_b_proj_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 4096,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[2].fallback[3]",
+      "op_name": "context_attention",
+      "op_class": "ContextMLA",
+      "quant_fields": {
+        "_fmha_quant_mode": {
+          "enum": "FMHAQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        },
+        "_kvcache_quant_mode": {
+          "enum": "KVCacheQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            0,
+            "fp8"
+          ]
+        },
+        "_num_heads": 16
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[2].fallback[4]",
+      "op_name": "context_proj_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[4]",
+      "op_name": "context_shared_gate_up_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 512,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[6]",
+      "op_name": "context_shared_ffn2_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[7]",
+      "op_name": "context_router_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 256,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[8]",
+      "op_name": "context_moe_pre_dispatch",
+      "op_class": "MoEDispatch",
+      "quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[9]",
+      "op_name": "context_moe",
+      "op_class": "MoE",
+      "quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[10]",
+      "op_name": "context_moe_post_dispatch",
+      "op_class": "MoEDispatch",
+      "quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "context",
+      "path": "context_ops[11]",
+      "op_name": "context_logits_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 16160,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].primary",
+      "op_name": "generation_mla_module",
+      "op_class": "MLAModule",
+      "quant_fields": {
+        "_fmha_quant_mode": {
+          "enum": "FMHAQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        },
+        "_gemm_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        },
+        "_kvcache_quant_mode": {
+          "enum": "KVCacheQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            0,
+            "fp8"
+          ]
+        },
+        "_num_heads": 16
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[0]",
+      "op_name": "generation_downscale_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 2112,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[1]",
+      "op_name": "generation_q_b_proj_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 3072,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[2]",
+      "op_name": "generation_bmm_pre",
+      "op_class": "MLABmm",
+      "quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[3]",
+      "op_name": "generation_attention",
+      "op_class": "GenerationMLA",
+      "quant_fields": {
+        "_kv_cache_dtype": {
+          "enum": "KVCacheQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            0,
+            "fp8"
+          ]
+        },
+        "_num_heads": 16
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[4]",
+      "op_name": "generation_bmm_post",
+      "op_class": "MLABmm",
+      "quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[5]",
+      "op_name": "generation_proj_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[0]",
+      "op_name": "generation_router_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 256,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[1]",
+      "op_name": "generation_moe_pre_dispatch",
+      "op_class": "MoEDispatch",
+      "quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[2]",
+      "op_name": "generation_moe",
+      "op_class": "MoE",
+      "quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[3]",
+      "op_name": "generation_moe_post_dispatch",
+      "op_class": "MoEDispatch",
+      "quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[0]",
+      "op_name": "generation_shared_gate_up_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 512,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[2]",
+      "op_name": "generation_shared_ffn2_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[5]",
+      "op_name": "generation_logits_gemm",
+      "op_class": "GEMM",
+      "quant_fields": {
+        "_n": 16160,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      }
+    }
+  ],
+  "query_quant_events": [
+    {
+      "phase": "generation",
+      "path": "generation_ops[0]",
+      "op_name": "generation_embedding",
+      "op_class": "Embedding",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.0030213970149253733,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[1]",
+      "op_name": "generation_add_norm_1",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18822087164179105,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2]",
+      "op_name": "generation_mla_block",
+      "op_class": "FallbackOp",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 4.628166104086741,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].primary",
+      "op_name": "generation_mla_module",
+      "op_class": "MLAModule",
+      "status": "exception",
+      "source": null,
+      "latency_ms": null,
+      "op_quant_fields": {
+        "_fmha_quant_mode": {
+          "enum": "FMHAQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        },
+        "_gemm_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        },
+        "_kvcache_quant_mode": {
+          "enum": "KVCacheQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            0,
+            "fp8"
+          ]
+        },
+        "_num_heads": 16
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[0]",
+      "op_name": "generation_downscale_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 1.0016661366735957,
+      "op_quant_fields": {
+        "_n": 2112,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[1]",
+      "op_name": "generation_q_b_proj_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.456822228928407,
+      "op_quant_fields": {
+        "_n": 3072,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[2]",
+      "op_name": "generation_bmm_pre",
+      "op_class": "MLABmm",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5057631880044937,
+      "op_quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[3]",
+      "op_name": "generation_attention",
+      "op_class": "GenerationMLA",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 1.7435874066257386,
+      "op_quant_fields": {
+        "_kv_cache_dtype": {
+          "enum": "KVCacheQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            0,
+            "fp8"
+          ]
+        },
+        "_num_heads": 16
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[4]",
+      "op_name": "generation_bmm_post",
+      "op_class": "MLABmm",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5036160171031953,
+      "op_quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[5]",
+      "op_name": "generation_proj_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.41671112675131133,
+      "op_quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[3]",
+      "op_name": "generation_add_norm_2",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18822087164179105,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4]",
+      "op_name": "generation_moe_overlap",
+      "op_class": "OverlapOp",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 22.591171043680774,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[0]",
+      "op_name": "generation_router_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5325164215432272,
+      "op_quant_fields": {
+        "_n": 256,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[1]",
+      "op_name": "generation_moe_pre_dispatch",
+      "op_class": "MoEDispatch",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.38050334408879277,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[2]",
+      "op_name": "generation_moe",
+      "op_class": "MoE",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 21.29764793395996,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[3]",
+      "op_name": "generation_moe_post_dispatch",
+      "op_class": "MoEDispatch",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.38050334408879277,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[0]",
+      "op_name": "generation_shared_gate_up_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.7056479950745901,
+      "op_quant_fields": {
+        "_n": 512,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[1]",
+      "op_name": "generation_shared_act_gate",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18313984477611941,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[2]",
+      "op_name": "generation_shared_ffn2_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.2758284364309576,
+      "op_quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[5]",
+      "op_name": "generation_logits_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.08176057401226938,
+      "op_quant_fields": {
+        "_n": 16160,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[6]",
+      "op_name": "generation_p2p",
+      "op_class": "P2P",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.0,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1025,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[0]",
+      "op_name": "generation_embedding",
+      "op_class": "Embedding",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.0030213970149253733,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[1]",
+      "op_name": "generation_add_norm_1",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18822087164179105,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2]",
+      "op_name": "generation_mla_block",
+      "op_class": "FallbackOp",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 4.629972085684604,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[0]",
+      "op_name": "generation_downscale_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 1.0016661366735957,
+      "op_quant_fields": {
+        "_n": 2112,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[1]",
+      "op_name": "generation_q_b_proj_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.456822228928407,
+      "op_quant_fields": {
+        "_n": 3072,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[2]",
+      "op_name": "generation_bmm_pre",
+      "op_class": "MLABmm",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5057631880044937,
+      "op_quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[3]",
+      "op_name": "generation_attention",
+      "op_class": "GenerationMLA",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 1.7453933882236015,
+      "op_quant_fields": {
+        "_kv_cache_dtype": {
+          "enum": "KVCacheQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            0,
+            "fp8"
+          ]
+        },
+        "_num_heads": 16
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[4]",
+      "op_name": "generation_bmm_post",
+      "op_class": "MLABmm",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5036160171031953,
+      "op_quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[5]",
+      "op_name": "generation_proj_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.41671112675131133,
+      "op_quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[3]",
+      "op_name": "generation_add_norm_2",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18822087164179105,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4]",
+      "op_name": "generation_moe_overlap",
+      "op_class": "OverlapOp",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 22.591171043680774,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[0]",
+      "op_name": "generation_router_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5325164215432272,
+      "op_quant_fields": {
+        "_n": 256,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[1]",
+      "op_name": "generation_moe_pre_dispatch",
+      "op_class": "MoEDispatch",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.38050334408879277,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[2]",
+      "op_name": "generation_moe",
+      "op_class": "MoE",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 21.29764793395996,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[3]",
+      "op_name": "generation_moe_post_dispatch",
+      "op_class": "MoEDispatch",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.38050334408879277,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[0]",
+      "op_name": "generation_shared_gate_up_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.7056479950745901,
+      "op_quant_fields": {
+        "_n": 512,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[1]",
+      "op_name": "generation_shared_act_gate",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18313984477611941,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[2]",
+      "op_name": "generation_shared_ffn2_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.2758284364309576,
+      "op_quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[5]",
+      "op_name": "generation_logits_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.08176057401226938,
+      "op_quant_fields": {
+        "_n": 16160,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[6]",
+      "op_name": "generation_p2p",
+      "op_class": "P2P",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.0,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1029,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[0]",
+      "op_name": "generation_embedding",
+      "op_class": "Embedding",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.0030213970149253733,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[1]",
+      "op_name": "generation_add_norm_1",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18822087164179105,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2]",
+      "op_name": "generation_mla_block",
+      "op_class": "FallbackOp",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 4.631778067282467,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[0]",
+      "op_name": "generation_downscale_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 1.0016661366735957,
+      "op_quant_fields": {
+        "_n": 2112,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[1]",
+      "op_name": "generation_q_b_proj_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.456822228928407,
+      "op_quant_fields": {
+        "_n": 3072,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[2]",
+      "op_name": "generation_bmm_pre",
+      "op_class": "MLABmm",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5057631880044937,
+      "op_quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[3]",
+      "op_name": "generation_attention",
+      "op_class": "GenerationMLA",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 1.7471993698214645,
+      "op_quant_fields": {
+        "_kv_cache_dtype": {
+          "enum": "KVCacheQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            0,
+            "fp8"
+          ]
+        },
+        "_num_heads": 16
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[4]",
+      "op_name": "generation_bmm_post",
+      "op_class": "MLABmm",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5036160171031953,
+      "op_quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[5]",
+      "op_name": "generation_proj_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.41671112675131133,
+      "op_quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[3]",
+      "op_name": "generation_add_norm_2",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18822087164179105,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4]",
+      "op_name": "generation_moe_overlap",
+      "op_class": "OverlapOp",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 22.591171043680774,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[0]",
+      "op_name": "generation_router_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5325164215432272,
+      "op_quant_fields": {
+        "_n": 256,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[1]",
+      "op_name": "generation_moe_pre_dispatch",
+      "op_class": "MoEDispatch",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.38050334408879277,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[2]",
+      "op_name": "generation_moe",
+      "op_class": "MoE",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 21.29764793395996,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[3]",
+      "op_name": "generation_moe_post_dispatch",
+      "op_class": "MoEDispatch",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.38050334408879277,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[0]",
+      "op_name": "generation_shared_gate_up_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.7056479950745901,
+      "op_quant_fields": {
+        "_n": 512,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[1]",
+      "op_name": "generation_shared_act_gate",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18313984477611941,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[2]",
+      "op_name": "generation_shared_ffn2_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.2758284364309576,
+      "op_quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[5]",
+      "op_name": "generation_logits_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.08176057401226938,
+      "op_quant_fields": {
+        "_n": 16160,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[6]",
+      "op_name": "generation_p2p",
+      "op_class": "P2P",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.0,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1033,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[0]",
+      "op_name": "generation_embedding",
+      "op_class": "Embedding",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.0030213970149253733,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[1]",
+      "op_name": "generation_add_norm_1",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18822087164179105,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2]",
+      "op_name": "generation_mla_block",
+      "op_class": "FallbackOp",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 4.633584048880331,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[0]",
+      "op_name": "generation_downscale_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 1.0016661366735957,
+      "op_quant_fields": {
+        "_n": 2112,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[1]",
+      "op_name": "generation_q_b_proj_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.456822228928407,
+      "op_quant_fields": {
+        "_n": 3072,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[2]",
+      "op_name": "generation_bmm_pre",
+      "op_class": "MLABmm",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5057631880044937,
+      "op_quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[3]",
+      "op_name": "generation_attention",
+      "op_class": "GenerationMLA",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 1.7490053514193278,
+      "op_quant_fields": {
+        "_kv_cache_dtype": {
+          "enum": "KVCacheQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            0,
+            "fp8"
+          ]
+        },
+        "_num_heads": 16
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[4]",
+      "op_name": "generation_bmm_post",
+      "op_class": "MLABmm",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5036160171031953,
+      "op_quant_fields": {
+        "_num_heads": 16,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8",
+          "value": [
+            1,
+            2,
+            "fp8"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[2].fallback[5]",
+      "op_name": "generation_proj_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.41671112675131133,
+      "op_quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[3]",
+      "op_name": "generation_add_norm_2",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18822087164179105,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4]",
+      "op_name": "generation_moe_overlap",
+      "op_class": "OverlapOp",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 22.591171043680774,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[0]",
+      "op_name": "generation_router_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.5325164215432272,
+      "op_quant_fields": {
+        "_n": 256,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[1]",
+      "op_name": "generation_moe_pre_dispatch",
+      "op_class": "MoEDispatch",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.38050334408879277,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[2]",
+      "op_name": "generation_moe",
+      "op_class": "MoE",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 21.29764793395996,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_a[3]",
+      "op_name": "generation_moe_post_dispatch",
+      "op_class": "MoEDispatch",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.38050334408879277,
+      "op_quant_fields": {
+        "_quant_mode": {
+          "enum": "MoEQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[0]",
+      "op_name": "generation_shared_gate_up_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.7056479950745901,
+      "op_quant_fields": {
+        "_n": 512,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[1]",
+      "op_name": "generation_shared_act_gate",
+      "op_class": "ElementWise",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.18313984477611941,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[4].group_b[2]",
+      "op_name": "generation_shared_ffn2_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.2758284364309576,
+      "op_quant_fields": {
+        "_n": 7168,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "fp8_block",
+          "value": [
+            1,
+            2,
+            "fp8_block"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[5]",
+      "op_name": "generation_logits_gemm",
+      "op_class": "GEMM",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.08176057401226938,
+      "op_quant_fields": {
+        "_n": 16160,
+        "_quant_mode": {
+          "enum": "GEMMQuantMode",
+          "name": "bfloat16",
+          "value": [
+            2,
+            1,
+            "bfloat16"
+          ]
+        }
+      },
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    },
+    {
+      "phase": "generation",
+      "path": "generation_ops[6]",
+      "op_name": "generation_p2p",
+      "op_class": "P2P",
+      "status": "ok",
+      "source": "silicon",
+      "latency_ms": 0.0,
+      "op_quant_fields": {},
+      "kwargs": {
+        "x": 4,
+        "batch_size": 4,
+        "beam_width": 1,
+        "s": 1037,
+        "model_name": "",
+        "gen_seq_imbalance_correction_scale": 1.0
+      }
+    }
+  ],
+  "database_quant_tables": [
+    {
+      "attribute": "_context_attention_data",
+      "op_file": "context_attention_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/context_attention_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 2,
+        "keys_sample": [
+          "fp8",
+          "bfloat16"
+        ],
+        "truncated": false,
+        "first_key": "fp8",
+        "first_child": {
+          "type": "dict",
+          "key_count": 1,
+          "keys_sample": [
+            "fp8"
+          ],
+          "truncated": false,
+          "first_key": "fp8",
+          "first_child": {
+            "type": "dict",
+            "key_count": 5,
+            "keys_sample": [
+              "2",
+              "1",
+              "4",
+              "8",
+              "0"
+            ],
+            "truncated": false,
+            "first_key": "2",
+            "first_child": {
+              "type": "dict",
+              "key_count": 1,
+              "keys_sample": [
+                "128"
+              ],
+              "truncated": false,
+              "first_key": "128",
+              "first_child": {
+                "type": "dict",
+                "key_count": 1,
+                "keys_sample": [
+                  "0"
+                ],
+                "truncated": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_context_mla_data",
+      "op_file": "context_mla_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/context_mla_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 1,
+        "keys_sample": [
+          "bfloat16"
+        ],
+        "truncated": false,
+        "first_key": "bfloat16",
+        "first_child": {
+          "type": "dict",
+          "key_count": 2,
+          "keys_sample": [
+            "bfloat16",
+            "fp8"
+          ],
+          "truncated": false,
+          "first_key": "bfloat16",
+          "first_child": {
+            "type": "dict",
+            "key_count": 8,
+            "keys_sample": [
+              "64",
+              "32",
+              "16",
+              "8",
+              "4",
+              "2",
+              "1",
+              "128"
+            ],
+            "truncated": false,
+            "first_key": "64",
+            "first_child": {
+              "type": "dict",
+              "key_count": 52,
+              "keys_sample": [
+                "1",
+                "16",
+                "32",
+                "64",
+                "128",
+                "256",
+                "512",
+                "1024",
+                "2048",
+                "3072",
+                "1536",
+                "4096",
+                "6144",
+                "8192",
+                "10240",
+                "12288",
+                "16384",
+                "32768",
+                "14336",
+                "18432",
+                "20480",
+                "22528",
+                "24576",
+                "26624"
+              ],
+              "truncated": true,
+              "first_key": "1",
+              "first_child": {
+                "type": "dict",
+                "key_count": 13,
+                "keys_sample": [
+                  "1",
+                  "2",
+                  "4",
+                  "8",
+                  "16",
+                  "32",
+                  "64",
+                  "128",
+                  "256",
+                  "384",
+                  "512",
+                  "1024",
+                  "2048"
+                ],
+                "truncated": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_context_mla_module_data",
+      "op_file": "mla_context_module_perf.txt",
+      "loaded": false,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_context_module_perf.txt",
+      "exists": false
+    },
+    {
+      "attribute": "_custom_allreduce_data",
+      "op_file": "custom_allreduce_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/custom_allreduce_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 1,
+        "keys_sample": [
+          "half"
+        ],
+        "truncated": false,
+        "first_key": "half",
+        "first_child": {
+          "type": "dict",
+          "key_count": 3,
+          "keys_sample": [
+            "2",
+            "4",
+            "8"
+          ],
+          "truncated": false,
+          "first_key": "2",
+          "first_child": {
+            "type": "dict",
+            "key_count": 1,
+            "keys_sample": [
+              "AUTO"
+            ],
+            "truncated": false,
+            "first_key": "AUTO",
+            "first_child": {
+              "type": "dict",
+              "key_count": 23,
+              "keys_sample": [
+                "128",
+                "256",
+                "512",
+                "1024",
+                "2048",
+                "4096",
+                "8192",
+                "16384",
+                "32768",
+                "65536",
+                "131072",
+                "262144",
+                "524288",
+                "1048576",
+                "2097152",
+                "4194304",
+                "8388608",
+                "16777216",
+                "33554432",
+                "67108864",
+                "134217728",
+                "268435456",
+                "536870912"
+              ],
+              "truncated": false,
+              "first_key": "128",
+              "first_child": {
+                "type": "dict",
+                "key_count": 3,
+                "keys_sample": [
+                  "latency",
+                  "power",
+                  "energy"
+                ],
+                "truncated": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_gemm_data",
+      "op_file": "gemm_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/gemm_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 3,
+        "keys_sample": [
+          "fp8",
+          "bfloat16",
+          "fp8_block"
+        ],
+        "truncated": false,
+        "first_key": "fp8",
+        "first_child": {
+          "type": "dict",
+          "key_count": 83,
+          "keys_sample": [
+            "224",
+            "4096",
+            "2560",
+            "8",
+            "113",
+            "129",
+            "8192",
+            "4353",
+            "9",
+            "5",
+            "49",
+            "32768",
+            "81",
+            "3073",
+            "1793",
+            "15",
+            "225",
+            "3840",
+            "512",
+            "112",
+            "4097",
+            "3841",
+            "192",
+            "161"
+          ],
+          "truncated": true,
+          "first_key": "224",
+          "first_child": {
+            "type": "dict",
+            "key_count": 32,
+            "keys_sample": [
+              "1536",
+              "32",
+              "16384",
+              "512",
+              "2560",
+              "65536",
+              "4096",
+              "1024",
+              "3584",
+              "12288",
+              "51200",
+              "6144",
+              "128",
+              "3072",
+              "7168",
+              "2048",
+              "10240",
+              "5120",
+              "256",
+              "768",
+              "8192",
+              "64",
+              "14336",
+              "20480"
+            ],
+            "truncated": true,
+            "first_key": "1536",
+            "first_child": {
+              "type": "dict",
+              "key_count": 32,
+              "keys_sample": [
+                "2048",
+                "3072",
+                "1536",
+                "3584",
+                "2560",
+                "64",
+                "65536",
+                "7168",
+                "1024",
+                "4096",
+                "6144",
+                "16384",
+                "51200",
+                "512",
+                "32",
+                "8192",
+                "12288",
+                "256",
+                "10240",
+                "128",
+                "768",
+                "5120",
+                "14336",
+                "20480"
+              ],
+              "truncated": true,
+              "first_key": "2048",
+              "first_child": {
+                "type": "dict",
+                "key_count": 3,
+                "keys_sample": [
+                  "latency",
+                  "power",
+                  "energy"
+                ],
+                "truncated": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_generation_attention_data",
+      "op_file": "generation_attention_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/generation_attention_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 2,
+        "keys_sample": [
+          "bfloat16",
+          "fp8"
+        ],
+        "truncated": false,
+        "first_key": "bfloat16",
+        "first_child": {
+          "type": "dict",
+          "key_count": 5,
+          "keys_sample": [
+            "0",
+            "1",
+            "2",
+            "4",
+            "8"
+          ],
+          "truncated": false,
+          "first_key": "0",
+          "first_child": {
+            "type": "dict",
+            "key_count": 1,
+            "keys_sample": [
+              "128"
+            ],
+            "truncated": false,
+            "first_key": "128",
+            "first_child": {
+              "type": "dict",
+              "key_count": 1,
+              "keys_sample": [
+                "0"
+              ],
+              "truncated": false,
+              "first_key": "0",
+              "first_child": {
+                "type": "dict",
+                "key_count": 25,
+                "keys_sample": [
+                  "64",
+                  "48",
+                  "40",
+                  "32",
+                  "24",
+                  "16",
+                  "12",
+                  "8",
+                  "4",
+                  "2",
+                  "1",
+                  "3",
+                  "5",
+                  "6",
+                  "9",
+                  "10",
+                  "14",
+                  "18",
+                  "20",
+                  "28",
+                  "36",
+                  "56",
+                  "72",
+                  "96"
+                ],
+                "truncated": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_generation_mla_data",
+      "op_file": "generation_mla_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/generation_mla_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 2,
+        "keys_sample": [
+          "bfloat16",
+          "fp8"
+        ],
+        "truncated": false,
+        "first_key": "bfloat16",
+        "first_child": {
+          "type": "dict",
+          "key_count": 8,
+          "keys_sample": [
+            "64",
+            "32",
+            "8",
+            "4",
+            "1",
+            "2",
+            "16",
+            "128"
+          ],
+          "truncated": false,
+          "first_key": "64",
+          "first_child": {
+            "type": "dict",
+            "key_count": 14,
+            "keys_sample": [
+              "1",
+              "2",
+              "4",
+              "8",
+              "16",
+              "32",
+              "64",
+              "128",
+              "256",
+              "512",
+              "1024",
+              "384",
+              "2048",
+              "8192"
+            ],
+            "truncated": false,
+            "first_key": "1",
+            "first_child": {
+              "type": "dict",
+              "key_count": 20,
+              "keys_sample": [
+                "2",
+                "4",
+                "16",
+                "32",
+                "64",
+                "128",
+                "256",
+                "512",
+                "1024",
+                "8",
+                "2048",
+                "4096",
+                "8192",
+                "16384",
+                "32768",
+                "131072",
+                "65536",
+                "1",
+                "262144",
+                "16777216"
+              ],
+              "truncated": false,
+              "first_key": "2",
+              "first_child": {
+                "type": "dict",
+                "key_count": 3,
+                "keys_sample": [
+                  "latency",
+                  "power",
+                  "energy"
+                ],
+                "truncated": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_generation_mla_module_data",
+      "op_file": "mla_generation_module_perf.txt",
+      "loaded": false,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_generation_module_perf.txt",
+      "exists": false
+    },
+    {
+      "attribute": "_mla_bmm_data",
+      "op_file": "mla_bmm_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/mla_bmm_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 2,
+        "keys_sample": [
+          "bfloat16",
+          "fp8"
+        ],
+        "truncated": false,
+        "first_key": "bfloat16",
+        "first_child": {
+          "type": "dict",
+          "key_count": 2,
+          "keys_sample": [
+            "mla_gen_pre",
+            "mla_gen_post"
+          ],
+          "truncated": false,
+          "first_key": "mla_gen_pre",
+          "first_child": {
+            "type": "dict",
+            "key_count": 8,
+            "keys_sample": [
+              "128",
+              "64",
+              "32",
+              "16",
+              "8",
+              "4",
+              "1",
+              "2"
+            ],
+            "truncated": false,
+            "first_key": "128",
+            "first_child": {
+              "type": "dict",
+              "key_count": 25,
+              "keys_sample": [
+                "1",
+                "2",
+                "4",
+                "8",
+                "16",
+                "32",
+                "48",
+                "64",
+                "80",
+                "128",
+                "96",
+                "160",
+                "192",
+                "256",
+                "320",
+                "384",
+                "512",
+                "768",
+                "1024",
+                "1536",
+                "2048",
+                "3072",
+                "4096",
+                "6144"
+              ],
+              "truncated": true,
+              "first_key": "1",
+              "first_child": {
+                "type": "dict",
+                "key_count": 3,
+                "keys_sample": [
+                  "latency",
+                  "power",
+                  "energy"
+                ],
+                "truncated": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_moe_data",
+      "op_file": "moe_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/moe_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 3,
+        "keys_sample": [
+          "bfloat16",
+          "fp8_block",
+          "int4_wo"
+        ],
+        "truncated": false,
+        "first_key": "bfloat16",
+        "first_child": {
+          "type": "dict",
+          "key_count": 3,
+          "keys_sample": [
+            "balanced",
+            "power_law_1.01",
+            "power_law_1.2"
+          ],
+          "truncated": false,
+          "first_key": "balanced",
+          "first_child": {
+            "type": "dict",
+            "key_count": 4,
+            "keys_sample": [
+              "2",
+              "8",
+              "6",
+              "22"
+            ],
+            "truncated": false,
+            "first_key": "2",
+            "first_child": {
+              "type": "dict",
+              "key_count": 1,
+              "keys_sample": [
+                "8"
+              ],
+              "truncated": false,
+              "first_key": "8",
+              "first_child": {
+                "type": "dict",
+                "key_count": 2,
+                "keys_sample": [
+                  "4096",
+                  "6144"
+                ],
+                "truncated": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_moe_low_latency_data",
+      "op_file": "moe_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/moe_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 0,
+        "keys_sample": [],
+        "truncated": false
+      }
+    },
+    {
+      "attribute": "_nccl_data",
+      "op_file": "nccl_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/nccl/2.27.3/nccl_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 2,
+        "keys_sample": [
+          "half",
+          "int8"
+        ],
+        "truncated": false,
+        "first_key": "half",
+        "first_child": {
+          "type": "dict",
+          "key_count": 4,
+          "keys_sample": [
+            "all_gather",
+            "alltoall",
+            "reduce_scatter",
+            "all_reduce"
+          ],
+          "truncated": false,
+          "first_key": "all_gather",
+          "first_child": {
+            "type": "dict",
+            "key_count": 3,
+            "keys_sample": [
+              "2",
+              "4",
+              "8"
+            ],
+            "truncated": false,
+            "first_key": "2",
+            "first_child": {
+              "type": "dict",
+              "key_count": 21,
+              "keys_sample": [
+                "256",
+                "512",
+                "1024",
+                "2048",
+                "4096",
+                "8192",
+                "16384",
+                "32768",
+                "65536",
+                "131072",
+                "262144",
+                "524288",
+                "1048576",
+                "2097152",
+                "4194304",
+                "8388608",
+                "16777216",
+                "33554432",
+                "67108864",
+                "134217728",
+                "268435456"
+              ],
+              "truncated": false,
+              "first_key": "256",
+              "first_child": {
+                "type": "dict",
+                "key_count": 3,
+                "keys_sample": [
+                  "latency",
+                  "power",
+                  "energy"
+                ],
+                "truncated": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_scale_matrix_data",
+      "op_file": "scale_matrix_perf.txt",
+      "loaded": false,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/scale_matrix_perf.txt",
+      "exists": false
+    },
+    {
+      "attribute": "_wideep_context_mla_data",
+      "op_file": "wideep_context_mla_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_context_mla_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 2,
+        "keys_sample": [
+          "flashinfer",
+          "fa3"
+        ],
+        "truncated": false,
+        "first_key": "flashinfer",
+        "first_child": {
+          "type": "dict",
+          "key_count": 1,
+          "keys_sample": [
+            "fp8_block"
+          ],
+          "truncated": false,
+          "first_key": "fp8_block",
+          "first_child": {
+            "type": "dict",
+            "key_count": 1,
+            "keys_sample": [
+              "fp8"
+            ],
+            "truncated": false,
+            "first_key": "fp8",
+            "first_child": {
+              "type": "dict",
+              "key_count": 4,
+              "keys_sample": [
+                "32",
+                "16",
+                "64",
+                "128"
+              ],
+              "truncated": false,
+              "first_key": "32",
+              "first_child": {
+                "type": "dict",
+                "key_count": 52,
+                "keys_sample": [
+                  "1",
+                  "4",
+                  "8",
+                  "16",
+                  "32",
+                  "64",
+                  "128",
+                  "256",
+                  "512",
+                  "1024",
+                  "2048",
+                  "4096",
+                  "8192",
+                  "16384",
+                  "6144",
+                  "10240",
+                  "12288",
+                  "14336",
+                  "18432",
+                  "20480",
+                  "22528",
+                  "24576",
+                  "26624",
+                  "28672"
+                ],
+                "truncated": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_wideep_context_moe_data",
+      "op_file": "wideep_context_moe_perf.txt",
+      "loaded": false,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_context_moe_perf.txt",
+      "exists": false
+    },
+    {
+      "attribute": "_wideep_generation_mla_data",
+      "op_file": "wideep_generation_mla_perf.txt",
+      "loaded": true,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_generation_mla_perf.txt",
+      "exists": true,
+      "nested_axes_sample": {
+        "type": "dict",
+        "key_count": 2,
+        "keys_sample": [
+          "flashinfer",
+          "fa3"
+        ],
+        "truncated": false,
+        "first_key": "flashinfer",
+        "first_child": {
+          "type": "dict",
+          "key_count": 1,
+          "keys_sample": [
+            "fp8"
+          ],
+          "truncated": false,
+          "first_key": "fp8",
+          "first_child": {
+            "type": "dict",
+            "key_count": 4,
+            "keys_sample": [
+              "128",
+              "64",
+              "16",
+              "32"
+            ],
+            "truncated": false,
+            "first_key": "128",
+            "first_child": {
+              "type": "dict",
+              "key_count": 14,
+              "keys_sample": [
+                "1",
+                "2",
+                "4",
+                "8",
+                "16",
+                "32",
+                "64",
+                "128",
+                "256",
+                "512",
+                "1024",
+                "384",
+                "2048",
+                "8192"
+              ],
+              "truncated": false,
+              "first_key": "1",
+              "first_child": {
+                "type": "dict",
+                "key_count": 20,
+                "keys_sample": [
+                  "1",
+                  "4",
+                  "8",
+                  "16",
+                  "32",
+                  "64",
+                  "128",
+                  "256",
+                  "512",
+                  "1024",
+                  "2048",
+                  "4096",
+                  "8192",
+                  "16384",
+                  "2",
+                  "32768",
+                  "65536",
+                  "131072",
+                  "262144",
+                  "16777216"
+                ],
+                "truncated": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "attribute": "_wideep_generation_moe_data",
+      "op_file": "wideep_generation_moe_perf.txt",
+      "loaded": false,
+      "filepath": "/home/ai_lab/ljc/scale-up-sim/aiconfigurator/src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.9/wideep_generation_moe_perf.txt",
+      "exists": false
+    }
+  ]
+}

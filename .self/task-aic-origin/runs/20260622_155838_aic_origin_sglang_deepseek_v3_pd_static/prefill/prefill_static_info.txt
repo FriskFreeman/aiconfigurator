@@ -1,0 +1,31 @@
+Performance Summary:
+total latency                 67.46877 ms
+context latency (ttft):        67.46877 ms
+
+
+Memory Usage: 
+total                           89.490 GiB
+weights                         84.607 GiB
+activations                      0.267 GiB
+kvcache                          0.034 GiB
+nccl                             0.383 GiB
+others                           4.200 GiB
+
+Context breakdown:
+total                      (  67.46877 ms)
+context_embedding                0.008 ms     0%
+context_add_norm_1               1.520 ms     2%
+context_mla_block                9.711 ms    14%
+context_add_norm_2               1.520 ms     2%
+context_shared_gate_up_gemm        1.432 ms     2%
+context_shared_act_gate          0.219 ms     0%
+context_shared_ffn2_gemm         0.831 ms     1%
+context_router_gemm              0.821 ms     1%
+context_moe_pre_dispatch         6.535 ms     9%
+context_moe                     38.255 ms    56%
+context_moe_post_dispatch        6.535 ms     9%
+context_logits_gemm              0.081 ms     0%
+context_p2p                      0.000 ms     0%
+
+Generation breakdown:
+total                      (   0.00000 ms)

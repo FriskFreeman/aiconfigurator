@@ -1,0 +1,15 @@
+stage,target_label,target_hardware,target_version,target_status,reference_rows,target_rows,matched_rows,reference_only_rows,target_only_rows,reference_kernel_sources,target_kernel_sources,kernel_source_changed_pct
+prefill,H100 original,h100_sxm,0.5.10,old FA3 table; prefill shape bug,3080,3080,3080,0,0,flash_attention:3080,flash_attention:3080,0.0
+prefill,H200 original,h200_sxm,0.5.10,old FA3 table; prefill shape bug,3080,3080,3080,0,0,flash_attention:3080,flash_attention:3080,0.0
+prefill,B200 original,b200_sxm,0.5.10,TRT-LLM MLA path; prefill branch was already dimension-specialized,3080,3080,3080,0,0,flash_attention:3080,trtllm_mla:3080,100.0
+prefill,B300 original,b300_sxm,0.5.10,TRT-LLM MLA path; prefill branch was already dimension-specialized,3080,3080,3080,0,0,flash_attention:3080,trtllm_mla:3080,100.0
+prefill,GB200 original,gb200,0.5.10,TRT-LLM MLA path; prefill branch was already dimension-specialized,3080,3080,3080,0,0,flash_attention:3080,trtllm_mla:3080,100.0
+prefill,GB300 original,gb300,0.5.10,TRT-LLM MLA path; prefill branch was already dimension-specialized,3080,3080,3080,0,0,flash_attention:3080,trtllm_mla:3080,100.0
+prefill,RTX PRO 6000 original,rtx_pro_6000_server,0.5.10,old Triton table; no corrected prefill refresh,3080,1540,1540,1540,0,flash_attention:3080,triton:1540,100.0
+decode,H100 original,h100_sxm,0.5.10,old FA3 table; prefill shape bug,4648,4648,4648,0,0,flash_attention:4648,flash_attention:4648,0.0
+decode,H200 original,h200_sxm,0.5.10,old FA3 table; prefill shape bug,4648,4648,4648,0,0,flash_attention:4648,flash_attention:4648,0.0
+decode,B200 original,b200_sxm,0.5.10,TRT-LLM MLA path; prefill branch was already dimension-specialized,4648,4648,4648,0,0,flash_attention:4648,trtllm_mla:4648,100.0
+decode,B300 original,b300_sxm,0.5.10,TRT-LLM MLA path; prefill branch was already dimension-specialized,4648,4648,4648,0,0,flash_attention:4648,trtllm_mla:4648,100.0
+decode,GB200 original,gb200,0.5.10,TRT-LLM MLA path; prefill branch was already dimension-specialized,4648,4648,4648,0,0,flash_attention:4648,trtllm_mla:4648,100.0
+decode,GB300 original,gb300,0.5.10,TRT-LLM MLA path; prefill branch was already dimension-specialized,4648,4648,4648,0,0,flash_attention:4648,trtllm_mla:4648,100.0
+decode,RTX PRO 6000 original,rtx_pro_6000_server,0.5.10,old Triton table; no corrected prefill refresh,4648,2324,2324,2324,0,flash_attention:4648,triton:2324,100.0

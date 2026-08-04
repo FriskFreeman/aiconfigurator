@@ -17,6 +17,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--attention-backend", default="auto")
     parser.add_argument("--decode-attention-backend", default="auto")
     parser.add_argument(
+        "--kv-cache-dtype",
+        default="auto",
+        choices=["auto", "bf16", "bfloat16", "fp8", "fp8_e4m3", "fp8_e5m2"],
+        help="Optional SGLang kv_cache_dtype. Default auto preserves native bf16 KV for DeepSeek-V3 dummy runs.",
+    )
+    parser.add_argument(
         "--force-prefill-mha-for-prefix",
         action="store_true",
         help="Set SGLANG_CHUNKED_PREFIX_CACHE_THRESHOLD=0 so DeepSeek prefix-prefill "
@@ -437,6 +443,7 @@ def main() -> int:
         f"{stamp}_prefill_stage1_{args.tag}_"
         f"b{batch_size}_{fresh_name}_{prefix_name}_layers{args.num_layers}_"
         f"backend_{args.attention_backend}_decodebackend_{args.decode_attention_backend}_"
+        f"kv_{args.kv_cache_dtype}_"
         f"cg_{args.cuda_graph_mode}_"
         f"pcg_{args.pcg_mode}_tp{args.tp_size}_"
         f"marker_{'on' if resolved_layerwise_marker else 'off'}_"
@@ -502,6 +509,8 @@ def main() -> int:
         str(args.tp_size),
         "--chunked-prefix-cache-threshold",
         str(effective_chunked_prefix_cache_threshold),
+        "--kv-cache-dtype",
+        args.kv_cache_dtype,
     ]
     if args.allow_chunked_kv:
         inner_cmd.append("--allow-chunked-kv")
@@ -634,6 +643,7 @@ def main() -> int:
         "num_layers": args.num_layers,
         "attention_backend": args.attention_backend,
         "decode_attention_backend": args.decode_attention_backend,
+        "kv_cache_dtype": args.kv_cache_dtype,
         "force_prefill_mha_for_prefix": args.force_prefill_mha_for_prefix,
         "chunked_prefix_cache_threshold": args.chunked_prefix_cache_threshold,
         "effective_chunked_prefix_cache_threshold": effective_chunked_prefix_cache_threshold,

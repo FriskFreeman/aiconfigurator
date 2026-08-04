@@ -1,0 +1,18 @@
+{
+  "case_id": "qwen3_32b__b300_sxm__empirical",
+  "model_key": "qwen3_32b",
+  "model_path": "Qwen/Qwen3-32B",
+  "system": "b300_sxm",
+  "mode": "EMPIRICAL",
+  "backend": "sglang",
+  "backend_version": "0.5.10",
+  "serving_mode": "disagg",
+  "isl": 4096,
+  "osl": 1024,
+  "total_gpus": 32,
+  "status": "success",
+  "pareto_points": 72,
+  "best_tokens_per_s_gpu": 1929.312,
+  "best_cluster_request_rate": 60.291,
+  "elapsed_s": 5.707029342651367
+}

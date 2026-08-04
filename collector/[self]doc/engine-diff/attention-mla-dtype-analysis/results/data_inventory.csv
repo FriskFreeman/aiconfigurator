@@ -1,0 +1,95 @@
+hardware,hardware_label,engine,version,operator,phase,rows,dtype_combinations,kernel_sources,source_file
+a100_sxm,A100 SXM,sglang,0.5.10,attention,prefill,5627,bfloat16/bfloat16:5627,flash_attention:5627,src/aiconfigurator/systems/data/a100_sxm/sglang/0.5.10/context_attention_perf.txt
+a100_sxm,A100 SXM,sglang,0.5.10,attention,decode,5093,bfloat16/bfloat16:5093,flash_attention:5093,src/aiconfigurator/systems/data/a100_sxm/sglang/0.5.10/generation_attention_perf.txt
+a100_sxm,A100 SXM,trtllm,1.0.0,attention,prefill,4864,bfloat16/bfloat16:4864,torch_flow:4864,src/aiconfigurator/systems/data/a100_sxm/trtllm/1.0.0/context_attention_perf.txt
+a100_sxm,A100 SXM,trtllm,1.0.0,attention,decode,5026,bfloat16/bfloat16:5026,torch_flow:5026,src/aiconfigurator/systems/data/a100_sxm/trtllm/1.0.0/generation_attention_perf.txt
+a100_sxm,A100 SXM,trtllm,1.0.0,mla,prefill,2436,bfloat16/bfloat16:1218; bfloat16/fp8:1218,default:2436,src/aiconfigurator/systems/data/a100_sxm/trtllm/1.0.0/context_mla_perf.txt
+a100_sxm,A100 SXM,trtllm,1.0.0,mla,decode,5068,bfloat16/bfloat16:2534; bfloat16/fp8:2534,default:5068,src/aiconfigurator/systems/data/a100_sxm/trtllm/1.0.0/generation_mla_perf.txt
+a100_sxm,A100 SXM,vllm,0.14.0,attention,prefill,5457,bfloat16/bfloat16:5457,vllm_flash_attn:5457,src/aiconfigurator/systems/data/a100_sxm/vllm/0.14.0/context_attention_perf.txt
+a100_sxm,A100 SXM,vllm,0.14.0,attention,decode,5431,bfloat16/bfloat16:5431,vllm_flash_attn:5431,src/aiconfigurator/systems/data/a100_sxm/vllm/0.14.0/generation_attention_perf.txt
+a100_sxm,A100 SXM,vllm,0.14.0,mla,prefill,880,bfloat16/bfloat16:880,vllm_triton_mla:880,src/aiconfigurator/systems/data/a100_sxm/vllm/0.14.0/context_mla_perf.txt
+a100_sxm,A100 SXM,vllm,0.14.0,mla,decode,1365,bfloat16/bfloat16:1365,vllm_triton_mla:1365,src/aiconfigurator/systems/data/a100_sxm/vllm/0.14.0/generation_mla_perf.txt
+l40s,L40S,sglang,0.5.10,attention,prefill,5627,bfloat16/bfloat16:5627,flash_attention:5627,src/aiconfigurator/systems/data/l40s/sglang/0.5.10/context_attention_perf.txt
+l40s,L40S,sglang,0.5.10,attention,decode,5093,bfloat16/bfloat16:5093,flash_attention:5093,src/aiconfigurator/systems/data/l40s/sglang/0.5.10/generation_attention_perf.txt
+l40s,L40S,trtllm,1.0.0,attention,prefill,29323,bfloat16/bfloat16:9764; bfloat16/fp8:9765; fp8/fp8:9794,torch_flow:29323,src/aiconfigurator/systems/data/l40s/trtllm/1.0.0/context_attention_perf.txt
+l40s,L40S,trtllm,1.0.0,attention,decode,20104,bfloat16/bfloat16:10052; bfloat16/fp8:10052,torch_flow:20104,src/aiconfigurator/systems/data/l40s/trtllm/1.0.0/generation_attention_perf.txt
+l40s,L40S,trtllm,1.0.0,mla,prefill,2436,bfloat16/bfloat16:1218; bfloat16/fp8:1218,default:2436,src/aiconfigurator/systems/data/l40s/trtllm/1.0.0/context_mla_perf.txt
+l40s,L40S,trtllm,1.0.0,mla,decode,5068,bfloat16/bfloat16:2534; bfloat16/fp8:2534,default:5068,src/aiconfigurator/systems/data/l40s/trtllm/1.0.0/generation_mla_perf.txt
+l40s,L40S,vllm,0.14.0,attention,prefill,10914,bfloat16/bfloat16:5457; bfloat16/fp8:5457,vllm_flashinfer:5457; vllm_flash_attn:5457,src/aiconfigurator/systems/data/l40s/vllm/0.14.0/context_attention_perf.txt
+l40s,L40S,vllm,0.14.0,attention,decode,10867,bfloat16/bfloat16:5432; bfloat16/fp8:5435,vllm_flashinfer:5435; vllm_flash_attn:5432,src/aiconfigurator/systems/data/l40s/vllm/0.14.0/generation_attention_perf.txt
+l40s,L40S,vllm,0.14.0,mla,prefill,880,bfloat16/bfloat16:880,vllm_triton_mla:880,src/aiconfigurator/systems/data/l40s/vllm/0.14.0/context_mla_perf.txt
+l40s,L40S,vllm,0.14.0,mla,decode,1401,bfloat16/bfloat16:1401,vllm_triton_mla:1401,src/aiconfigurator/systems/data/l40s/vllm/0.14.0/generation_mla_perf.txt
+h100_sxm,H100 SXM,sglang,0.5.10,attention,prefill,16881,bfloat16/bfloat16:5627; bfloat16/fp8:5627; fp8/fp8:5627,flash_attention:16881,src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10/context_attention_perf.txt
+h100_sxm,H100 SXM,sglang,0.5.10,attention,decode,10186,bfloat16/bfloat16:5093; bfloat16/fp8:5093,flash_attention:10186,src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10/generation_attention_perf.txt
+h100_sxm,H100 SXM,sglang,0.5.10,mla,prefill,3080,bfloat16/bfloat16:1540; bfloat16/fp8:1540,flash_attention:3080,src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10/context_mla_perf.txt
+h100_sxm,H100 SXM,sglang,0.5.10,mla,decode,4648,bfloat16/bfloat16:2324; bfloat16/fp8:2324,flash_attention:4648,src/aiconfigurator/systems/data/h100_sxm/sglang/0.5.10/generation_mla_perf.txt
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,attention,prefill,50576,bfloat16/bfloat16:16848; bfloat16/fp8:16847; fp8/fp8:16881,torch_flow:50576,src/aiconfigurator/systems/data/h100_sxm/trtllm/1.3.0rc10/context_attention_perf.txt
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,attention,decode,24438,bfloat16/bfloat16:15057; bfloat16/fp8:9381,torch_flow:24438,src/aiconfigurator/systems/data/h100_sxm/trtllm/1.3.0rc10/generation_attention_perf.txt
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,mla,prefill,1760,bfloat16/bfloat16:880; bfloat16/fp8:880,default:1760,src/aiconfigurator/systems/data/h100_sxm/trtllm/1.3.0rc10/context_mla_perf.txt
+h100_sxm,H100 SXM,trtllm,1.3.0rc10,mla,decode,2896,bfloat16/bfloat16:1448; bfloat16/fp8:1448,default:2896,src/aiconfigurator/systems/data/h100_sxm/trtllm/1.3.0rc10/generation_mla_perf.txt
+h100_sxm,H100 SXM,vllm,0.19.0,attention,prefill,43656,bfloat16/bfloat16:21828; bfloat16/fp8:21828,vllm_flash_attn:43656,src/aiconfigurator/systems/data/h100_sxm/vllm/0.19.0/context_attention_perf.txt
+h100_sxm,H100 SXM,vllm,0.19.0,attention,decode,45056,bfloat16/bfloat16:22528; bfloat16/fp8:22528,vllm_flash_attn:45056,src/aiconfigurator/systems/data/h100_sxm/vllm/0.19.0/generation_attention_perf.txt
+h100_sxm,H100 SXM,vllm,0.14.0,mla,prefill,3165,bfloat16/bfloat16:1650; bfloat16/fp8:1515,vllm_flash_attn_mla:1650; vllm_flashmla:1515,src/aiconfigurator/systems/data/h100_sxm/vllm/0.14.0/context_mla_perf.txt
+h100_sxm,H100 SXM,vllm,0.14.0,mla,decode,5430,bfloat16/bfloat16:2715; bfloat16/fp8:2715,vllm_flash_attn_mla:2715; vllm_flashmla:2715,src/aiconfigurator/systems/data/h100_sxm/vllm/0.14.0/generation_mla_perf.txt
+h200_sxm,H200 SXM,sglang,0.5.10,attention,prefill,16881,bfloat16/bfloat16:5627; bfloat16/fp8:5627; fp8/fp8:5627,flash_attention:16881,src/aiconfigurator/systems/data/h200_sxm/sglang/0.5.10/context_attention_perf.txt
+h200_sxm,H200 SXM,sglang,0.5.10,attention,decode,10186,bfloat16/bfloat16:5093; bfloat16/fp8:5093,flash_attention:10186,src/aiconfigurator/systems/data/h200_sxm/sglang/0.5.10/generation_attention_perf.txt
+h200_sxm,H200 SXM,sglang,0.5.10,mla,prefill,3080,bfloat16/bfloat16:1540; bfloat16/fp8:1540,flash_attention:3080,src/aiconfigurator/systems/data/h200_sxm/sglang/0.5.10/context_mla_perf.txt
+h200_sxm,H200 SXM,sglang,0.5.10,mla,decode,4648,bfloat16/bfloat16:2324; bfloat16/fp8:2324,flash_attention:4648,src/aiconfigurator/systems/data/h200_sxm/sglang/0.5.10/generation_mla_perf.txt
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,attention,prefill,50574,bfloat16/bfloat16:16848; bfloat16/fp8:16845; fp8/fp8:16881,torch_flow:50574,src/aiconfigurator/systems/data/h200_sxm/trtllm/1.3.0rc10/context_attention_perf.txt
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,attention,decode,24438,bfloat16/bfloat16:15057; bfloat16/fp8:9381,torch_flow:24438,src/aiconfigurator/systems/data/h200_sxm/trtllm/1.3.0rc10/generation_attention_perf.txt
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,mla,prefill,1760,bfloat16/bfloat16:880; bfloat16/fp8:880,default:1760,src/aiconfigurator/systems/data/h200_sxm/trtllm/1.3.0rc10/context_mla_perf.txt
+h200_sxm,H200 SXM,trtllm,1.3.0rc10,mla,decode,2896,bfloat16/bfloat16:1448; bfloat16/fp8:1448,default:2896,src/aiconfigurator/systems/data/h200_sxm/trtllm/1.3.0rc10/generation_mla_perf.txt
+h200_sxm,H200 SXM,vllm,0.19.0,attention,prefill,49952,bfloat16/bfloat16:24974; bfloat16/fp8:24978,vllm_flash_attn:49952,src/aiconfigurator/systems/data/h200_sxm/vllm/0.19.0/context_attention_perf.txt
+h200_sxm,H200 SXM,vllm,0.19.0,attention,decode,54347,bfloat16/bfloat16:27175; bfloat16/fp8:27172,vllm_flash_attn:54347,src/aiconfigurator/systems/data/h200_sxm/vllm/0.19.0/generation_attention_perf.txt
+h200_sxm,H200 SXM,vllm,0.14.0,mla,prefill,3165,bfloat16/bfloat16:1650; bfloat16/fp8:1515,vllm_flash_attn_mla:1650; vllm_flashmla:1515,src/aiconfigurator/systems/data/h200_sxm/vllm/0.14.0/context_mla_perf.txt
+h200_sxm,H200 SXM,vllm,0.14.0,mla,decode,5430,bfloat16/bfloat16:2715; bfloat16/fp8:2715,vllm_flash_attn_mla:2715; vllm_flashmla:2715,src/aiconfigurator/systems/data/h200_sxm/vllm/0.14.0/generation_mla_perf.txt
+b200_sxm,B200 SXM,sglang,0.5.10,attention,prefill,33714,bfloat16/bfloat16:11238; bfloat16/fp8:11238; fp8/fp8:11238,trtllm_mha:33714,src/aiconfigurator/systems/data/b200_sxm/sglang/0.5.10/context_attention_perf.txt
+b200_sxm,B200 SXM,sglang,0.5.10,attention,decode,19484,bfloat16/bfloat16:9742; bfloat16/fp8:9742,trtllm_mha:19484,src/aiconfigurator/systems/data/b200_sxm/sglang/0.5.10/generation_attention_perf.txt
+b200_sxm,B200 SXM,sglang,0.5.10,mla,prefill,3080,bfloat16/bfloat16:1540; bfloat16/fp8:1540,trtllm_mla:3080,src/aiconfigurator/systems/data/b200_sxm/sglang/0.5.10/context_mla_perf.txt
+b200_sxm,B200 SXM,sglang,0.5.10,mla,decode,4648,bfloat16/bfloat16:2324; bfloat16/fp8:2324,trtllm_mla:4648,src/aiconfigurator/systems/data/b200_sxm/sglang/0.5.10/generation_mla_perf.txt
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,attention,prefill,63123,bfloat16/bfloat16:21064; bfloat16/fp8:21064; fp8/fp8:20995,torch_flow:63123,src/aiconfigurator/systems/data/b200_sxm/trtllm/1.3.0rc10/context_attention_perf.txt
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,attention,decode,40240,bfloat16/bfloat16:20120; bfloat16/fp8:20120,torch_flow:40240,src/aiconfigurator/systems/data/b200_sxm/trtllm/1.3.0rc10/generation_attention_perf.txt
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,mla,prefill,1760,bfloat16/bfloat16:880; bfloat16/fp8:880,default:1760,src/aiconfigurator/systems/data/b200_sxm/trtllm/1.3.0rc10/context_mla_perf.txt
+b200_sxm,B200 SXM,trtllm,1.3.0rc10,mla,decode,2896,bfloat16/bfloat16:1448; bfloat16/fp8:1448,default:2896,src/aiconfigurator/systems/data/b200_sxm/trtllm/1.3.0rc10/generation_mla_perf.txt
+b200_sxm,B200 SXM,vllm,0.19.0,attention,prefill,21816,bfloat16/bfloat16:10908; bfloat16/fp8:10908,vllm_flashinfer:21816,src/aiconfigurator/systems/data/b200_sxm/vllm/0.19.0/context_attention_perf.txt
+b200_sxm,B200 SXM,vllm,0.19.0,attention,decode,16908,bfloat16/bfloat16:8454; bfloat16/fp8:8454,vllm_flashinfer:16908,src/aiconfigurator/systems/data/b200_sxm/vllm/0.19.0/generation_attention_perf.txt
+b300_sxm,B300 SXM,sglang,0.5.10,attention,prefill,16881,bfloat16/bfloat16:5627; bfloat16/fp8:5627; fp8/fp8:5627,trtllm_mha:16881,src/aiconfigurator/systems/data/b300_sxm/sglang/0.5.10/context_attention_perf.txt
+b300_sxm,B300 SXM,sglang,0.5.10,attention,decode,10186,bfloat16/bfloat16:5093; bfloat16/fp8:5093,trtllm_mha:10186,src/aiconfigurator/systems/data/b300_sxm/sglang/0.5.10/generation_attention_perf.txt
+b300_sxm,B300 SXM,sglang,0.5.10,mla,prefill,3080,bfloat16/bfloat16:1540; bfloat16/fp8:1540,trtllm_mla:3080,src/aiconfigurator/systems/data/b300_sxm/sglang/0.5.10/context_mla_perf.txt
+b300_sxm,B300 SXM,sglang,0.5.10,mla,decode,4648,bfloat16/bfloat16:2324; bfloat16/fp8:2324,trtllm_mla:4648,src/aiconfigurator/systems/data/b300_sxm/sglang/0.5.10/generation_mla_perf.txt
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,attention,prefill,63133,bfloat16/bfloat16:21064; bfloat16/fp8:21064; fp8/fp8:21005,torch_flow:63133,src/aiconfigurator/systems/data/b300_sxm/trtllm/1.3.0rc10/context_attention_perf.txt
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,attention,decode,40240,bfloat16/bfloat16:20120; bfloat16/fp8:20120,torch_flow:40240,src/aiconfigurator/systems/data/b300_sxm/trtllm/1.3.0rc10/generation_attention_perf.txt
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,mla,prefill,1760,bfloat16/bfloat16:880; bfloat16/fp8:880,default:1760,src/aiconfigurator/systems/data/b300_sxm/trtllm/1.3.0rc10/context_mla_perf.txt
+b300_sxm,B300 SXM,trtllm,1.3.0rc10,mla,decode,2896,bfloat16/bfloat16:1448; bfloat16/fp8:1448,default:2896,src/aiconfigurator/systems/data/b300_sxm/trtllm/1.3.0rc10/generation_mla_perf.txt
+b300_sxm,B300 SXM,vllm,0.19.0,attention,prefill,21816,bfloat16/bfloat16:10908; bfloat16/fp8:10908,vllm_flashinfer:21816,src/aiconfigurator/systems/data/b300_sxm/vllm/0.19.0/context_attention_perf.txt
+b300_sxm,B300 SXM,vllm,0.19.0,attention,decode,16908,bfloat16/bfloat16:8454; bfloat16/fp8:8454,vllm_flashinfer:16908,src/aiconfigurator/systems/data/b300_sxm/vllm/0.19.0/generation_attention_perf.txt
+gb200,GB200,sglang,0.5.10,attention,prefill,16881,bfloat16/bfloat16:5627; bfloat16/fp8:5627; fp8/fp8:5627,trtllm_mha:16881,src/aiconfigurator/systems/data/gb200/sglang/0.5.10/context_attention_perf.txt
+gb200,GB200,sglang,0.5.10,attention,decode,10186,bfloat16/bfloat16:5093; bfloat16/fp8:5093,trtllm_mha:10186,src/aiconfigurator/systems/data/gb200/sglang/0.5.10/generation_attention_perf.txt
+gb200,GB200,sglang,0.5.10,mla,prefill,3080,bfloat16/bfloat16:1540; bfloat16/fp8:1540,trtllm_mla:3080,src/aiconfigurator/systems/data/gb200/sglang/0.5.10/context_mla_perf.txt
+gb200,GB200,sglang,0.5.10,mla,decode,4648,bfloat16/bfloat16:2324; bfloat16/fp8:2324,trtllm_mla:4648,src/aiconfigurator/systems/data/gb200/sglang/0.5.10/generation_mla_perf.txt
+gb200,GB200,trtllm,1.3.0rc10,attention,prefill,63120,bfloat16/bfloat16:21064; bfloat16/fp8:21064; fp8/fp8:20992,torch_flow:63120,src/aiconfigurator/systems/data/gb200/trtllm/1.3.0rc10/context_attention_perf.txt
+gb200,GB200,trtllm,1.3.0rc10,attention,decode,40240,bfloat16/bfloat16:20120; bfloat16/fp8:20120,torch_flow:40240,src/aiconfigurator/systems/data/gb200/trtllm/1.3.0rc10/generation_attention_perf.txt
+gb200,GB200,trtllm,1.3.0rc10,mla,prefill,1760,bfloat16/bfloat16:880; bfloat16/fp8:880,default:1760,src/aiconfigurator/systems/data/gb200/trtllm/1.3.0rc10/context_mla_perf.txt
+gb200,GB200,trtllm,1.3.0rc10,mla,decode,3615,bfloat16/bfloat16:1808; bfloat16/fp8:1807,default:3615,src/aiconfigurator/systems/data/gb200/trtllm/1.3.0rc10/generation_mla_perf.txt
+gb200,GB200,vllm,0.19.0,attention,prefill,21816,bfloat16/bfloat16:10908; bfloat16/fp8:10908,vllm_flashinfer:21816,src/aiconfigurator/systems/data/gb200/vllm/0.19.0/context_attention_perf.txt
+gb200,GB200,vllm,0.19.0,attention,decode,16908,bfloat16/bfloat16:8454; bfloat16/fp8:8454,vllm_flashinfer:16908,src/aiconfigurator/systems/data/gb200/vllm/0.19.0/generation_attention_perf.txt
+gb300,GB300,sglang,0.5.10,attention,prefill,16881,bfloat16/bfloat16:5627; bfloat16/fp8:5627; fp8/fp8:5627,trtllm_mha:16881,src/aiconfigurator/systems/data/gb300/sglang/0.5.10/context_attention_perf.txt
+gb300,GB300,sglang,0.5.10,attention,decode,10186,bfloat16/bfloat16:5093; bfloat16/fp8:5093,trtllm_mha:10186,src/aiconfigurator/systems/data/gb300/sglang/0.5.10/generation_attention_perf.txt
+gb300,GB300,sglang,0.5.10,mla,prefill,3080,bfloat16/bfloat16:1540; bfloat16/fp8:1540,trtllm_mla:3080,src/aiconfigurator/systems/data/gb300/sglang/0.5.10/context_mla_perf.txt
+gb300,GB300,sglang,0.5.10,mla,decode,4648,bfloat16/bfloat16:2324; bfloat16/fp8:2324,trtllm_mla:4648,src/aiconfigurator/systems/data/gb300/sglang/0.5.10/generation_mla_perf.txt
+gb300,GB300,trtllm,1.3.0rc10,attention,prefill,63121,bfloat16/bfloat16:21064; bfloat16/fp8:21064; fp8/fp8:20993,torch_flow:63121,src/aiconfigurator/systems/data/gb300/trtllm/1.3.0rc10/context_attention_perf.txt
+gb300,GB300,trtllm,1.3.0rc10,attention,decode,40240,bfloat16/bfloat16:20120; bfloat16/fp8:20120,torch_flow:40240,src/aiconfigurator/systems/data/gb300/trtllm/1.3.0rc10/generation_attention_perf.txt
+gb300,GB300,trtllm,1.3.0rc10,mla,prefill,1760,bfloat16/bfloat16:880; bfloat16/fp8:880,default:1760,src/aiconfigurator/systems/data/gb300/trtllm/1.3.0rc10/context_mla_perf.txt
+gb300,GB300,trtllm,1.3.0rc10,mla,decode,2896,bfloat16/bfloat16:1448; bfloat16/fp8:1448,default:2896,src/aiconfigurator/systems/data/gb300/trtllm/1.3.0rc10/generation_mla_perf.txt
+gb300,GB300,vllm,0.19.0,attention,prefill,21816,bfloat16/bfloat16:10908; bfloat16/fp8:10908,vllm_flashinfer:21816,src/aiconfigurator/systems/data/gb300/vllm/0.19.0/context_attention_perf.txt
+gb300,GB300,vllm,0.19.0,attention,decode,16908,bfloat16/bfloat16:8454; bfloat16/fp8:8454,vllm_flashinfer:16908,src/aiconfigurator/systems/data/gb300/vllm/0.19.0/generation_attention_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,attention,prefill,33522,bfloat16/bfloat16:11174; bfloat16/fp8:11174; fp8/fp8:11174,triton:33522,src/aiconfigurator/systems/data/rtx_pro_6000_server/sglang/0.5.10/context_attention_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,attention,decode,19484,bfloat16/bfloat16:9742; bfloat16/fp8:9742,triton:19484,src/aiconfigurator/systems/data/rtx_pro_6000_server/sglang/0.5.10/generation_attention_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,mla,prefill,1540,bfloat16/bfloat16:1540,triton:1540,src/aiconfigurator/systems/data/rtx_pro_6000_server/sglang/0.5.10/context_mla_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,sglang,0.5.10,mla,decode,2324,bfloat16/bfloat16:2324,triton:2324,src/aiconfigurator/systems/data/rtx_pro_6000_server/sglang/0.5.10/generation_mla_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,attention,prefill,63174,bfloat16/bfloat16:21064; bfloat16/fp8:21064; fp8/fp8:21046,torch_flow:63174,src/aiconfigurator/systems/data/rtx_pro_6000_server/trtllm/1.3.0rc10/context_attention_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,attention,decode,40240,bfloat16/bfloat16:20120; bfloat16/fp8:20120,torch_flow:40240,src/aiconfigurator/systems/data/rtx_pro_6000_server/trtllm/1.3.0rc10/generation_attention_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,mla,prefill,1760,bfloat16/bfloat16:880; bfloat16/fp8:880,default:1760,src/aiconfigurator/systems/data/rtx_pro_6000_server/trtllm/1.3.0rc10/context_mla_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,trtllm,1.3.0rc10,mla,decode,2896,bfloat16/bfloat16:1448; bfloat16/fp8:1448,default:2896,src/aiconfigurator/systems/data/rtx_pro_6000_server/trtllm/1.3.0rc10/generation_mla_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,vllm,0.19.0,attention,prefill,21816,bfloat16/bfloat16:10908; bfloat16/fp8:10908,vllm_flashinfer:10908; vllm_flash_attn:10908,src/aiconfigurator/systems/data/rtx_pro_6000_server/vllm/0.19.0/context_attention_perf.txt
+rtx_pro_6000_server,RTX PRO 6000,vllm,0.19.0,attention,decode,16908,bfloat16/bfloat16:8454; bfloat16/fp8:8454,vllm_flashinfer:8454; vllm_flash_attn:8454,src/aiconfigurator/systems/data/rtx_pro_6000_server/vllm/0.19.0/generation_attention_perf.txt

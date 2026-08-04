@@ -1,0 +1,12 @@
+{
+  "status": "ok",
+  "cuda_graph_mode": "off",
+  "pcg_mode": "off",
+  "layerwise_marker": true,
+  "warmup_runs": 1,
+  "tp_size": 1,
+  "allow_chunked_kv": false,
+  "decode_empty_input_continuation": false,
+  "profile_decode_only_stage": false,
+  "stream_profile_after_first_token": false
+}

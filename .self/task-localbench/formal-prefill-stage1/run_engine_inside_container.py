@@ -209,6 +209,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--context-length", type=int, required=True)
     parser.add_argument("--attention-backend", default="auto")
     parser.add_argument("--decode-attention-backend", default="auto")
+    parser.add_argument(
+        "--kv-cache-dtype",
+        default="auto",
+        choices=["auto", "bf16", "bfloat16", "fp8", "fp8_e4m3", "fp8_e5m2"],
+        help="Optional SGLang kv_cache_dtype. Use fp8/fp8_e4m3 to force FP8 KV cache.",
+    )
     parser.add_argument("--mem-fraction-static", type=float, default=0.5)
     parser.add_argument("--cuda-graph-mode", choices=["off", "on"], default="off")
     parser.add_argument("--pcg-mode", choices=["off", "on"], default="off")
@@ -650,6 +656,9 @@ def main() -> int:
         engine_kwargs["attention_backend"] = args.attention_backend
     if args.decode_attention_backend not in ("", "auto", "default"):
         engine_kwargs["decode_attention_backend"] = args.decode_attention_backend
+    if args.kv_cache_dtype not in ("", "auto", "default"):
+        kv_cache_dtype = "fp8_e4m3" if args.kv_cache_dtype == "fp8" else args.kv_cache_dtype
+        engine_kwargs["kv_cache_dtype"] = kv_cache_dtype
     if "enable_layerwise_nvtx_marker" in server_arg_names:
         engine_kwargs["enable_layerwise_nvtx_marker"] = args.layerwise_marker
     if args.chunked_prefill_size is not None and "chunked_prefill_size" in server_arg_names:
