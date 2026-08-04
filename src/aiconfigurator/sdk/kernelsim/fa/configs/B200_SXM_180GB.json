@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "sm_count": 148,
+  "clock_hz": 1830000000.0,
+  "shared_memory_per_sm_bytes": 233472,
+  "l2_capacity_bytes": 132120576,
+  "l2_bandwidth_bytes_s": 10500000000000.0,
+  "hbm_bandwidth_bytes_s": 8000000000000.0,
+  "matrix_peak_flops": {
+    "fp8": 4500000000000000.0,
+    "fp16": 2250000000000000.0,
+    "bf16": 2250000000000000.0,
+    "fp32": 69319680000000.0
+  },
+  "vector_peak_flops": 69319680000000.0,
+  "exp_flop_equivalent": 35.0
+}

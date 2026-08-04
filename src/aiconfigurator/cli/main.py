@@ -224,6 +224,37 @@ def _add_default_mode_arguments(parser):
         "for models released after the last silicon data collection. "
         "EMPIRICAL: SOL+empirical factor only. SOL: theoretical Speed-of-Light only.",
     )
+    parser.add_argument(
+        "--analytical-level",
+        choices=["standard", "low", "high"],
+        default="standard",
+        help="ANALYTICAL model parameter level (default: standard).",
+    )
+    parser.add_argument(
+        "--analytical-fp8-gemm-recipe",
+        choices=["sglang", "deepgemm-hopper", "deepgemm-blackwell"],
+        default="sglang",
+        help="FP8 GEMM recipe in ANALYTICAL mode (default: sglang).",
+    )
+    parser.add_argument(
+        "--analytical-attention-algorithm",
+        choices=["fa2", "fa3"],
+        default="fa2",
+        help="Attention kernel abstraction in ANALYTICAL mode (default: fa2).",
+    )
+    parser.add_argument(
+        "--analytical-communication-mode",
+        choices=["empirical", "silicon"],
+        default="empirical",
+        help="Communication source in ANALYTICAL mode (default: empirical; silicon requires perf tables).",
+    )
+    for phase in ("moe-dispatch", "moe-combine", "wideep-dispatch", "wideep-combine"):
+        parser.add_argument(
+            f"--analytical-{phase}-dtype",
+            choices=["half", "fp8", "int8"],
+            default="half",
+            help=f"Communication dtype for {phase.replace('-', ' ')} in theoretical/empirical mode.",
+        )
     parser.add_argument("--isl", type=int, default=4000, help="Input sequence length. Default: 4000.")
     parser.add_argument("--osl", type=int, default=1000, help="Output sequence length. Default: 1000.")
     parser.add_argument(
@@ -522,6 +553,24 @@ def _add_estimate_mode_arguments(parser):
         "EMPIRICAL: SOL+empirical factor only. SOL: theoretical Speed-of-Light only.",
     )
     parser.add_argument(
+        "--analytical-level", choices=["standard", "low", "high"], default="standard"
+    )
+    parser.add_argument(
+        "--analytical-fp8-gemm-recipe",
+        choices=["sglang", "deepgemm-hopper", "deepgemm-blackwell"],
+        default="sglang",
+    )
+    parser.add_argument(
+        "--analytical-attention-algorithm", choices=["fa2", "fa3"], default="fa2"
+    )
+    parser.add_argument(
+        "--analytical-communication-mode", choices=["empirical", "silicon"], default="empirical"
+    )
+    for phase in ("moe-dispatch", "moe-combine", "wideep-dispatch", "wideep-combine"):
+        parser.add_argument(
+            f"--analytical-{phase}-dtype", choices=["half", "fp8", "int8"], default="half"
+        )
+    parser.add_argument(
         "--print-per-ops-latency",
         action="store_true",
         default=False,
@@ -801,6 +850,14 @@ def build_default_task_configs(
     backend: str = "trtllm",
     backend_version: str | None = None,
     database_mode: str = "SILICON",
+    analytical_level: str = "standard",
+    analytical_fp8_gemm_recipe: str = "sglang",
+    analytical_attention_algorithm: str = "fa2",
+    analytical_communication_mode: str = "empirical",
+    analytical_moe_dispatch_dtype: str = "half",
+    analytical_moe_combine_dtype: str = "half",
+    analytical_wideep_dispatch_dtype: str = "half",
+    analytical_wideep_combine_dtype: str = "half",
     isl: int = 4000,
     osl: int = 1000,
     ttft: float = 2000.0,
@@ -949,6 +1006,14 @@ def build_default_task_configs(
         "request_latency": request_latency,
         "prefix": prefix,
         "database_mode": database_mode,
+        "analytical_level": analytical_level,
+        "analytical_fp8_gemm_recipe": analytical_fp8_gemm_recipe,
+        "analytical_attention_algorithm": analytical_attention_algorithm,
+        "analytical_communication_mode": analytical_communication_mode,
+        "analytical_moe_dispatch_dtype": analytical_moe_dispatch_dtype,
+        "analytical_moe_combine_dtype": analytical_moe_combine_dtype,
+        "analytical_wideep_dispatch_dtype": analytical_wideep_dispatch_dtype,
+        "analytical_wideep_combine_dtype": analytical_wideep_combine_dtype,
         "enable_chunked_prefill": enable_chunked_prefill,
         "free_gpu_memory_fraction": free_gpu_memory_fraction,
         "max_seq_len": max_seq_len,
@@ -1649,6 +1714,14 @@ def _run_estimate_mode(args):
         backend_name=args.backend,
         backend_version=args.backend_version,
         database_mode=args.database_mode,
+        analytical_level=args.analytical_level,
+        analytical_fp8_gemm_recipe=args.analytical_fp8_gemm_recipe,
+        analytical_attention_algorithm=args.analytical_attention_algorithm,
+        analytical_communication_mode=args.analytical_communication_mode,
+        analytical_moe_dispatch_dtype=args.analytical_moe_dispatch_dtype,
+        analytical_moe_combine_dtype=args.analytical_moe_combine_dtype,
+        analytical_wideep_dispatch_dtype=args.analytical_wideep_dispatch_dtype,
+        analytical_wideep_combine_dtype=args.analytical_wideep_combine_dtype,
         isl=args.isl,
         osl=args.osl,
         batch_size=args.batch_size,
@@ -1804,6 +1877,14 @@ def main(args):
             backend=args.backend,
             backend_version=args.backend_version,
             database_mode=args.database_mode,
+            analytical_level=args.analytical_level,
+            analytical_fp8_gemm_recipe=args.analytical_fp8_gemm_recipe,
+            analytical_attention_algorithm=args.analytical_attention_algorithm,
+            analytical_communication_mode=args.analytical_communication_mode,
+            analytical_moe_dispatch_dtype=args.analytical_moe_dispatch_dtype,
+            analytical_moe_combine_dtype=args.analytical_moe_combine_dtype,
+            analytical_wideep_dispatch_dtype=args.analytical_wideep_dispatch_dtype,
+            analytical_wideep_combine_dtype=args.analytical_wideep_combine_dtype,
             isl=args.isl,
             osl=args.osl,
             ttft=args.ttft,

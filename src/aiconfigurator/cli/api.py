@@ -135,6 +135,14 @@ def cli_default(
     backend: str = "trtllm",
     backend_version: str | None = None,
     database_mode: str = "SILICON",
+    analytical_level: str = "standard",
+    analytical_fp8_gemm_recipe: str = "sglang",
+    analytical_attention_algorithm: str = "fa2",
+    analytical_communication_mode: str = "empirical",
+    analytical_moe_dispatch_dtype: str = "half",
+    analytical_moe_combine_dtype: str = "half",
+    analytical_wideep_dispatch_dtype: str = "half",
+    analytical_wideep_combine_dtype: str = "half",
     isl: int = 4000,
     osl: int = 1000,
     ttft: float = 2000.0,
@@ -237,6 +245,14 @@ def cli_default(
         backend=backend,
         backend_version=backend_version,
         database_mode=database_mode,
+        analytical_level=analytical_level,
+        analytical_fp8_gemm_recipe=analytical_fp8_gemm_recipe,
+        analytical_attention_algorithm=analytical_attention_algorithm,
+        analytical_communication_mode=analytical_communication_mode,
+        analytical_moe_dispatch_dtype=analytical_moe_dispatch_dtype,
+        analytical_moe_combine_dtype=analytical_moe_combine_dtype,
+        analytical_wideep_dispatch_dtype=analytical_wideep_dispatch_dtype,
+        analytical_wideep_combine_dtype=analytical_wideep_combine_dtype,
         isl=isl,
         osl=osl,
         ttft=ttft,
@@ -623,6 +639,14 @@ def cli_estimate(
     backend_name: str = "trtllm",
     backend_version: str | None = None,
     database_mode: str = "SILICON",
+    analytical_level: str = "standard",
+    analytical_fp8_gemm_recipe: str = "sglang",
+    analytical_attention_algorithm: str = "fa2",
+    analytical_communication_mode: str = "empirical",
+    analytical_moe_dispatch_dtype: str = "half",
+    analytical_moe_combine_dtype: str = "half",
+    analytical_wideep_dispatch_dtype: str = "half",
+    analytical_wideep_combine_dtype: str = "half",
     isl: int = 1024,
     osl: int = 1024,
     batch_size: int = 128,
@@ -786,6 +810,16 @@ def cli_estimate(
             from aiconfigurator.sdk.common import DatabaseMode
 
             db.set_default_database_mode(DatabaseMode[database_mode])
+        db.set_analytical_config(
+            level=analytical_level,
+            fp8_gemm_recipe=analytical_fp8_gemm_recipe,
+            attention_algorithm=analytical_attention_algorithm,
+            communication_mode=analytical_communication_mode,
+            moe_dispatch_dtype=analytical_moe_dispatch_dtype,
+            moe_combine_dtype=analytical_moe_combine_dtype,
+            wideep_dispatch_dtype=analytical_wideep_dispatch_dtype,
+            wideep_combine_dtype=analytical_wideep_combine_dtype,
+        )
         return db
 
     if mode == "agg":

@@ -1,0 +1,40 @@
+{
+  "shapes": [
+    {
+      "label": "causal-prefill-bf16",
+      "batch_size": 1,
+      "query_length": 4096,
+      "kv_length_total": 4096,
+      "query_heads": 32,
+      "kv_heads": 8,
+      "head_dim": 128,
+      "dtype": "bf16",
+      "causal": true,
+      "page_size": 64
+    },
+    {
+      "label": "single-token-gqa-decode-bf16",
+      "batch_size": 1,
+      "query_length": 1,
+      "kv_length_total": 4096,
+      "query_heads": 32,
+      "kv_heads": 8,
+      "head_dim": 128,
+      "dtype": "bf16",
+      "causal": true,
+      "page_size": 64
+    },
+    {
+      "label": "large-batch-short-kv-fp8",
+      "batch_size": 512,
+      "query_length": 1,
+      "kv_length_total": 8,
+      "query_heads": 32,
+      "kv_heads": 8,
+      "head_dim": 128,
+      "dtype": "fp8",
+      "causal": true,
+      "page_size": 64
+    }
+  ]
+}

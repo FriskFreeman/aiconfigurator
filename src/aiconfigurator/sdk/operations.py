@@ -784,6 +784,12 @@ class MoEDispatch(Operation):
             if self._moe_backend == "deepep_moe":
                 logger.debug("MoEDispatch: In SGLang DeepEP execution path")
                 num_tokens = num_tokens // self._scale_num_tokens
+                # WideEP silicon rows were collected with fixed runtime dtypes
+                # (normally FP8 dispatch and BF16 combine). These explicit dtypes
+                # affect only SOL/empirical communication formulas; table lookup
+                # intentionally ignores them.
+                dispatch_dtype = database.get_moe_communication_dtype(wideep=True, dispatch=True)
+                combine_dtype = database.get_moe_communication_dtype(wideep=True, dispatch=False)
                 if self._is_context:
                     comm_latency = database.query_wideep_deepep_normal(
                         node_num=_node_num,
@@ -792,6 +798,8 @@ class MoEDispatch(Operation):
                         topk=self._topk,
                         hidden_size=self._hidden_size,
                         sms=self._sms,
+                        dispatch_dtype=dispatch_dtype,
+                        combine_dtype=combine_dtype,
                     )
                 else:
                     comm_latency = database.query_wideep_deepep_ll(
@@ -800,6 +808,8 @@ class MoEDispatch(Operation):
                         num_experts=self._num_experts,
                         topk=self._topk,
                         hidden_size=self._hidden_size,
+                        dispatch_dtype=dispatch_dtype,
+                        combine_dtype=combine_dtype,
                     )
             else:
                 assert self._attention_tp_size == 1 or self._attention_dp_size == 1, (
@@ -807,13 +817,28 @@ class MoEDispatch(Operation):
                 )
                 # TODO: support TP+DP
                 logger.debug("MoEDispatch: In SGLang non-DeepEP execution path")
+                # Ordinary SGLang silicon tables are collected with BF16 communication.
+                # Configurable dtypes apply only to theoretical/empirical communication.
+                comm_dtype = common.CommQuantMode.half
+                if database.get_default_database_mode() in {
+                    common.DatabaseMode.SOL,
+                    common.DatabaseMode.SOL_FULL,
+                    common.DatabaseMode.EMPIRICAL,
+                    common.DatabaseMode.ANALYTICAL,
+                } and not (
+                    database.get_default_database_mode() == common.DatabaseMode.ANALYTICAL
+                    and database._analytical_config.communication_mode == "silicon"
+                ):
+                    comm_dtype = database.get_moe_communication_dtype(
+                        wideep=False, dispatch=self._pre_dispatch
+                    )
                 if self._pre_dispatch:
                     if self._attention_tp_size > 1:  # tp>1, use allreduce
                         # to do: custom allreduce
-                        comm_latency = database.query_custom_allreduce(common.CommQuantMode.half, self.num_gpus, volume)
+                        comm_latency = database.query_custom_allreduce(comm_dtype, self.num_gpus, volume)
                     elif self._attention_dp_size > 1:
                         comm_latency = database.query_nccl(
-                            common.CommQuantMode.half,
+                            comm_dtype,
                             self.num_gpus,
                             "all_gather",
                             volume * self._attention_dp_size,
@@ -823,10 +848,10 @@ class MoEDispatch(Operation):
                 else:
                     if self._attention_tp_size > 1:  # tp>1, use allreduce
                         # to do: custom allreduce
-                        comm_latency = database.query_custom_allreduce(common.CommQuantMode.half, self.num_gpus, volume)
+                        comm_latency = database.query_custom_allreduce(comm_dtype, self.num_gpus, volume)
                     elif self._attention_dp_size > 1:
                         comm_latency = database.query_nccl(
-                            common.CommQuantMode.half,
+                            comm_dtype,
                             self.num_gpus,
                             "reduce_scatter",
                             volume * self._attention_dp_size,
@@ -2016,6 +2041,28 @@ class PrefixConditionalOp(Operation):
 
     def get_weights(self, **kwargs):
         return sum(op.get_weights(**kwargs) for op in self._selected_ops(**kwargs))
+
+
+class AnalyticalFallbackOp(Operation):
+    """Use a module-level primary normally and granular ops in ANALYTICAL mode."""
+
+    def __init__(self, name: str, primary: Operation, analytical_ops: list[Operation]) -> None:
+        super().__init__(name, 1.0)
+        self._primary = primary
+        self._analytical_ops = analytical_ops
+
+    def query(self, database: PerfDatabase, **kwargs) -> PerformanceResult:
+        if database.get_default_database_mode() != common.DatabaseMode.ANALYTICAL:
+            return self._primary.query(database, **kwargs)
+
+        total = PerformanceResult(0.0, energy=0.0, source="analytical")
+        for op in self._analytical_ops:
+            total += op.query(database, **kwargs)
+        return total
+
+    def get_weights(self, **kwargs):
+        # Module collectors hide these projection weights, but model memory does not.
+        return sum(op.get_weights(**kwargs) for op in self._analytical_ops)
 
 
 class FallbackOp(Operation):

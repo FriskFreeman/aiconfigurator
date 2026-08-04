@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aic.local/schemas/mla-request-v2.json",
+  "title": "AIC BF16 DeepSeek-default MLA request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["phase", "batch_size", "local_query_heads", "sequence_length"],
+  "properties": {
+    "phase": {"enum": ["prefill", "decode"]},
+    "batch_size": {"type": "integer", "minimum": 1},
+    "local_query_heads": {"type": "integer", "minimum": 1},
+    "sequence_length": {"type": "integer", "minimum": 1},
+    "query_length": {"type": "integer", "minimum": 1},
+    "dtype": {"enum": ["bf16", "bfloat16"]},
+    "label": {"type": "string"}
+  }
+}

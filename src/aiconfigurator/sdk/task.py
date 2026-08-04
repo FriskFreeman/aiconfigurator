@@ -111,6 +111,14 @@ class TaskContext:
     moe_backend: str | None
     total_gpus: int | None
     database_mode: str | None = None
+    analytical_level: str = "standard"
+    analytical_fp8_gemm_recipe: str = "sglang"
+    analytical_attention_algorithm: str = "fa2"
+    analytical_communication_mode: str = "empirical"
+    analytical_moe_dispatch_dtype: str = "half"
+    analytical_moe_combine_dtype: str = "half"
+    analytical_wideep_dispatch_dtype: str = "half"
+    analytical_wideep_combine_dtype: str = "half"
     free_gpu_memory_fraction: float | None = None
     max_seq_len: int | None = None
     engine_step_backend: str | None = None
@@ -754,6 +762,14 @@ class TaskConfig:
         profiles: list[str] | None = None,
         yaml_config: dict | None = None,
         database_mode: str | None = None,
+        analytical_level: str = "standard",
+        analytical_fp8_gemm_recipe: str = "sglang",
+        analytical_attention_algorithm: str = "fa2",
+        analytical_communication_mode: str = "empirical",
+        analytical_moe_dispatch_dtype: str = "half",
+        analytical_moe_combine_dtype: str = "half",
+        analytical_wideep_dispatch_dtype: str = "half",
+        analytical_wideep_combine_dtype: str = "half",
         free_gpu_memory_fraction: float | None = None,
         max_seq_len: int | None = None,
         engine_step_backend: str | None = None,
@@ -842,6 +858,10 @@ class TaskConfig:
             moe_backend=moe_backend,
             total_gpus=total_gpus,
             database_mode=database_mode,
+            analytical_level=analytical_level,
+            analytical_fp8_gemm_recipe=analytical_fp8_gemm_recipe,
+            analytical_attention_algorithm=analytical_attention_algorithm,
+            analytical_communication_mode=analytical_communication_mode,
             profiles=effective_profiles,
             yaml_patch=yaml_patch,
             yaml_mode=yaml_mode,
@@ -853,6 +873,14 @@ class TaskConfig:
         self.config, applied_layers = TaskConfigFactory.create(ctx)
         self.config.applied_layers = applied_layers
         self.config.database_mode = database_mode  # Store in config for TaskRunner access
+        self.config.analytical_level = analytical_level
+        self.config.analytical_fp8_gemm_recipe = analytical_fp8_gemm_recipe
+        self.config.analytical_attention_algorithm = analytical_attention_algorithm
+        self.config.analytical_communication_mode = analytical_communication_mode
+        self.config.analytical_moe_dispatch_dtype = analytical_moe_dispatch_dtype
+        self.config.analytical_moe_combine_dtype = analytical_moe_combine_dtype
+        self.config.analytical_wideep_dispatch_dtype = analytical_wideep_dispatch_dtype
+        self.config.analytical_wideep_combine_dtype = analytical_wideep_combine_dtype
 
         self.serving_mode = serving_mode
         self.model_path = model_path
@@ -1079,10 +1107,27 @@ class TaskConfig:
 
             if validate_context:
                 fmha_mode = _to_name(_get_cfg_value(wc, "fmha_quant_mode"))
+                if (
+                    is_deepseek_fam
+                    and self.backend_name == "sglang"
+                    and enable_wideep
+                    and fmha_mode == "bfloat16"
+                ):
+                    # Legacy WideEP module rows label BF16 execution as
+                    # fp8_block. This alias is only for table capability
+                    # validation; the worker/model precision remains BF16.
+                    fmha_mode = "fp8_block"
                 _supported_or_raise(context_attn_key, fmha_mode, supported, system_name, backend_version)
 
             if validate_generation:
                 kvcache_mode = _to_name(_get_cfg_value(wc, "kvcache_quant_mode"))
+                if (
+                    is_deepseek_fam
+                    and self.backend_name == "sglang"
+                    and enable_wideep
+                    and kvcache_mode == "bfloat16"
+                ):
+                    kvcache_mode = "fp8"
                 _supported_or_raise(generation_attn_key, kvcache_mode, supported, system_name, backend_version)
 
         # agg/disagg worker configs use the same field names
@@ -1227,6 +1272,21 @@ class TaskConfig:
 
 class TaskRunner:
     @staticmethod
+    def _configure_analytical(database, task_config) -> None:
+        # The policy also supplies communication dtypes to direct SOL and
+        # EMPIRICAL runs; unrelated query paths simply ignore these fields.
+        database.set_analytical_config(
+            level=getattr(task_config, "analytical_level", "standard"),
+            fp8_gemm_recipe=getattr(task_config, "analytical_fp8_gemm_recipe", "sglang"),
+            attention_algorithm=getattr(task_config, "analytical_attention_algorithm", "fa2"),
+            communication_mode=getattr(task_config, "analytical_communication_mode", "empirical"),
+            moe_dispatch_dtype=getattr(task_config, "analytical_moe_dispatch_dtype", "half"),
+            moe_combine_dtype=getattr(task_config, "analytical_moe_combine_dtype", "half"),
+            wideep_dispatch_dtype=getattr(task_config, "analytical_wideep_dispatch_dtype", "half"),
+            wideep_combine_dtype=getattr(task_config, "analytical_wideep_combine_dtype", "half"),
+        )
+
+    @staticmethod
     def _get_database(system: str, backend: str, version: str, database_mode: str | None = None):
         """Fetch a database from the global cache.
 
@@ -1277,6 +1337,7 @@ class TaskRunner:
                 version=task_config.worker_config.backend_version,
                 database_mode=database_mode,
             )
+            self._configure_analytical(database, task_config)
             if database_mode is not None:
                 logger.info("Task %s: Using database mode: %s", task_config.task_name, database_mode)
         except Exception:  # pragma: no cover
@@ -1387,6 +1448,7 @@ class TaskRunner:
                 version=task_config.prefill_worker_config.backend_version,
                 database_mode=database_mode,
             )
+            self._configure_analytical(prefill_database, task_config)
             if database_mode is not None:
                 logger.info("Task %s: Using prefill database mode: %s", task_config.task_name, database_mode)
         except Exception:  # pragma: no cover
@@ -1449,6 +1511,7 @@ class TaskRunner:
                 version=task_config.decode_worker_config.backend_version,
                 database_mode=database_mode,
             )
+            self._configure_analytical(decode_database, task_config)
             if database_mode is not None:
                 logger.info("Task %s: Using decode database mode: %s", task_config.task_name, database_mode)
         except Exception:  # pragma: no cover

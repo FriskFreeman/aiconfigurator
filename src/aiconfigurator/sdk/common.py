@@ -623,6 +623,7 @@ class DatabaseMode(Enum):
     EMPIRICAL = 2  # SOL+empirical factor
     SOL = 3  # Provide SOL time only
     SOL_FULL = 4  # Provide SOL time and details
+    ANALYTICAL = 5  # Kernel models without silicon performance-table lookup
 
 
 class BackendName(Enum):

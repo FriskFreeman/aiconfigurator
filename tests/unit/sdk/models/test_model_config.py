@@ -395,12 +395,17 @@ class TestDeepSeekMLAModulePath:
 
         context_route = next(op for op in model.context_ops if op._name == "context_mla_block")
         assert isinstance(context_route, operations.PrefixConditionalOp)
-        assert isinstance(context_route._no_prefix_ops[0], operations.WideEPContextMLA)
-        assert context_route._no_prefix_ops[0]._fmha_quant_mode == common.FMHAQuantMode.fp8_block
+        context_mla = context_route._no_prefix_ops[0]
+        assert isinstance(context_mla, operations.AnalyticalFallbackOp)
+        assert isinstance(context_mla._primary, operations.WideEPContextMLA)
+        assert context_mla._primary._fmha_quant_mode == common.FMHAQuantMode.fp8_block
 
-        generation_mla = next(op for op in model.generation_ops if op._name == "generation_mla_module")
-        assert isinstance(generation_mla, operations.WideEPGenerationMLA)
-        assert generation_mla._fmha_quant_mode == common.FMHAQuantMode.fp8_block
+        generation_mla = next(
+            op for op in model.generation_ops if op._name == "generation_mla_module_or_analytical"
+        )
+        assert isinstance(generation_mla, operations.AnalyticalFallbackOp)
+        assert isinstance(generation_mla._primary, operations.WideEPGenerationMLA)
+        assert generation_mla._primary._fmha_quant_mode == common.FMHAQuantMode.fp8_block
 
 
 class TestKVCacheElementsPerToken:

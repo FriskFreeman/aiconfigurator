@@ -1,0 +1,26 @@
+{
+  "profile_id": "h100-sxm-sglang-0.5.9-mla-bf16-precise-v1",
+  "level": "precise",
+  "description": "Explicit H100 SXM SGLang 0.5.9 FA3 BF16 MLA calibration; never selected automatically.",
+  "source_scope": {
+    "hardware": "H100 SXM",
+    "backend": "SGLang 0.5.9 FA3",
+    "experiment": ".self/compass-sim-mla_sglang059",
+    "valid_dtype": "bf16",
+    "excluded": ["prefill_fp8", "decode_fp8", "mla_concat_k"]
+  },
+  "profiles": {
+    "prefill_bf16": {
+      "fixed_overhead_us": 12.02014582088801,
+      "resource_efficiency": 0.6982723634393246,
+      "wave_mode": "rounded",
+      "kv_task_cycles": 0.0
+    },
+    "decode_bf16": {
+      "fixed_overhead_us": 12.6724288113353,
+      "resource_efficiency": 0.8568439660903322,
+      "wave_mode": "linear",
+      "kv_task_cycles": 7154.651110962035
+    }
+  }
+}

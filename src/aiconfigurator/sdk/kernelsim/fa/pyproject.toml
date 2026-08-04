@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aic-fa-roofline"
+version = "2.2.0"
+description = "Standalone FA2/FA3 and BF16 MLA roofline latency models"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+fa-roofline = "fa_roofline.cli:main"
+mla-roofline = "fa_roofline.mla_cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["fa_roofline*"]

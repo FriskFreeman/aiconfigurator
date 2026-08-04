@@ -162,6 +162,7 @@ class EventFn:
         backend_name,
         version,
         database_mode,
+        analytical_communication_mode,
         batch_size,
         isl,
         osl,
@@ -196,6 +197,7 @@ class EventFn:
                 database = copy.deepcopy(get_database(system_name, backend_name, version))
                 assert database is not None
                 database.set_default_database_mode(common.DatabaseMode[database_mode])
+                database.set_analytical_config(communication_mode=analytical_communication_mode)
                 nextn_accept_rates = [float(x) for x in nextn_accept_rates.split(",")]
                 model_config = config.ModelConfig(
                     tp_size=tp_size,
@@ -262,6 +264,7 @@ class EventFn:
         backend_name,
         version,
         database_mode,
+        analytical_communication_mode,
         isl,
         osl,
         prefix,
@@ -294,6 +297,7 @@ class EventFn:
                 database = get_database(system_name, backend_name, version)
                 assert database is not None
                 database.set_default_database_mode(common.DatabaseMode[database_mode])
+                database.set_analytical_config(communication_mode=analytical_communication_mode)
                 nextn_accept_rates = [float(x) for x in nextn_accept_rates.split(",")]
                 model_config = config.ModelConfig(
                     tp_size=tp_size,
@@ -374,6 +378,7 @@ class EventFn:
         backend_name,
         version,
         database_mode,
+        analytical_communication_mode,
         isl,
         osl,
         prefix,
@@ -408,6 +413,7 @@ class EventFn:
                 database = copy.deepcopy(get_database(system_name, backend_name, version))
                 assert database is not None
                 database.set_default_database_mode(common.DatabaseMode[database_mode])
+                database.set_analytical_config(communication_mode=analytical_communication_mode)
                 nextn_accept_rates = [float(x) for x in nextn_accept_rates.split(",")]
                 model_config = config.ModelConfig(
                     gemm_quant_mode=common.GEMMQuantMode[gemm_quant_mode],
@@ -533,6 +539,7 @@ class EventFn:
         prefill_backend_name,
         prefill_version,
         prefill_database_mode,
+        prefill_analytical_communication_mode,
         prefill_num_worker,
         prefill_num_gpus,
         prefill_tp_size,
@@ -550,6 +557,7 @@ class EventFn:
         decode_backend_name,
         decode_version,
         decode_database_mode,
+        decode_analytical_communication_mode,
         decode_num_worker,
         decode_num_gpus,
         decode_tp_size,
@@ -588,6 +596,8 @@ class EventFn:
                 assert decode_database is not None
                 prefill_database.set_default_database_mode(common.DatabaseMode[prefill_database_mode])
                 decode_database.set_default_database_mode(common.DatabaseMode[decode_database_mode])
+                prefill_database.set_analytical_config(communication_mode=prefill_analytical_communication_mode)
+                decode_database.set_analytical_config(communication_mode=decode_analytical_communication_mode)
                 nextn_accept_rates = [float(x) for x in nextn_accept_rates.split(",")]
                 prefill_model_config = config.ModelConfig(
                     tp_size=prefill_tp_size,
@@ -796,6 +806,7 @@ class EventFn:
         prefill_backend_name,
         prefill_version,
         prefill_database_mode,
+        prefill_analytical_communication_mode,
         prefill_tp_size,
         prefill_pp_size,
         prefill_dp_size,
@@ -810,6 +821,7 @@ class EventFn:
         decode_backend_name,
         decode_version,
         decode_database_mode,
+        decode_analytical_communication_mode,
         decode_tp_size,
         decode_pp_size,
         decode_dp_size,
@@ -933,6 +945,7 @@ class EventFn:
                 )
                 assert prefill_database is not None
                 prefill_database.set_default_database_mode(common.DatabaseMode[prefill_database_mode])
+                prefill_database.set_analytical_config(communication_mode=prefill_analytical_communication_mode)
                 prefill_backend = get_backend(prefill_backend_name)
                 prefill_session = InferenceSession(prefill_model, prefill_database, prefill_backend)
                 prefill_results_df = pd.DataFrame(columns=common.ColumnsStatic)
@@ -969,6 +982,7 @@ class EventFn:
                 decode_database = copy.deepcopy(get_database(decode_system_name, decode_backend_name, decode_version))
                 assert decode_database is not None
                 decode_database.set_default_database_mode(common.DatabaseMode[decode_database_mode])
+                decode_database.set_analytical_config(communication_mode=decode_analytical_communication_mode)
                 decode_backend = get_backend(decode_backend_name)
                 decode_session = InferenceSession(decode_model, decode_database, decode_backend)
                 decode_results_df = pd.DataFrame(columns=common.ColumnsStatic)

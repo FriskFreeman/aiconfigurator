@@ -20,6 +20,7 @@ from aiconfigurator.sdk import common, interpolation
 from aiconfigurator.sdk.common import PerfDataFilename, parse_support_matrix_version
 from aiconfigurator.sdk.performance_result import PerformanceResult
 from aiconfigurator.sdk.system_spec import SystemSpec
+from aiconfigurator.sdk.kernelsim import analytical
 
 databases_cache = defaultdict(lambda: defaultdict(lambda: defaultdict()))
 logger = logging.getLogger(__name__)
@@ -2665,6 +2666,8 @@ class PerfDatabase:
         with open(os.path.join(systems_root, system + ".yaml")) as f:
             self.system_spec = SystemSpec(yaml.load(f, Loader=yaml.SafeLoader))
         self._default_database_mode = common.DatabaseMode.SILICON  # default mode is SILICON
+        self._analytical_config = analytical.AnalyticalConfig()
+        self._analytical_backend_warning_emitted = False
 
         # Cache for extracted metric data to avoid repeated extraction in _interp_3d
         self._extracted_metrics_cache = {}
@@ -3913,11 +3916,49 @@ class PerfDatabase:
                     attr.cache_clear()
             self._default_database_mode = mode
 
+        if mode == common.DatabaseMode.ANALYTICAL and not self._analytical_backend_warning_emitted:
+            analytical.warn_backend_compatibility(self.backend)
+            self._analytical_backend_warning_emitted = True
+
+    def set_analytical_config(
+        self,
+        *,
+        level: str = "standard",
+        fp8_gemm_recipe: str = "sglang",
+        attention_algorithm: str = "fa2",
+        communication_mode: str = "empirical",
+        moe_dispatch_dtype: str = "half",
+        moe_combine_dtype: str = "half",
+        wideep_dispatch_dtype: str = "half",
+        wideep_combine_dtype: str = "half",
+    ) -> None:
+        """Configure analytical model policy and invalidate cached query results."""
+        new_config = analytical.AnalyticalConfig(
+            level=level,
+            fp8_gemm_recipe=fp8_gemm_recipe,
+            attention_algorithm=attention_algorithm,
+            communication_mode=communication_mode,
+            moe_dispatch_dtype=moe_dispatch_dtype,
+            moe_combine_dtype=moe_combine_dtype,
+            wideep_dispatch_dtype=wideep_dispatch_dtype,
+            wideep_combine_dtype=wideep_combine_dtype,
+        )
+        if new_config != self._analytical_config:
+            for attr_name in dir(self):
+                attr = getattr(self, attr_name)
+                if hasattr(attr, "cache_clear") and callable(attr):
+                    attr.cache_clear()
+            self._analytical_config = new_config
+
     def get_default_database_mode(self) -> common.DatabaseMode:
         """
         Get the default database mode
         """
         return self._default_database_mode
+
+    def get_moe_communication_dtype(self, *, wideep: bool, dispatch: bool) -> common.CommQuantMode:
+        """Resolve theoretical/empirical MoE communication dtype from user policy."""
+        return self._analytical_config.moe_communication_dtype(wideep=wideep, dispatch=dispatch)
 
     def _query_silicon_or_hybrid(
         self,
@@ -4054,6 +4095,11 @@ class PerfDatabase:
             return get_sol(m, n, k, quant_mode)
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             return PerformanceResult(get_empirical(m, n, k, quant_mode), energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            latency = analytical.gemm_latency_ms(
+                m, n, k, quant_mode, self.system_spec["gpu"], self._analytical_config
+            )
+            return PerformanceResult(latency, energy=0.0, source="analytical")
 
         # TODO: remove "else" and unindent
         else:
@@ -4146,6 +4192,8 @@ class PerfDatabase:
             return get_sol(m, k)
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             return PerformanceResult(get_empirical(m, k), energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            return PerformanceResult(get_empirical(m, k), energy=0.0, source="empirical")
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -4237,6 +4285,8 @@ class PerfDatabase:
             return get_sol(m, k)
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             return PerformanceResult(get_empirical(m, k), energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            return PerformanceResult(get_empirical(m, k), energy=0.0, source="empirical")
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -4278,6 +4328,28 @@ class PerfDatabase:
                 database_mode=database_mode,
                 error_msg=f"Failed to query scale_matrix data for {m=}, {k=}, {quant_mode=}",
             )
+
+    @staticmethod
+    def _effective_sglang_fmha_quant_mode(
+        kvcache_quant_mode: common.KVCacheQuantMode,
+        fmha_quant_mode: common.FMHAQuantMode,
+    ) -> common.FMHAQuantMode:
+        """Return the core FA/MLA compute dtype used for SOL-style estimates.
+
+        SGLang FA/FA3 treats explicit FP8 KV cache as more than a storage-only
+        choice: the backend aligns Q (and then K/V or KV cache) to the KV dtype
+        before launching the attention kernel when the kernel supports it.  The
+        perf-table ``attn_dtype`` / ``mla_dtype`` key can still be bfloat16 for
+        rows where q/k/v entered RadixAttention as bf16 and were cast inside the
+        timed region.  For theoretical SOL/EMPIRICAL estimates, however, the
+        core attention math should follow the effective kernel dtype.
+        """
+        if (
+            kvcache_quant_mode == common.KVCacheQuantMode.fp8
+            and fmha_quant_mode == common.FMHAQuantMode.bfloat16
+        ):
+            return common.FMHAQuantMode.fp8
+        return fmha_quant_mode
 
     @functools.lru_cache(maxsize=32768)
     def query_context_attention(
@@ -4337,16 +4409,22 @@ class PerfDatabase:
                 ops = (
                     2 * b * (full_s * full_s - prefix * prefix) * n * h * 2 / 2
                 )  # 2 for fma, 2 for q*k^t+*v, /2 for causality.
+            # ``fmha_quant_mode`` is the SILICON table key from ``attn_dtype``.
+            # For SGLang SOL, explicit FP8 KV cache drives the real FA kernel
+            # dtype even when the table row is tagged attn_dtype=bfloat16
+            # (bf16 q/k/v enter RadixAttention, then are cast inside it).
+            effective_fmha_mode = self._effective_sglang_fmha_quant_mode(kvcache_quant_mode, fmha_quant_mode)
+            q_o_bytes = effective_fmha_mode.value.memory
             mem_bytes = (
-                2
+                q_o_bytes
                 * b
                 * (
-                    n * (full_s - prefix) * h  # Q read, assuming 16 bits
-                    + n * (full_s - prefix) * h  # Output write, assuming 16 bits
+                    n * (full_s - prefix) * h  # Q read
+                    + n * (full_s - prefix) * h  # Output write
                 )
                 + kvcache_quant_mode.value.memory * b * (2 * n_kv * full_s * h)  # K,V read
-            )  # TODO fp8 io
-            sol_math = ops / self.system_spec["gpu"]["bfloat16_tc_flops"] * 1000 / fmha_quant_mode.value.compute
+            )
+            sol_math = ops / self.system_spec["gpu"]["bfloat16_tc_flops"] * 1000 / effective_fmha_mode.value.compute
             sol_mem = mem_bytes / self.system_spec["gpu"]["mem_bw"] * 1000
             sol_time = max(sol_math, sol_mem)
             return sol_time, sol_math, sol_mem
@@ -4392,6 +4470,24 @@ class PerfDatabase:
                 fmha_quant_mode,
             )
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            effective_mode = self._effective_sglang_fmha_quant_mode(kvcache_quant_mode, fmha_quant_mode)
+            full_s = s + prefix
+            kv_length = min(full_s, window_size) if window_size > 0 else full_s
+            kv_length = max(s, kv_length)
+            latency = analytical.attention_latency_ms(
+                system=self.system,
+                gpu=self.system_spec["gpu"],
+                batch=b,
+                query_length=s,
+                kv_length=kv_length,
+                query_heads=n,
+                kv_heads=n_kv,
+                head_dim=head_size,
+                dtype="fp8" if effective_mode == common.FMHAQuantMode.fp8 else "bf16",
+                config=self._analytical_config,
+            )
+            return PerformanceResult(latency, energy=0.0, source="analytical")
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -4478,7 +4574,9 @@ class PerfDatabase:
                 kv_len = min(s - 1, w)
             else:
                 kv_len = s - 1
-            # only consider bfloat16 mmha
+            # SGLang decode attention has no separate attn_dtype query axis; the
+            # effective FMHA mode is derived from KV cache dtype, matching the
+            # collector and runtime behavior.
             ops = 2 * b * n * h * 2 * (kv_len)  # 2 for fma, 2 for q*k^t+*v
             # kvcache load bytes will depend on kvcache quant. while input q and output might be in
             # bfloat16.
@@ -4522,6 +4620,21 @@ class PerfDatabase:
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             emp_latency = get_empirical(b, s, n, n_kv, head_size, window_size, kvcache_quant_mode)
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            kv_length = min(s, window_size) if window_size > 0 else s
+            latency = analytical.attention_latency_ms(
+                system=self.system,
+                gpu=self.system_spec["gpu"],
+                batch=b,
+                query_length=1,
+                kv_length=max(1, kv_length),
+                query_heads=n,
+                kv_heads=n_kv,
+                head_dim=head_size,
+                dtype="fp8" if kvcache_quant_mode == common.KVCacheQuantMode.fp8 else "bf16",
+                config=self._analytical_config,
+            )
+            return PerformanceResult(latency, energy=0.0, source="analytical")
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -4604,10 +4717,15 @@ class PerfDatabase:
                 b * num_heads * 2 / 2 * (192 + 128) * (full_s * full_s - prefix * prefix)
             )  # 2 for fma, 2 for causality. num_heads, for local heads
             # s * 192 for q read, full_s * 192 for k read, full_s * 128 for v read, s * 192 for write.
-            mem_bytes = (
-                b * num_heads * (kvcache_quant_mode.value.memory * full_s * (192 + 128) + 2 * s * (192 + 128))
-            )  # 2 for qk, TODO
-            sol_math = ops / self.system_spec["gpu"]["bfloat16_tc_flops"] * 1000 / fmha_quant_mode.value.compute
+            effective_fmha_mode = self._effective_sglang_fmha_quant_mode(kvcache_quant_mode, fmha_quant_mode)
+            # KV cache bytes follow the cache dtype. Q/output bytes follow the
+            # effective kernel dtype; with explicit FP8 KV SGLang aligns Q/K/V
+            # to FP8 even if the perf row's mla_dtype key is bfloat16.
+            mem_bytes = b * num_heads * (
+                kvcache_quant_mode.value.memory * full_s * (192 + 128)
+                + effective_fmha_mode.value.memory * s * (192 + 128)
+            )
+            sol_math = ops / self.system_spec["gpu"]["bfloat16_tc_flops"] * 1000 / effective_fmha_mode.value.compute
             sol_mem = mem_bytes / self.system_spec["gpu"]["mem_bw"] * 1000
             sol_time = max(sol_math, sol_mem)
             return sol_time, sol_math, sol_mem
@@ -4637,6 +4755,26 @@ class PerfDatabase:
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             emp_latency = get_empirical(b, s, prefix, num_heads, kvcache_quant_mode, fmha_quant_mode)
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            if (
+                kvcache_quant_mode == common.KVCacheQuantMode.fp8
+                or fmha_quant_mode == common.FMHAQuantMode.fp8
+            ):
+                raise ValueError(
+                    "ANALYTICAL MLA supports BF16 only; FP8 MLA is intentionally unsupported"
+                )
+            latency = analytical.mla_latency_ms(
+                system=self.system,
+                gpu=self.system_spec["gpu"],
+                phase="prefill",
+                batch=b,
+                query_length=s,
+                sequence_length=s + prefix,
+                local_heads=num_heads,
+                dtype="bf16",
+                config=self._analytical_config,
+            )
+            return PerformanceResult(latency, energy=0.0, source="analytical")
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -4714,6 +4852,10 @@ class PerfDatabase:
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             emp_latency = get_empirical(num_tokens, num_heads)
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            return PerformanceResult(
+                get_empirical(num_tokens, num_heads), energy=0.0, source="empirical"
+            )
         else:
             selected_kernel_source = kernel_source or select_kernel_source(num_heads)
 
@@ -4812,7 +4954,8 @@ class PerfDatabase:
             # kvcache load bytes will depend on kvcache quant.
             # while input q and output might be in bfloat16.
             mem_bytes = b * (num_heads * 1088 * 2 + (s - 1) * 576 * kvcache_quant_mode.value.memory)
-            # bfloat16 io + bfloat16/fp8 kv cache, TODO fp8 io
+            # Decode MLA has no separate mla_dtype query axis in the empirical
+            # table; core attention compute is derived from KV cache dtype.
             sol_math = ops / self.system_spec["gpu"]["bfloat16_tc_flops"] * 1000 / quant_mode_gen.value.compute
             sol_mem = mem_bytes / self.system_spec["gpu"]["mem_bw"] * 1000
             sol_time = max(sol_math, sol_mem)
@@ -4841,6 +4984,23 @@ class PerfDatabase:
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             emp_latency = get_empirical(b, s, num_heads, kvcache_quant_mode)
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            if kvcache_quant_mode == common.KVCacheQuantMode.fp8:
+                raise ValueError(
+                    "ANALYTICAL MLA supports BF16 only; FP8 MLA is intentionally unsupported"
+                )
+            latency = analytical.mla_latency_ms(
+                system=self.system,
+                gpu=self.system_spec["gpu"],
+                phase="decode",
+                batch=b,
+                query_length=1,
+                sequence_length=s,
+                local_heads=num_heads,
+                dtype="bf16",
+                config=self._analytical_config,
+            )
+            return PerformanceResult(latency, energy=0.0, source="analytical")
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -4901,8 +5061,12 @@ class PerfDatabase:
             # Reuse the same SOL model as query_context_mla
             full_s = s + prefix
             ops = b * num_heads * 2 / 2 * (192 + 128) * (full_s * full_s - prefix * prefix)
-            mem_bytes = b * num_heads * (kvcache_quant_mode.value.memory * full_s * (192 + 128) + 2 * s * (192 + 128))
-            sol_math = ops / self.system_spec["gpu"]["bfloat16_tc_flops"] * 1000 / fmha_quant_mode.value.compute
+            effective_fmha_mode = self._effective_sglang_fmha_quant_mode(kvcache_quant_mode, fmha_quant_mode)
+            mem_bytes = b * num_heads * (
+                kvcache_quant_mode.value.memory * full_s * (192 + 128)
+                + effective_fmha_mode.value.memory * s * (192 + 128)
+            )
+            sol_math = ops / self.system_spec["gpu"]["bfloat16_tc_flops"] * 1000 / effective_fmha_mode.value.compute
             sol_mem = mem_bytes / self.system_spec["gpu"]["mem_bw"] * 1000
             sol_time = max(sol_math, sol_mem)
             return sol_time, sol_math, sol_mem
@@ -4988,6 +5152,8 @@ class PerfDatabase:
         def get_sol(
             b: int, s: int, num_heads: int, kv_cache_dtype: common.KVCacheQuantMode
         ) -> tuple[float, float, float]:
+            # Generation MLA module tables keep fmha_quant_mode as a schema key,
+            # but SOL compute follows KV cache dtype, matching SGLang decode.
             if kv_cache_dtype == common.KVCacheQuantMode.fp8:
                 quant_mode_gen = common.FMHAQuantMode.fp8
             else:
@@ -5109,10 +5275,20 @@ class PerfDatabase:
             attn_out_flop = 2 * num_head * v_head_dim * hidden_size * b
             attn_out_mem = b * num_head * v_head_dim + num_head * v_head_dim * hidden_size + 2 * b * hidden_size
 
+            # WideEP MLA historical tables use fmha_quant_mode as the module
+            # schema key (often fp8_block). The standalone attention part still
+            # follows the effective SGLang FA/MLA kernel dtype; explicit FP8 KV
+            # cache promotes the core attention math to FP8 in SOL estimates.
+            effective_attn_mode = self._effective_sglang_fmha_quant_mode(kvcache_quant_mode, fmha_quant_mode)
+
             ops = q_b_flop + q_w_kc_flop + s_w_vc_flop + attn_out_flop
             mem_bytes = (q_b_mem + q_w_kc_mem + attn_mem * 2 + s_w_vc_mem + attn_out_mem) * fmha_quant_mode.value.memory
             sol_math = ops / (self.system_spec["gpu"]["bfloat16_tc_flops"] * fmha_quant_mode.value.compute) * 1000
-            sol_math += attn_flop / (self.system_spec["gpu"]["bfloat16_tc_flops"]) * 1000
+            sol_math += (
+                attn_flop
+                / (self.system_spec["gpu"]["bfloat16_tc_flops"] * effective_attn_mode.value.compute)
+                * 1000
+            )
             sol_mem = mem_bytes / self.system_spec["gpu"]["mem_bw"] * 1000
             sol_time = max(sol_math, sol_mem)
 
@@ -5146,15 +5322,29 @@ class PerfDatabase:
             def get_silicon():
                 self._wideep_generation_mla_data.raise_if_not_loaded()
                 attn_backend = attention_backend or "flashinfer"
-                if attn_backend == "flashinfer":
+                if attn_backend == "flashinfer" and "flashinfer" in self._wideep_generation_mla_data:
                     attn_data = self._wideep_generation_mla_data["flashinfer"]
                 elif attn_backend == "fa3":
                     attn_data = self._wideep_generation_mla_data["fa3"]
+                elif "trtllm_mla" in self._wideep_generation_mla_data:
+                    # Blackwell SGLang module collections use TRT-LLM MLA as
+                    # the backend even when the model config retains the
+                    # historical flashinfer default.
+                    attn_data = self._wideep_generation_mla_data["trtllm_mla"]
                 else:
                     raise ValueError(f"Unsupported attention backend: {attn_backend}")
                 # Convert tp_size to num_heads (assuming 128 total heads for DeepSeek)
                 num_heads = 128 // tp_size
-                mla_dict = attn_data[kvcache_quant_mode]
+                # Legacy WideEP module rows are labeled FP8 although the
+                # collector/backend executed BF16 MLA. Normalize only the
+                # silicon table key; requested precision still drives every
+                # analytical/SOL byte and compute calculation.
+                table_kv_mode = (
+                    common.KVCacheQuantMode.fp8
+                    if kvcache_quant_mode == common.KVCacheQuantMode.bfloat16
+                    else kvcache_quant_mode
+                )
+                mla_dict = attn_data[table_kv_mode]
                 result = self._interp_3d(num_heads, b, s, mla_dict, "bilinear")
                 latency = result["latency"]
                 energy = result.get("energy", 0.0)
@@ -5233,10 +5423,16 @@ class PerfDatabase:
             attn_out_flop = 2 * num_head * v_head_dim * hidden_size * b * s
             attn_out_mem = b * num_head * v_head_dim * s + num_head * v_head_dim * hidden_size + 2 * b * hidden_size * s
 
+            effective_attn_mode = self._effective_sglang_fmha_quant_mode(kvcache_quant_mode, fmha_quant_mode)
+
             ops = q_b_flop + kv_b_flop + attn_out_flop
             mem_bytes = (q_b_mem + kv_b_mem + attn_mem * 2 + attn_out_mem) * fmha_quant_mode.value.memory
             sol_math = ops / (self.system_spec["gpu"]["bfloat16_tc_flops"] * fmha_quant_mode.value.compute) * 1000
-            sol_math += attn_flop / (self.system_spec["gpu"]["bfloat16_tc_flops"]) * 1000
+            sol_math += (
+                attn_flop
+                / (self.system_spec["gpu"]["bfloat16_tc_flops"] * effective_attn_mode.value.compute)
+                * 1000
+            )
             sol_mem = mem_bytes / self.system_spec["gpu"]["mem_bw"] * 1000
             sol_time = max(sol_math, sol_mem)
             return sol_time, sol_math, sol_mem
@@ -5273,16 +5469,28 @@ class PerfDatabase:
             def get_silicon():
                 self._wideep_context_mla_data.raise_if_not_loaded()
                 attn_backend = attention_backend or "flashinfer"
-                if attn_backend == "flashinfer":
+                if attn_backend == "flashinfer" and "flashinfer" in self._wideep_context_mla_data:
                     attn_data = self._wideep_context_mla_data["flashinfer"]
                 elif attn_backend == "fa3":
                     attn_data = self._wideep_context_mla_data["fa3"]
+                elif "trtllm_mla" in self._wideep_context_mla_data:
+                    attn_data = self._wideep_context_mla_data["trtllm_mla"]
                 else:
                     raise ValueError(f"Unsupported attention backend: {attn_backend}")
 
                 # Convert tp_size to num_heads (assuming 128 total heads for DeepSeek)
                 num_heads = 128 // tp_size
-                mla_dict = attn_data[fmha_quant_mode][kvcache_quant_mode]
+                table_fmha_mode = (
+                    common.FMHAQuantMode.fp8_block
+                    if fmha_quant_mode == common.FMHAQuantMode.bfloat16
+                    else fmha_quant_mode
+                )
+                table_kv_mode = (
+                    common.KVCacheQuantMode.fp8
+                    if kvcache_quant_mode == common.KVCacheQuantMode.bfloat16
+                    else kvcache_quant_mode
+                )
+                mla_dict = attn_data[table_fmha_mode][table_kv_mode]
                 full_s = s + prefix
                 prefix_correction = (full_s * full_s - prefix * prefix) / (full_s * full_s)
                 result = self._interp_3d(num_heads, full_s, b, mla_dict, "cubic")
@@ -5334,8 +5542,7 @@ class PerfDatabase:
 
             # assume all are ring allreduce, ignore constant latency
             # (~1us for hopper, ~2us for two-die blackwell)
-            # assume bfloat16
-            sol_time = 2 * size * 2 / tp_size * (tp_size - 1) / p2p_bw
+            sol_time = 2 * size * quant_mode.value.memory / tp_size * (tp_size - 1) / p2p_bw
             return sol_time * 1000, 0, 0
 
         def get_empirical(quant_mode: common.CommQuantMode, tp_size: int, size: int) -> float:
@@ -5356,6 +5563,14 @@ class PerfDatabase:
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             emp_latency = get_empirical(quant_mode, tp_size, size)
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            if self._analytical_config.communication_mode == "silicon":
+                return self.query_custom_allreduce(
+                    quant_mode, tp_size, size, database_mode=common.DatabaseMode.SILICON
+                )
+            return PerformanceResult(
+                get_empirical(quant_mode, tp_size, size), energy=0.0, source="empirical"
+            )
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -5481,6 +5696,20 @@ class PerfDatabase:
             return get_sol(dtype, num_gpus, operation, message_size)
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             return PerformanceResult(get_empirical(dtype, num_gpus, operation, message_size), energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            if self._analytical_config.communication_mode == "silicon":
+                return self.query_nccl(
+                    dtype,
+                    num_gpus,
+                    operation,
+                    message_size,
+                    database_mode=common.DatabaseMode.SILICON,
+                )
+            return PerformanceResult(
+                get_empirical(dtype, num_gpus, operation, message_size),
+                energy=0.0,
+                source="empirical",
+            )
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -5743,6 +5972,20 @@ class PerfDatabase:
                 workload_distribution,
             )
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            latency = analytical.moe_latency_ms(
+                num_tokens=num_tokens,
+                hidden_size=hidden_size,
+                inter_size=inter_size,
+                topk=topk,
+                num_experts=num_experts,
+                moe_tp_size=moe_tp_size,
+                moe_ep_size=moe_ep_size,
+                quant_mode=quant_mode,
+                gpu=self.system_spec["gpu"],
+                config=self._analytical_config,
+            )
+            return PerformanceResult(latency, energy=0.0, source="analytical")
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -5998,6 +6241,26 @@ class PerfDatabase:
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             emp_latency = get_empirical(num_tokens, num_heads, quant_mode, if_pre)
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            if quant_mode not in {common.GEMMQuantMode.bfloat16, common.GEMMQuantMode.fp8}:
+                raise ValueError(
+                    f"ANALYTICAL BMM does not support quant mode {quant_mode.name!r}; "
+                    "supported modes are bfloat16 and fp8"
+                )
+            peak_key = "fp8_tc_flops" if quant_mode == common.GEMMQuantMode.fp8 else "bfloat16_tc_flops"
+            gpu = self.system_spec["gpu"]
+            if peak_key not in gpu:
+                raise ValueError(f"ANALYTICAL BMM requires gpu.{peak_key}")
+            latency = analytical.bmm_latency_ms(
+                num_tokens=num_tokens,
+                num_heads=num_heads,
+                if_pre=if_pre,
+                dtype="fp8" if quant_mode == common.GEMMQuantMode.fp8 else "bf16",
+                peak_flops_s=gpu[peak_key],
+                mem_bandwidth_bytes_s=gpu["mem_bw"],
+                config=self._analytical_config,
+            )
+            return PerformanceResult(latency, energy=0.0, source="analytical")
         else:
             # SILICON or HYBRID mode - use database
             def get_silicon():
@@ -6348,6 +6611,8 @@ class PerfDatabase:
         num_experts: int,
         topk: int,
         hidden_size: int,
+        dispatch_dtype: common.CommQuantMode = common.CommQuantMode.half,
+        combine_dtype: common.CommQuantMode = common.CommQuantMode.half,
         database_mode: common.DatabaseMode | None = None,
     ) -> PerformanceResult | tuple[float, float, float]:
         """
@@ -6355,12 +6620,19 @@ class PerfDatabase:
         """
 
         def get_sol(num_tokens: int, topk: int, num_experts: int) -> tuple[float, float, float]:
-            raise NotImplementedError("WideEP deepep ll operation's sol is not implemented yet")
-            return
+            remote_ranks = min(topk, num_experts, max(1, node_num * 8 - 1))
+            elements = num_tokens * remote_ranks * hidden_size
+            data_bytes = elements * (dispatch_dtype.value.memory + combine_dtype.value.memory)
+            bandwidth = (
+                self.system_spec["node"]["inter_node_bw"]
+                if node_num > 1
+                else self.system_spec["node"]["intra_node_bw"]
+            )
+            sol_time = data_bytes / bandwidth * 1000
+            return sol_time, 0.0, sol_time
 
         def get_empirical(num_tokens: int, topk: int, num_experts: int) -> float:
-            raise NotImplementedError("WideEP deepep ll operation's empirical is not implemented yet")
-            return
+            return get_sol(num_tokens, topk, num_experts)[0] / 0.5
 
         if database_mode is None:
             database_mode = self._default_database_mode
@@ -6370,7 +6642,24 @@ class PerfDatabase:
             return get_sol(num_tokens, topk, num_experts)
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             return PerformanceResult(get_empirical(num_tokens, topk, num_experts), energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            if self._analytical_config.communication_mode == "silicon":
+                return self.query_wideep_deepep_ll(
+                    node_num,
+                    num_tokens,
+                    num_experts,
+                    topk,
+                    hidden_size,
+                    dispatch_dtype=dispatch_dtype,
+                    combine_dtype=combine_dtype,
+                    database_mode=common.DatabaseMode.SILICON,
+                )
+            return PerformanceResult(
+                get_empirical(num_tokens, topk, num_experts), energy=0.0, source="empirical"
+            )
         else:
+            # DeepEP silicon tables embed their collection-time communication
+            # dtypes and do not expose dtype as a lookup dimension.
             data = self._wideep_deepep_ll_data[node_num][hidden_size][topk][num_experts]
             num_left, num_right = self._nearest_1d_point_helper(num_tokens, list(data.keys()), inner_only=False)
             result = self._interp_1d([num_left, num_right], [data[num_left], data[num_right]], num_tokens)
@@ -6387,6 +6676,8 @@ class PerfDatabase:
         topk: int,
         hidden_size: int,
         sms: int,
+        dispatch_dtype: common.CommQuantMode = common.CommQuantMode.half,
+        combine_dtype: common.CommQuantMode = common.CommQuantMode.half,
         database_mode: common.DatabaseMode | None = None,
     ) -> PerformanceResult | tuple[float, float, float]:
         """
@@ -6394,12 +6685,19 @@ class PerfDatabase:
         """
 
         def get_sol(num_tokens: int, num_experts: int, topk: int, hidden_size: int) -> tuple[float, float, float]:
-            raise NotImplementedError("WideEP deepep normal operation's sol is not implemented yet")
-            return
+            remote_ranks = min(topk, num_experts, max(1, node_num * 8 - 1))
+            elements = num_tokens * remote_ranks * hidden_size
+            data_bytes = elements * (dispatch_dtype.value.memory + combine_dtype.value.memory)
+            bandwidth = (
+                self.system_spec["node"]["inter_node_bw"]
+                if node_num > 1
+                else self.system_spec["node"]["intra_node_bw"]
+            )
+            sol_time = data_bytes / bandwidth * 1000
+            return sol_time, 0.0, sol_time
 
         def get_empirical(num_tokens: int, num_experts: int, topk: int, hidden_size: int) -> float:
-            raise NotImplementedError("WideEP deepep normal operation's empirical is not implemented yet")
-            return
+            return get_sol(num_tokens, num_experts, topk, hidden_size)[0] / 0.5
 
         if database_mode is None:
             database_mode = self._default_database_mode
@@ -6409,7 +6707,27 @@ class PerfDatabase:
             return get_sol(num_tokens, num_experts, topk, hidden_size)
         elif database_mode == common.DatabaseMode.EMPIRICAL:
             return PerformanceResult(get_empirical(num_tokens, num_experts, topk, hidden_size), energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            if self._analytical_config.communication_mode == "silicon":
+                return self.query_wideep_deepep_normal(
+                    node_num,
+                    num_tokens,
+                    num_experts,
+                    topk,
+                    hidden_size,
+                    sms,
+                    dispatch_dtype=dispatch_dtype,
+                    combine_dtype=combine_dtype,
+                    database_mode=common.DatabaseMode.SILICON,
+                )
+            return PerformanceResult(
+                get_empirical(num_tokens, num_experts, topk, hidden_size),
+                energy=0.0,
+                source="empirical",
+            )
         else:
+            # DeepEP silicon tables embed their collection-time communication
+            # dtypes and do not expose dtype as a lookup dimension.
             if node_num == 1 and sms == 20:  # only collect sm=20 for now
                 data = self._wideep_deepep_normal_data[node_num][hidden_size][topk][num_experts][sms]
                 num_left, num_right = self._nearest_1d_point_helper(num_tokens, list(data.keys()), inner_only=False)
@@ -6651,6 +6969,20 @@ class PerfDatabase:
                 workload_distribution,
             )
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            emp_latency = get_empirical_from_sol(
+                num_tokens,
+                hidden_size,
+                inter_size,
+                topk,
+                num_experts,
+                num_slots,
+                moe_tp_size,
+                moe_ep_size,
+                quant_mode,
+                workload_distribution,
+            )
+            return PerformanceResult(emp_latency, energy=0.0, source="empirical")
 
         # Automatically select MoE kernel based on GPU architecture and quant mode
         kernel_source = self._select_moe_kernel(quant_mode)
@@ -6887,6 +7219,30 @@ class PerfDatabase:
                 node_num,
             )
             return PerformanceResult(emp_latency, energy=0.0)
+        elif database_mode == common.DatabaseMode.ANALYTICAL:
+            if self._analytical_config.communication_mode == "silicon":
+                return self.query_trtllm_alltoall(
+                    op_name,
+                    num_tokens,
+                    hidden_size,
+                    topk,
+                    num_experts,
+                    moe_ep_size,
+                    quant_mode,
+                    node_num=node_num,
+                    database_mode=common.DatabaseMode.SILICON,
+                    moe_backend=moe_backend,
+                )
+            emp_latency = get_empirical_from_sol(
+                num_tokens,
+                hidden_size,
+                topk,
+                num_experts,
+                moe_ep_size,
+                quant_mode,
+                node_num,
+            )
+            return PerformanceResult(emp_latency, energy=0.0, source="empirical")
 
         kernel_source = self._select_alltoall_kernel(quant_mode, moe_ep_size, topk, moe_backend=moe_backend)
         logger.debug(
@@ -7060,7 +7416,11 @@ class PerfDatabase:
             else:
                 indexer_logits_ops = 2 * tokens * index_n_heads * index_head_dim * full_s
 
-            # Sparse MLA attention group — throughput governed by fmha_quant_mode
+            # Sparse MLA attention group — throughput governed by the effective
+            # SGLang FMHA mode. For DSA context collectors this is normally the
+            # explicit mla_dtype key; if an FP8 KV path uses a bfloat16 key, keep
+            # SOL aligned with the runtime kernel dtype.
+            effective_fmha_mode = self._effective_sglang_fmha_quant_mode(kvcache_quant_mode, fmha_quant_mode)
             # 9. Sparse MLA attention: only selected top-k over full KV cache.
             #    QK^T uses attn_head_dim (kv_lora+qk_rope=576), V aggregation uses kv_lora (512).
             effective_kv = min(full_s, index_topk)
@@ -7094,15 +7454,16 @@ class PerfDatabase:
             # Per-token bytes: head_dim (FP8) + ceil(head_dim/128)*4 (scales).
             indexer_entry_bytes = common.indexer_cache_entry_bytes(index_head_dim)
             indexer_cache_bytes = 0 if full_s <= index_topk else b * full_s * indexer_entry_bytes
-            # Q activations read + write
-            q_io_bytes = tokens * num_heads * qk_head_dim * fmha_quant_mode.value.memory * 2
+            # Q activations read + write. Use the effective kernel dtype rather
+            # than only the perf-table key for FP8-KV runtime paths.
+            q_io_bytes = tokens * num_heads * qk_head_dim * effective_fmha_mode.value.memory * 2
 
             total_mem = gemm_weight_bytes + kv_cache_bytes + indexer_cache_bytes + q_io_bytes
 
             # ── SOL ─────────────────────────────────────────────────────
             gemm_flops = self._get_quant_tc_flops(gemm_quant_mode)
             indexer_fp8_flops = self._get_quant_tc_flops(common.FMHAQuantMode.fp8)
-            attn_flops = self._get_quant_tc_flops(fmha_quant_mode)
+            attn_flops = self._get_quant_tc_flops(effective_fmha_mode)
 
             sol_math = (
                 gemm_group_ops / gemm_flops + indexer_logits_ops / indexer_fp8_flops + sparse_attn_ops / attn_flops
@@ -7249,7 +7610,11 @@ class PerfDatabase:
             Ops split into GEMM group (gemm_quant_mode) and attention group
             (fmha derived from kv_cache_dtype).
             """
-            fmha_mode = common.FMHAQuantMode.bfloat16
+            fmha_mode = (
+                common.FMHAQuantMode.fp8
+                if kv_cache_dtype == common.KVCacheQuantMode.fp8
+                else common.FMHAQuantMode.bfloat16
+            )
 
             tokens = b
             proj_out = q_lora + kv_lora + qk_rope + index_head_dim

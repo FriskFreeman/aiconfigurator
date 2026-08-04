@@ -110,9 +110,11 @@ class DeepSeekModel(BaseModel):
         gemm_quant_mode = self.config.gemm_quant_mode
         moe_quant_mode = self.config.moe_quant_mode
 
-        # Old granular generation MLA path derived an mla_bmm_quant_mode here
-        # for MLABmm(pre/post). The ordinary DeepSeek generation path now uses
-        # module-level MLA data, so BMM precision is handled by the module query.
+        mla_bmm_quant_mode = (
+            common.GEMMQuantMode.fp8
+            if gemm_quant_mode != common.GEMMQuantMode.bfloat16
+            else common.GEMMQuantMode.bfloat16
+        )
 
         h = self._hidden_size  # 7168
         tp_size = self.config.tp_size
@@ -156,13 +158,46 @@ class DeepSeekModel(BaseModel):
                         # wideep_context_mla_perf.txt. Reuse the WideEP op
                         # wrapper here instead of the legacy mla_*_module path,
                         # whose txt files are not present in systems/data.
-                        ops.WideEPContextMLA(
-                            "context_mla_module",
-                            self._num_layers,
-                            tp_size,
-                            kvcache_quant_mode,
-                            mla_module_quant_mode,
-                            attn_backend,
+                        ops.AnalyticalFallbackOp(
+                            "context_mla_module_or_analytical",
+                            primary=ops.WideEPContextMLA(
+                                "context_mla_module",
+                                self._num_layers,
+                                tp_size,
+                                kvcache_quant_mode,
+                                mla_module_quant_mode,
+                                attn_backend,
+                            ),
+                            analytical_ops=[
+                                ops.GEMM(
+                                    "context_q_b_proj_gemm",
+                                    self._num_layers,
+                                    24576 // tp_size,
+                                    1536,
+                                    gemm_quant_mode,
+                                ),
+                                ops.ContextKVBProjGEMM(
+                                    "context_kv_b_proj_gemm",
+                                    self._num_layers,
+                                    32768 // tp_size,
+                                    512,
+                                    gemm_quant_mode,
+                                ),
+                                ops.ContextMLA(
+                                    "context_attention",
+                                    self._num_layers,
+                                    128 // tp_size,
+                                    kvcache_quant_mode,
+                                    fmha_quant_mode,
+                                ),
+                                ops.GEMM(
+                                    "context_proj_gemm",
+                                    self._num_layers,
+                                    h,
+                                    128 * 128 // tp_size,
+                                    gemm_quant_mode,
+                                ),
+                            ],
                         )
                     ],
                     prefix_ops=[
@@ -352,13 +387,52 @@ class DeepSeekModel(BaseModel):
                 # The archived SGLang generation module data lives in
                 # wideep_generation_mla_perf.txt, so use the WideEP query
                 # wrapper rather than the absent legacy mla_*_module files.
-                ops.WideEPGenerationMLA(
-                    "generation_mla_module",
-                    self._num_layers * self._mtp_scale_factor,
-                    tp_size,
-                    kvcache_quant_mode,
-                    mla_module_quant_mode,
-                    attn_backend,
+                ops.AnalyticalFallbackOp(
+                    "generation_mla_module_or_analytical",
+                    primary=ops.WideEPGenerationMLA(
+                        "generation_mla_module",
+                        self._num_layers * self._mtp_scale_factor,
+                        tp_size,
+                        kvcache_quant_mode,
+                        mla_module_quant_mode,
+                        attn_backend,
+                    ),
+                    analytical_ops=[
+                        ops.GEMM(
+                            "generation_q_b_proj_gemm",
+                            self._num_layers * self._mtp_scale_factor,
+                            24576 // tp_size,
+                            1536,
+                            gemm_quant_mode,
+                        ),
+                        ops.MLABmm(
+                            "generation_bmm_pre",
+                            self._num_layers * self._mtp_scale_factor,
+                            self._num_heads // tp_size,
+                            mla_bmm_quant_mode,
+                            if_pre=True,
+                        ),
+                        ops.GenerationMLA(
+                            "generation_attention",
+                            self._num_layers * self._mtp_scale_factor,
+                            128 // tp_size,
+                            kvcache_quant_mode,
+                        ),
+                        ops.MLABmm(
+                            "generation_bmm_post",
+                            self._num_layers * self._mtp_scale_factor,
+                            self._num_heads // tp_size,
+                            mla_bmm_quant_mode,
+                            if_pre=False,
+                        ),
+                        ops.GEMM(
+                            "generation_proj_gemm",
+                            self._num_layers * self._mtp_scale_factor,
+                            h,
+                            h // tp_size,
+                            gemm_quant_mode,
+                        ),
+                    ],
                 ),
                 ops.ElementWise(
                     "generation_add_norm_2",
@@ -989,6 +1063,11 @@ class WideEPDeepSeekModel(BaseModel):
         fmha_quant_mode = self.config.fmha_quant_mode
         moe_quant_mode = self.config.moe_quant_mode
         gemm_quant_mode = self.config.gemm_quant_mode
+        mla_bmm_quant_mode = (
+            common.GEMMQuantMode.fp8
+            if gemm_quant_mode != common.GEMMQuantMode.bfloat16
+            else common.GEMMQuantMode.bfloat16
+        )
         moe_backend = self.config.moe_backend
         attn_backend = self.config.attention_backend
 
@@ -1045,13 +1124,30 @@ class WideEPDeepSeekModel(BaseModel):
                 ops.Embedding("context_embedding", 1, self._vocab_size, h, 0.3),
                 ops.ElementWise("context_add_norm_1", self._num_layers, 2 * h, 2 * h, 0.8),
                 ops.GEMM("context_downscale_gemm", self._num_layers, 2112, h, gemm_quant_mode),  # on every gpu, fused_a
-                ops.WideEPContextMLA(
-                    "context_attention",
-                    self._num_layers,
-                    tp_size,
-                    kvcache_quant_mode,
-                    fmha_quant_mode,
-                    attn_backend,
+                ops.AnalyticalFallbackOp(
+                    "context_attention_module_or_analytical",
+                    primary=ops.WideEPContextMLA(
+                        "context_attention",
+                        self._num_layers,
+                        tp_size,
+                        kvcache_quant_mode,
+                        fmha_quant_mode,
+                        attn_backend,
+                    ),
+                    analytical_ops=[
+                        ops.GEMM("context_q_b_proj_gemm", self._num_layers, 24576 // tp_size, 1536, gemm_quant_mode),
+                        ops.ContextKVBProjGEMM(
+                            "context_kv_b_proj_gemm", self._num_layers, 32768 // tp_size, 512, gemm_quant_mode
+                        ),
+                        ops.ContextMLA(
+                            "context_attention_core",
+                            self._num_layers,
+                            128 // tp_size,
+                            kvcache_quant_mode,
+                            fmha_quant_mode,
+                        ),
+                        ops.GEMM("context_proj_gemm", self._num_layers, h, 128 * 128 // tp_size, gemm_quant_mode),
+                    ],
                 ),
                 *(
                     [
@@ -1176,13 +1272,52 @@ class WideEPDeepSeekModel(BaseModel):
                     h,
                     gemm_quant_mode,
                 ),
-                ops.WideEPGenerationMLA(
-                    "generation_attention",
-                    self._num_layers * self._mtp_scale_factor,
-                    tp_size,
-                    kvcache_quant_mode,
-                    fmha_quant_mode,
-                    attn_backend,
+                ops.AnalyticalFallbackOp(
+                    "generation_attention_module_or_analytical",
+                    primary=ops.WideEPGenerationMLA(
+                        "generation_attention",
+                        self._num_layers * self._mtp_scale_factor,
+                        tp_size,
+                        kvcache_quant_mode,
+                        fmha_quant_mode,
+                        attn_backend,
+                    ),
+                    analytical_ops=[
+                        ops.GEMM(
+                            "generation_q_b_proj_gemm",
+                            self._num_layers * self._mtp_scale_factor,
+                            24576 // tp_size,
+                            1536,
+                            gemm_quant_mode,
+                        ),
+                        ops.MLABmm(
+                            "generation_bmm_pre",
+                            self._num_layers * self._mtp_scale_factor,
+                            self._num_heads // tp_size,
+                            mla_bmm_quant_mode,
+                            if_pre=True,
+                        ),
+                        ops.GenerationMLA(
+                            "generation_attention_core",
+                            self._num_layers * self._mtp_scale_factor,
+                            128 // tp_size,
+                            kvcache_quant_mode,
+                        ),
+                        ops.MLABmm(
+                            "generation_bmm_post",
+                            self._num_layers * self._mtp_scale_factor,
+                            self._num_heads // tp_size,
+                            mla_bmm_quant_mode,
+                            if_pre=False,
+                        ),
+                        ops.GEMM(
+                            "generation_proj_gemm",
+                            self._num_layers * self._mtp_scale_factor,
+                            h,
+                            h // tp_size,
+                            gemm_quant_mode,
+                        ),
+                    ],
                 ),
             ]
         )

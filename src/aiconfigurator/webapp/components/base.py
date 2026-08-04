@@ -59,10 +59,17 @@ def create_system_config(app_config, gpu_config=False):
                     common.DatabaseMode.SILICON.name,
                     common.DatabaseMode.HYBRID.name,
                     common.DatabaseMode.EMPIRICAL.name,
+                    common.DatabaseMode.ANALYTICAL.name,
                     common.DatabaseMode.SOL.name,
                 ],
                 label="Database Mode",
                 value=common.DatabaseMode.SILICON.name,
+                interactive=True,
+            )
+            analytical_communication_mode = gr.Dropdown(
+                choices=["empirical", "silicon"],
+                label="Analytical Communication",
+                value="empirical",
                 interactive=True,
             )
         if gpu_config:
@@ -92,6 +99,7 @@ def create_system_config(app_config, gpu_config=False):
         "backend": backend,
         "version": version,
         "database_mode": database_mode,
+        "analytical_communication_mode": analytical_communication_mode,
         **gpu_config_components,
     }
 

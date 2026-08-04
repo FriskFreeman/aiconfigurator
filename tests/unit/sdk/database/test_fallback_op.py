@@ -8,7 +8,13 @@ from unittest.mock import MagicMock
 import pytest
 
 from aiconfigurator.sdk import common
-from aiconfigurator.sdk.operations import FallbackOp, MLAModule, PerformanceResult, PrefixConditionalOp
+from aiconfigurator.sdk.operations import (
+    AnalyticalFallbackOp,
+    FallbackOp,
+    MLAModule,
+    PerformanceResult,
+    PrefixConditionalOp,
+)
 from aiconfigurator.sdk.perf_database import PerfDataNotAvailableError
 
 
@@ -58,6 +64,33 @@ class TestFallbackOp:
         primary.query.assert_called_once()
         fallback_1.query.assert_not_called()
         fallback_2.query.assert_not_called()
+
+
+class TestAnalyticalFallbackOp:
+    def test_primary_is_used_outside_analytical_mode(self):
+        database = _make_mock_db()
+        database.get_default_database_mode.return_value = common.DatabaseMode.SILICON
+        primary = _make_mock_op(10.0, 100.0)
+        granular = _make_mock_op(3.0, 30.0)
+
+        result = AnalyticalFallbackOp("module", primary, [granular]).query(database)
+
+        assert float(result) == 10.0
+        primary.query.assert_called_once()
+        granular.query.assert_not_called()
+
+    def test_granular_ops_are_summed_in_analytical_mode(self):
+        database = _make_mock_db()
+        database.get_default_database_mode.return_value = common.DatabaseMode.ANALYTICAL
+        primary = _make_mock_op(10.0, 100.0)
+        first = _make_mock_op(3.0, 30.0)
+        second = _make_mock_op(4.0, 40.0)
+
+        result = AnalyticalFallbackOp("module", primary, [first, second]).query(database)
+
+        assert float(result) == 7.0
+        assert result.energy == 70.0
+        primary.query.assert_not_called()
 
     def test_primary_fails_fallback_succeeds(self):
         """When primary raises PerfDataNotAvailableError, fallback ops are summed."""

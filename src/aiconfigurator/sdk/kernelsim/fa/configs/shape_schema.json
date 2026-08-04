@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aic.local/schemas/fa-shape-v2.json",
+  "title": "AIC FlashAttention logical shape",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "batch_size",
+    "query_length",
+    "kv_length_total",
+    "query_heads",
+    "kv_heads",
+    "head_dim",
+    "dtype"
+  ],
+  "properties": {
+    "batch_size": {"type": "integer", "minimum": 1},
+    "query_length": {"type": "integer", "minimum": 1},
+    "kv_length_total": {"type": "integer", "minimum": 1},
+    "query_heads": {"type": "integer", "minimum": 1},
+    "kv_heads": {"type": "integer", "minimum": 1},
+    "head_dim": {"type": "integer", "minimum": 1},
+    "value_head_dim": {"type": ["integer", "null"], "minimum": 1},
+    "kv_storage_dim": {"type": ["integer", "null"], "minimum": 1},
+    "dtype": {"enum": ["fp8", "float8", "fp16", "float16", "bf16", "bfloat16", "fp32", "float32"]},
+    "causal": {"type": "boolean"},
+    "output_dtype": {
+      "type": ["string", "null"],
+      "enum": ["fp8", "float8", "fp16", "float16", "bf16", "bfloat16", "fp32", "float32", null]
+    },
+    "page_size": {"type": ["integer", "null"], "minimum": 1},
+    "label": {"type": "string"}
+  }
+}
